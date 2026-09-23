@@ -1,0 +1,1150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Repeteco — Documentação Completa</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --cream:   #FAFAE8;
+  --purple:  #2D1B4E;
+  --teal:    #8ECFCA;
+  --teal-lt: #D4F0EC;
+  --yellow:  #F5E97A;
+  --yellow-lt:#FDFAE8;
+  --red:     #F28B82;
+  --red-lt:  #FDECEA;
+  --white:   #fff;
+  --border:  #E8E6DA;
+  --text:    #1A1228;
+  --text2:   #5C5470;
+  --text3:   #9B94B0;
+  --code-bg: #1e1b2e;
+  --code-text:#c8c0f0;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;font-size:15px}
+body{font-family:'Inter',sans-serif;background:var(--cream);color:var(--text);line-height:1.7}
+
+/* ── NAV ── */
+.doc-nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  background:var(--purple);height:52px;
+  display:flex;align-items:center;padding:0 28px;gap:16px;
+  box-shadow:0 2px 12px rgba(0,0,0,.3);
+}
+.doc-nav-logo{font-family:'Playfair Display',serif;font-size:18px;font-weight:900;color:var(--teal)}
+.doc-nav-logo span{color:var(--yellow)}
+.doc-nav-title{font-size:12px;color:rgba(255,255,255,.5);font-weight:400}
+.doc-nav-spacer{flex:1}
+.doc-nav-badge{font-size:10px;font-weight:700;background:var(--teal);color:var(--purple);padding:3px 10px;border-radius:20px}
+
+/* ── SIDEBAR ── */
+.doc-layout{display:flex;margin-top:52px;min-height:calc(100vh - 52px)}
+.doc-sidebar{
+  width:240px;flex-shrink:0;
+  background:var(--white);border-right:1px solid var(--border);
+  position:fixed;top:52px;left:0;bottom:0;overflow-y:auto;
+  padding:16px 0;
+}
+.doc-sidebar-group{font-size:9px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:1px;padding:14px 20px 5px}
+.doc-sidebar a{
+  display:block;padding:6px 20px;font-size:12px;font-weight:500;
+  color:var(--text2);text-decoration:none;transition:.15s;border-left:2px solid transparent;
+}
+.doc-sidebar a:hover{color:var(--purple);background:#F3F2E6;border-left-color:var(--teal)}
+.doc-sidebar a.active{color:var(--purple);font-weight:700;border-left-color:var(--purple);background:var(--yellow-lt)}
+
+/* ── CONTENT ── */
+.doc-content{margin-left:240px;flex:1;max-width:860px;padding:40px 48px 80px}
+
+/* ── TYPOGRAPHY ── */
+h1{font-family:'Playfair Display',serif;font-size:36px;font-weight:900;color:var(--purple);margin-bottom:10px;line-height:1.15}
+h2{font-family:'Playfair Display',serif;font-size:24px;font-weight:700;color:var(--purple);margin:48px 0 14px;padding-top:10px;border-top:2px solid var(--border)}
+h3{font-size:16px;font-weight:700;color:var(--text);margin:28px 0 10px}
+h4{font-size:13px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:.6px;margin:20px 0 8px}
+p{margin-bottom:12px;color:var(--text2);font-size:14px}
+ul,ol{padding-left:20px;margin-bottom:12px}
+li{font-size:14px;color:var(--text2);margin-bottom:5px;line-height:1.6}
+li strong{color:var(--text)}
+a{color:var(--purple);font-weight:600}
+
+/* ── CHIPS / BADGES ── */
+.badge{display:inline-flex;align-items:center;font-size:10px;font-weight:700;padding:2px 9px;border-radius:20px;white-space:nowrap;margin:0 2px}
+.badge.purple{background:var(--purple);color:var(--teal)}
+.badge.teal{background:var(--teal-lt);color:#1a6b65}
+.badge.yellow{background:var(--yellow-lt);color:#7a6d00;border:1px solid var(--yellow)}
+.badge.red{background:var(--red-lt);color:#9b1c1c}
+.badge.gray{background:#F3F2E6;color:var(--text2)}
+
+/* ── CODE ── */
+pre,code{font-family:'Courier New',monospace}
+pre{background:var(--code-bg);border-radius:10px;padding:18px 20px;overflow-x:auto;margin:14px 0}
+pre code{color:var(--code-text);font-size:12.5px;line-height:1.65}
+code{background:#eee;color:var(--purple);padding:1px 6px;border-radius:4px;font-size:12.5px}
+pre code{background:none;padding:0;color:var(--code-text)}
+
+/* ── CALLOUTS ── */
+.callout{border-radius:10px;padding:14px 18px;margin:16px 0;display:flex;gap:12px;font-size:13px;line-height:1.6}
+.callout-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.callout.info{background:var(--teal-lt);border:1px solid var(--teal);color:#155e59}
+.callout.warn{background:var(--yellow-lt);border:1px solid var(--yellow);color:#6b5900}
+.callout.danger{background:var(--red-lt);border:1px solid var(--red);color:#9b1c1c}
+.callout.tip{background:#F3F2E6;border:1px solid var(--border);color:var(--text2)}
+
+/* ── CARDS ── */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:16px 0}
+.card{background:var(--white);border:1px solid var(--border);border-radius:12px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.card h4{margin:0 0 6px;text-transform:none;letter-spacing:0;font-size:13px;color:var(--text)}
+.card p{margin:0;font-size:12px;color:var(--text3);line-height:1.5}
+
+/* ── TABLE ── */
+.doc-table{width:100%;border-collapse:collapse;margin:16px 0;font-size:13px}
+.doc-table th{text-align:left;font-size:11px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;padding:8px 12px;border-bottom:2px solid var(--border)}
+.doc-table td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+.doc-table td:first-child{font-weight:600;color:var(--text);font-size:12.5px}
+.doc-table tr:last-child td{border:none}
+.doc-table tr:hover td{background:#F9F8EF}
+
+/* ── STEP LIST ── */
+.steps{display:flex;flex-direction:column;gap:16px;margin:16px 0}
+.step{display:flex;gap:14px;align-items:flex-start}
+.step-num{width:28px;height:28px;border-radius:50%;background:var(--purple);color:var(--teal);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:2px}
+.step-body h4{margin:0 0 4px;text-transform:none;letter-spacing:0;font-size:14px;color:var(--text)}
+.step-body p{margin:0;font-size:13px;color:var(--text2)}
+
+/* ── FILE TREE ── */
+.tree{background:var(--code-bg);border-radius:10px;padding:18px 20px;font-family:'Courier New',monospace;font-size:12.5px;line-height:1.8;color:var(--code-text);margin:14px 0}
+.tree .folder{color:#8ECFCA;font-weight:700}
+.tree .file{color:#c8c0f0}
+.tree .comment{color:#6b6090}
+.tree .deleted{color:#F28B82;text-decoration:line-through}
+
+/* ── ROLE CARDS ── */
+.role-card{border-radius:12px;padding:18px;margin-bottom:12px;border:1px solid var(--border)}
+.role-card.admin{background:linear-gradient(135deg,var(--purple) 0%,#3d2860 100%);color:#fff}
+.role-card.brecho{background:var(--teal-lt);border-color:var(--teal)}
+.role-card.usuario{background:var(--yellow-lt);border-color:var(--yellow)}
+.role-card h3{font-size:15px;color:inherit;margin:0 0 6px}
+.role-card p{font-size:13px;margin:0;opacity:.85;color:inherit}
+.role-card ul{margin:10px 0 0 16px}
+.role-card.admin li{color:rgba(255,255,255,.8)}
+.role-card li{font-size:12px;margin-bottom:3px}
+
+/* ── SCREEN MOCKUP ── */
+.screen-box{background:var(--white);border:1px solid var(--border);border-radius:14px;padding:20px;margin:14px 0;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.screen-box h4{background:var(--purple);color:var(--teal);font-size:11px;font-weight:700;padding:5px 12px;border-radius:6px;display:inline-block;margin-bottom:12px;text-transform:uppercase;letter-spacing:.6px}
+.screen-item{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border)}
+.screen-item:last-child{border:none}
+.screen-item-dot{width:8px;height:8px;border-radius:50%;background:var(--teal);flex-shrink:0;margin-top:6px}
+.screen-item h5{font-size:13px;font-weight:600;color:var(--text);margin:0 0 2px}
+.screen-item p{font-size:12px;color:var(--text3);margin:0}
+
+/* ── DIVIDER ── */
+.doc-divider{border:none;border-top:2px solid var(--border);margin:40px 0}
+.section-hero{background:var(--purple);border-radius:14px;padding:28px;margin-bottom:32px;color:#fff}
+.section-hero h1{color:var(--teal);font-size:30px;margin-bottom:8px;border:none}
+.section-hero p{color:rgba(255,255,255,.7);font-size:14px;margin:0}
+
+/* ── STATUS ── */
+.status-row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.status-item{background:var(--white);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;color:var(--text2)}
+.status-item span{display:block;font-size:10px;font-weight:400;color:var(--text3);margin-top:2px}
+
+/* ── PRINT ── */
+@media print{
+  .doc-nav,.doc-sidebar{display:none}
+  .doc-content{margin:0;padding:20px}
+  h2{page-break-before:always}
+}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .doc-sidebar{display:none}
+  .doc-content{margin-left:0;padding:24px 20px 60px}
+  h1{font-size:26px}
+}
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="doc-nav">
+  <div class="doc-nav-logo">re<span>pé</span>teco</div>
+  <div class="doc-nav-title">Documentação Completa</div>
+  <div class="doc-nav-spacer"></div>
+  <div class="doc-nav-badge">v4.0 — 2025</div>
+</nav>
+
+<!-- SIDEBAR -->
+<aside class="doc-sidebar">
+  <div class="doc-sidebar-group">Visão Geral</div>
+  <a href="#o-projeto">O Projeto</a>
+  <a href="#estrutura-de-pastas">Estrutura de Pastas</a>
+  <a href="#perfis-de-usuario">Perfis de Usuário</a>
+  <a href="#banco-de-dados">Banco de Dados</a>
+
+  <div class="doc-sidebar-group">Site Público</div>
+  <a href="#tela-inicio">Início</a>
+  <a href="#tela-mapa">Mapa</a>
+  <a href="#tela-feed">Feed</a>
+  <a href="#modal-brecho">Ficha do Brechó</a>
+  <a href="#modal-auth">Login e Cadastro</a>
+  <a href="#cadastro-brecho">Cadastrar Brechó</a>
+
+  <div class="doc-sidebar-group">Painel (Dashboard)</div>
+  <a href="#painel-acesso">Como Acessar</a>
+  <a href="#painel-admin">Painel Admin</a>
+  <a href="#painel-admin-fila">Fila de Aprovação</a>
+  <a href="#painel-admin-brechos">Todos os Brechós</a>
+  <a href="#painel-dono">Painel do Dono</a>
+  <a href="#painel-dono-insights">Insights</a>
+  <a href="#painel-dono-perfil">Perfil da Loja</a>
+
+  <div class="doc-sidebar-group">Código</div>
+  <a href="#cod-supabase">supabase.js</a>
+  <a href="#cod-app">app.js</a>
+  <a href="#cod-cadastro">cadastro.js</a>
+  <a href="#cod-maps">maps.js</a>
+  <a href="#cod-accessibility">accessibility.js</a>
+  <a href="#cod-config">config.js</a>
+  <a href="#cod-dashboard-js">dashboard.js</a>
+  <a href="#cod-style">style.css</a>
+  <a href="#cod-dashboard-css">dashboard.css</a>
+
+  <div class="doc-sidebar-group">Banco de Dados</div>
+  <a href="#tabelas">Tabelas</a>
+  <a href="#rls">Políticas RLS</a>
+  <a href="#triggers">Triggers e Funções</a>
+  <a href="#migration">Como Rodar o Migration</a>
+
+  <div class="doc-sidebar-group">Operação</div>
+  <a href="#configurar-google-maps">Google Maps</a>
+  <a href="#configurar-hospedagem">Hospedagem</a>
+  <a href="#criar-admin">Criar Admin</a>
+  <a href="#afazer">O Que Falta Fazer</a>
+  <a href="#erros-comuns">Erros Comuns</a>
+</aside>
+
+<!-- CONTENT -->
+<main class="doc-content">
+
+<!-- ══════════════════════════════════════ -->
+<section id="o-projeto">
+  <div class="section-hero">
+    <h1>Repeteco</h1>
+    <p>Documentação completa do projeto — código, telas, banco de dados, operação e roadmap de melhorias.</p>
+  </div>
+
+  <h2>O Projeto</h2>
+  <p>O <strong>Repeteco</strong> é uma plataforma web que conecta pessoas interessadas em moda sustentável, garimpo e cultura circular com brechós, sebos, antiquários e lojas de vinil de São Paulo. O site permite que qualquer pessoa descubra espaços por feed, mapa e busca — e que donos de espaços se cadastrem para aparecer na plataforma após aprovação da equipe.</p>
+
+  <div class="card-grid">
+    <div class="card"><h4>🌐 Site público</h4><p>Feed de brechos, mapa interativo, busca, cadastro e perfil do usuário</p></div>
+    <div class="card"><h4>🏪 Painel do dono</h4><p>Insights de visitas, editor do perfil da loja, preview do card público</p></div>
+    <div class="card"><h4>👑 Painel admin</h4><p>Fila de aprovação, moderação, visão geral da plataforma</p></div>
+    <div class="card"><h4>🔐 Autenticação</h4><p>Login, cadastro e recuperação de senha via Supabase Auth</p></div>
+  </div>
+
+  <h3>Tecnologias usadas</h3>
+  <table class="doc-table">
+    <thead><tr><th>Tecnologia</th><th>Para que serve</th><th>Versão / Detalhe</th></tr></thead>
+    <tbody>
+      <tr><td>HTML5 + CSS3</td><td>Estrutura e visual de todas as páginas</td><td>Semântico, sem framework</td></tr>
+      <tr><td>JavaScript (ES2022)</td><td>Toda a lógica do frontend</td><td>Vanilla JS, sem bundler</td></tr>
+      <tr><td>Supabase</td><td>Banco de dados, autenticação e RLS</td><td>PostgreSQL gerenciado, SDK v2</td></tr>
+      <tr><td>Google Maps Platform</td><td>Mapa interativo com pins dos brechós</td><td>Maps JS API + AdvancedMarkerElement</td></tr>
+      <tr><td>Google Fonts</td><td>Tipografia (Playfair Display + DM Sans)</td><td>Importadas via CDN</td></tr>
+      <tr><td>VLibras</td><td>Acessibilidade — Libras</td><td>Widget do governo federal</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="estrutura-de-pastas">
+  <h2>Estrutura de Pastas</h2>
+  <p>O projeto vive dentro de uma pasta chamada <code>tcc/</code>. Esta é a raiz pública — todos os arquivos que o browser acessa estão aqui.</p>
+
+  <div class="tree">
+<span class="folder">tcc/</span>
+├── <span class="file">index.html</span>          <span class="comment">← site público (início, mapa, feed) — SPA</span>
+├── <span class="file">style.css</span>            <span class="comment">← todo o visual do site público</span>
+├── <span class="file">app.js</span>               <span class="comment">← toda a lógica do site público</span>
+├── <span class="file">supabase.js</span>          <span class="comment">← cliente Supabase (carregado primeiro)</span>
+├── <span class="file">config.js</span>            <span class="comment">← configurações (chave Google Maps, etc.)</span>
+├── <span class="file">maps.js</span>              <span class="comment">← integração Google Maps</span>
+├── <span class="file">accessibility.js</span>    <span class="comment">← painel de acessibilidade</span>
+├── <span class="file">cadastro.html</span>        <span class="comment">← formulário para donos cadastrarem brechó</span>
+├── <span class="file">cadastro.js</span>          <span class="comment">← lógica do formulário de cadastro</span>
+├── <span class="file">supabase_migration.sql</span> <span class="comment">← rodar UMA VEZ no Supabase SQL Editor</span>
+├── <span class="file">README-INTEGRACAO.md</span>
+├── <span class="deleted">dashboard.html</span>   <span class="comment">← DELETAR (versão antiga)</span>
+└── <span class="folder">dashboard/</span>
+    ├── <span class="file">index.html</span>       <span class="comment">← painel admin + dono (página única)</span>
+    ├── <span class="file">dashboard.js</span>     <span class="comment">← toda a lógica do painel</span>
+    ├── <span class="file">dashboard.css</span>    <span class="comment">← visual do painel</span>
+    ├── <span class="file">login.html</span>       <span class="comment">← página de login do painel (redireciona)</span>
+    └── <span class="deleted">brechos.html</span> <span class="comment">← DELETAR (funcionalidade migrada para index.html)</span>
+  </div>
+
+  <div class="callout warn">
+    <div class="callout-icon">⚠️</div>
+    <div><strong>Dois arquivos precisam ser deletados:</strong> <code>tcc/dashboard.html</code> (painel antigo na raiz) e <code>tcc/dashboard/brechos.html</code> (lista de brechós separada, já integrada ao painel). Deixá-los pode causar confusão e links quebrados.</div>
+  </div>
+
+  <h3>Ordem de carregamento dos scripts no index.html</h3>
+  <p>A ordem importa — cada arquivo depende do anterior:</p>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><h4>supabase CDN</h4><p>Biblioteca do Supabase carregada via <code>cdn.jsdelivr.net</code></p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><h4>supabase.js</h4><p>Cria <code>window.supabaseClient</code> — deve existir antes de qualquer chamada ao banco</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><h4>cadastro.js</h4><p>Escuta o form de cadastro — pode ser carregado antes do app.js</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><h4>app.js</h4><p>Lógica principal: auth, feed, modal, busca, curtir/salvar</p></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-body"><h4>config.js</h4><p>Configurações que o app.js e maps.js leem</p></div></div>
+    <div class="step"><div class="step-num">6</div><div class="step-body"><h4>accessibility.js</h4><p>Preferências de acessibilidade — lê localStorage</p></div></div>
+    <div class="step"><div class="step-num">7</div><div class="step-body"><h4>maps.js</h4><p>Integração Google Maps — só inicializa quando a chave está configurada</p></div></div>
+    <div class="step"><div class="step-num">8</div><div class="step-body"><h4>VLibras</h4><p>Widget externo de Libras — carregado por último para não atrasar o app</p></div></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="perfis-de-usuario">
+  <h2>Perfis de Usuário</h2>
+  <p>O Repeteco tem três perfis distintos, controlados pelo campo <code>role</code> na tabela <code>profiles</code>:</p>
+
+  <div class="role-card usuario">
+    <h3>👤 Usuário comum <span class="badge gray">role: usuario</span></h3>
+    <p>Qualquer pessoa que se cadastra no site. Não precisa de aprovação.</p>
+    <ul>
+      <li>Navega pelo feed, mapa e busca</li>
+      <li>Cria conta e faz login</li>
+      <li>Curte e salva brechós</li>
+      <li>Edita o próprio perfil (nome, cidade, bio)</li>
+      <li>Pode enviar solicitação para cadastrar um brechó</li>
+      <li><strong>NÃO acessa o painel (dashboard)</strong></li>
+    </ul>
+  </div>
+
+  <div class="role-card brecho">
+    <h3>🏪 Dono de brechó <span class="badge teal">role: dono</span></h3>
+    <p>Usuário cujo brechó foi aprovado pelo admin. A role é atualizada automaticamente na aprovação.</p>
+    <ul>
+      <li>Tudo que o usuário comum pode fazer</li>
+      <li>Acessa o painel em <code>dashboard/index.html</code></li>
+      <li>Vê métricas do próprio brechó (visitas, curtidas, salvos)</li>
+      <li>Edita nome, descrição, contato, fotos e horário da loja</li>
+      <li><strong>NÃO pode ver dados de outros brechós</strong></li>
+      <li><strong>NÃO pode aprovar ou recusar outros cadastros</strong></li>
+    </ul>
+  </div>
+
+  <div class="role-card admin">
+    <h3>👑 Administrador <span class="badge purple">role: admin</span></h3>
+    <p>Precisa ser definido manualmente via Supabase (ver seção <a href="#criar-admin" style="color:var(--teal)">Criar Admin</a>).</p>
+    <ul>
+      <li>Acessa o painel completo</li>
+      <li>Vê todos os brechós cadastrados e seus status</li>
+      <li>Aprova e recusa solicitações na fila</li>
+      <li>Vê métricas de qualquer brechó</li>
+      <li>Gerencia usuários da equipe</li>
+      <li>Acessa todos os dados da plataforma</li>
+    </ul>
+  </div>
+
+  <div class="callout info">
+    <div class="callout-icon">ℹ️</div>
+    <div><strong>Como a role é detectada:</strong> o <code>app.js</code> carrega o perfil do usuário logado e verifica o campo <code>role</code>. Se não for admin nem dono, também verifica se existe um brechó aprovado com aquele <code>user_id</code> — isso garante que donos com role desatualizada ainda consigam acessar o painel.</div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="banco-de-dados">
+  <h2>Banco de Dados — Visão Geral</h2>
+  <p>O banco é PostgreSQL gerenciado pelo Supabase. Todas as tabelas têm Row Level Security (RLS) ativado.</p>
+
+  <table class="doc-table">
+    <thead><tr><th>Tabela</th><th>O que armazena</th><th>Quem pode ler</th><th>Quem pode escrever</th></tr></thead>
+    <tbody>
+      <tr><td>profiles</td><td>Perfis de todos os usuários cadastrados</td><td>Próprio usuário e admin</td><td>O próprio usuário</td></tr>
+      <tr><td>brechos</td><td>Cadastros de brechós (aprovados e pendentes)</td><td>Todos (apenas aprovados); dono e admin veem tudo</td><td>Qualquer um (status=pending); dono edita o próprio; admin edita todos</td></tr>
+      <tr><td>curtidas</td><td>Curtidas de usuários em brechós</td><td>Próprio usuário</td><td>Usuário logado (o próprio)</td></tr>
+      <tr><td>salvos</td><td>Brechós salvos por usuários</td><td>Próprio usuário</td><td>Usuário logado (o próprio)</td></tr>
+      <tr><td>brecho_eventos</td><td>Eventos de analytics (view, map_click, etc.)</td><td>Dono do brechó e admin</td><td>Qualquer visitante (anônimo ou logado)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<hr class="doc-divider"/>
+
+<section id="tela-inicio">
+  <h2>Tela: Início</h2>
+  <p>É a primeira tela que o usuário vê ao acessar <code>repeteco.com.br</code>. Tecnicamente é uma SPA (Single Page Application) — todas as três abas (início, mapa, feed) são partes do mesmo arquivo <code>index.html</code>, mostradas e escondidas via JavaScript.</p>
+
+  <div class="screen-box">
+    <h4>Seções da página inicial</h4>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Hero (foto de SP)</h5><p>Imagem de fundo de São Paulo carregada do Unsplash. Puramente decorativa.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Barra de busca</h5><p>Busca por nome, bairro ou categoria. Ao submeter, vai para a aba Feed e exibe os resultados. A busca usa <code>ilike</code> no Supabase — busca no banco, não apenas nos dados já carregados.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Carrossel "Espaços em destaque"</h5><p>Mostra os 8 brechós mais recentes aprovados. Carregado dinamicamente do banco. Tem setas de navegação esquerda/direita. Clicar em um card abre a ficha do brechó.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Manifesto ("A sustentabilidade…")</h5><p>Texto fixo de posicionamento da marca.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Bloco roxo "Explore o seu próximo rolê"</h5><p>Grid de 8 bairros de SP. Cada bairro é um botão — ao clicar, vai para a aba Mapa com o filtro aplicado. Abaixo dos bairros ficam as "Novidades no feed": os 3 brechós aprovados mais recentes.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>CTA "Divulgue o seu espaço"</h5><p>Bloco roxo com dois botões: "quero divulgar" (vai para <code>cadastro.html</code>) e "criar conta" (abre modal de auth).</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Rodapé</h5><p>5 colunas com links: Descobrir, Estilos, Explorar, Institucional, Minha conta. A maioria dos links ainda não tem destino real (são <code>href="#"</code>).</p></div></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="tela-mapa">
+  <h2>Tela: Mapa</h2>
+  <p>Exibe os brechós aprovados em um mapa de São Paulo. Tem dois modos:</p>
+
+  <div class="screen-box">
+    <h4>Modos do mapa</h4>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Modo Google Maps (ativo quando a chave está configurada)</h5><p>Carrega o Google Maps real com pins. Cada pin representa um brechó que tem latitude e longitude preenchidos. Clicar no pin abre a ficha do brechó. Requer chave da API configurada em <code>config.js</code> e brechós com coordenadas no banco.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Modo SVG fallback (quando não há chave)</h5><p>Um mapa ilustrativo em SVG com pins fixos nos brechós de demonstração. É o modo atual — funciona visualmente mas os pins não correspondem a brechós reais do banco.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Barra de busca do mapa</h5><p>Filtra o mini-feed abaixo do mapa por nome ou bairro. Busca local nos dados já carregados.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Mini-feed "Mais recente no nosso feed"</h5><p>Grid de 6 cards abaixo do mapa mostrando os brechós mais recentes. Clicar abre a ficha.</p></div></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="tela-feed">
+  <h2>Tela: Feed</h2>
+  <p>Grade estilo galeria editorial (inspirada no VSCO e Zara) com todos os brechós aprovados.</p>
+
+  <div class="screen-box">
+    <h4>Componentes do feed</h4>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Filtros: todos / salvos / curtidos</h5><p>Três botões no topo. "Todos" mostra todos os brechós aprovados. "Salvos" e "Curtidos" mostram apenas os que o usuário interagiu — exigem login. Se o usuário não estiver logado e clicar em "Salvos" ou "Curtidos", o modal de login abre.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Grid de 3 colunas (masonry)</h5><p>Cada coluna tem um deslocamento vertical diferente (0px, 24px, 48px) para criar ritmo visual. As fotos são quadradas (aspect-ratio 1:1). Os botões de curtir (♡) e salvar (☆) aparecem ao passar o mouse sobre o card.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Estado vazio</h5><p>Se não há brechós aprovados, mostra uma mensagem amigável com ícone e explicação.</p></div></div>
+  </div>
+
+  <div class="callout tip">
+    <div class="callout-icon">💡</div>
+    <div><strong>Como os brechos chegam ao feed:</strong> o app.js chama <code>carregarBrechos()</code> que faz SELECT na tabela <code>brechos</code> com filtro <code>status = 'approved'</code>. Apenas brechós aprovados aparecem. O array fica em memória como <code>window.brechos</code>.</div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="modal-brecho">
+  <h2>Ficha do Brechó (Modal)</h2>
+  <p>Abre ao clicar em qualquer card no feed, carrossel, mapa ou novidades. É um modal deslizante que aparece pela parte inferior da tela.</p>
+
+  <div class="screen-box">
+    <h4>Conteúdo da ficha</h4>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Foto de capa</h5><p>Imagem do campo <code>foto_capa</code> do banco. Se não houver, exibe o emoji padrão do brechó.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Tags / categorias</h5><p>Chips com as categorias do brechó (ex: "brechó", "vintage", "anos 80").</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Nome e localização</h5><p>Nome do brechó e "📍 Bairro · Cidade".</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Descrição</h5><p>Texto livre descrito pelo dono no cadastro.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Botões de contato</h5><p>WhatsApp (abre wa.me com mensagem pré-preenchida) e Instagram (abre perfil). Só aparecem se o brechó tiver esses dados preenchidos.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Ações: curtir, salvar, ver no mapa</h5><p>❤️ curtir e 🔖 salvar exigem login. 📍 mapa fecha o modal e vai para a aba Mapa. Ao abrir o modal, um evento <code>view</code> é registrado na tabela <code>brecho_eventos</code>.</p></div></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="modal-auth">
+  <h2>Login e Cadastro (Modal de Auth)</h2>
+  <p>Modal centralizado que aparece ao clicar em "entrar" ou "criar conta" na navbar, ou ao tentar curtir/salvar sem estar logado.</p>
+
+  <div class="screen-box">
+    <h4>Abas do modal</h4>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Aba "Entrar"</h5><p>Campos de e-mail e senha. Botão "Entrar" chama <code>doLogin()</code>. Link "Esqueci minha senha" chama <code>esqueceuSenha()</code> — envia e-mail de recuperação via Supabase.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Aba "Criar conta"</h5><p>Campos de nome, e-mail e senha (mínimo 6 caracteres). Botão chama <code>doSignup()</code>. Se o Supabase exigir confirmação de e-mail, mostra mensagem orientando o usuário a verificar a caixa de entrada.</p></div></div>
+  </div>
+
+  <h3>Recuperação de senha</h3>
+  <p>O usuário digita o e-mail na aba "Entrar" e clica em "esqueci minha senha". O Supabase envia um link de redefinição. Ao clicar no link, o usuário é redirecionado para <code>index.html</code> com um token na URL que o Supabase processa automaticamente.</p>
+
+  <div class="callout warn">
+    <div class="callout-icon">⚠️</div>
+    <div><strong>Confirmação de e-mail:</strong> o Supabase tem confirmação de e-mail ativa por padrão. Se estiver ativa, o usuário precisa confirmar o e-mail antes de fazer login. Para desativar durante desenvolvimento, vá em <strong>Supabase → Authentication → Settings → Email Confirm</strong> e desative.</div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="cadastro-brecho">
+  <h2>Cadastrar Brechó (cadastro.html)</h2>
+  <p>Página separada acessível pelo botão "quero divulgar" ou pelo link no rodapé. Qualquer pessoa pode preencher — não exige login.</p>
+
+  <div class="screen-box">
+    <h4>Seções do formulário</h4>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Responsável</h5><p>Nome, e-mail, WhatsApp e Instagram da pessoa responsável pelo espaço.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Sobre o espaço</h5><p>Nome do espaço e descrição livre.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Categorias</h5><p>Checkboxes: Brechó, Sebo, Antiquário, Moda vintage, Vinil, Colecionáveis. Múltipla seleção.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Localização</h5><p>Cidade (pré-preenchida como "São Paulo"), bairro (obrigatório) e endereço completo.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Foto de capa</h5><p>Campo de URL para imagem. Upload direto de arquivo ainda não está implementado — o dono deve colar uma URL de imagem.</p></div></div>
+  </div>
+
+  <h3>O que acontece ao enviar</h3>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Validação</h4><p>O <code>cadastro.js</code> verifica se nome, cidade, bairro, nome do responsável, e-mail e WhatsApp foram preenchidos.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Identificação</h4><p>Se o usuário estiver logado, o <code>user_id</code> é salvo junto. Se não estiver, <code>user_id</code> fica <code>null</code>.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Insert no banco</h4><p>Um registro é criado na tabela <code>brechos</code> com <code>status = 'pending'</code>. A policy RLS permite INSERT de qualquer pessoa com status=pending.</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><h4>Mensagem de sucesso</h4><p>Formulário é limpo e aparece a mensagem: "💚 solicitação enviada! Em até 5 dias úteis nossa equipe analisa…"</p></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-body"><h4>Fila de aprovação</h4><p>O brechó aparece na fila do painel do admin como "pendente". O admin analisa e aprova ou recusa.</p></div></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<hr class="doc-divider"/>
+
+<section id="painel-acesso">
+  <h2>Como Acessar o Painel</h2>
+  <p>O painel fica em <code>tcc/dashboard/index.html</code>. Ele redireciona automaticamente para <code>index.html</code> se o usuário não estiver logado ou não tiver permissão.</p>
+
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Acesso pelo site público</h4><p>Se o usuário logado for admin ou dono, o botão "análises" aparece na navbar. Ao clicar, vai para o painel.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Acesso direto</h4><p>Ir para <code>/dashboard/index.html</code>. O painel verifica a sessão automaticamente e redireciona se não autorizado.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Via login.html</h4><p>A página <code>dashboard/login.html</code> tem um formulário de login simples que redireciona para <code>dashboard/index.html</code> após autenticar.</p></div></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="painel-admin">
+  <h2>Painel Admin — Visão Geral</h2>
+  <p>Primeira tela ao entrar como admin. Mostra um resumo da plataforma.</p>
+
+  <div class="screen-box">
+    <h4>Componentes da visão geral</h4>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Cards de métricas (4 no topo)</h5><p>Lojas ativas (aprovadas), Pendentes, Novos esta semana, Perfis cadastrados. Os dados são buscados em tempo real ao carregar a página.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Fila de aprovação resumida</h5><p>Mostra os 5 primeiros brechós pendentes com botões de aprovar/recusar. Link "ver todas →" vai para a fila completa.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Lojas ativas (resumo)</h5><p>Lista compacta dos últimos 6 brechós aprovados com status e localização.</p></div></div>
+  </div>
+
+  <h3>Sidebar do admin</h3>
+  <table class="doc-table">
+    <thead><tr><th>Item</th><th>Ação</th></tr></thead>
+    <tbody>
+      <tr><td>⌂ Painel geral</td><td>Volta para a visão geral com métricas</td></tr>
+      <tr><td>✓ Fila de aprovação</td><td>Lista completa de solicitações com filtros</td></tr>
+      <tr><td>▦ Brechós</td><td>Tabela de todos os brechós com busca e filtro por status</td></tr>
+      <tr><td>↗ Voltar ao Repeteco</td><td>Volta para o site público (<code>index.html</code>)</td></tr>
+      <tr><td>Sair da conta</td><td>Logout via Supabase, redireciona para index.html</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="painel-admin-fila">
+  <h2>Painel Admin — Fila de Aprovação</h2>
+  <p>Tela principal de moderação. Aqui o admin revisa cada solicitação e decide se aprova ou recusa.</p>
+
+  <div class="screen-box">
+    <h4>Layout da fila</h4>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Lista de solicitações (painel esquerdo)</h5><p>Cada item mostra foto/inicial, nome, localização, categoria, status e botões de ação. Clicar em um item seleciona para ver o detalhe.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Detalhe do brechó (painel direito)</h5><p>Ao selecionar um brechó, aparece: foto, descrição, dados de contato, responsável, data do envio. Se pendente, botões de aprovar/recusar aparecem.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Analytics do brechó (no detalhe)</h5><p>Para qualquer brechó selecionado (mesmo pendente), o admin vê visitas, cliques no mapa, curtidas, salvos e gráfico dos últimos 30 dias.</p></div></div>
+  </div>
+
+  <h3>Fluxo de aprovação</h3>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Admin clica em "aprovar"</h4><p>Chama <code>aprovarBrecho(id)</code> → <code>alterarStatusBrecho(id, 'approved')</code></p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Status atualizado no banco</h4><p>UPDATE na tabela <code>brechos</code> com <code>status = 'approved'</code></p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Role do dono atualizada</h4><p>UPDATE na tabela <code>profiles</code> do <code>user_id</code> do brechó com <code>role = 'dono'</code></p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><h4>Brechó aparece no site</h4><p>A policy RLS libera SELECT para brechós com status 'approved' — o brecho já aparece no feed público</p></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-body"><h4>Dono acessa o painel</h4><p>Na próxima vez que o dono fizer login, o botão "análises" aparece na navbar e ele acessa o painel do dono</p></div></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="painel-admin-brechos">
+  <h2>Painel Admin — Todos os Brechós</h2>
+  <p>Tabela com todos os brechós cadastrados, independente do status.</p>
+
+  <div class="screen-box">
+    <h4>Funcionalidades</h4>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Busca</h5><p>Campo de texto que filtra a tabela em tempo real por nome, bairro, cidade ou status. Busca local (não vai ao banco).</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Colunas</h5><p>Nome + e-mail, Localização, Categoria, Status, Ação. Clicar em "ver" vai para a fila de aprovação com aquele brechó selecionado.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Contagem</h5><p>Exibe "X lojas" baseado na lista filtrada atual.</p></div></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="painel-dono">
+  <h2>Painel do Dono — Início</h2>
+  <p>Primeira tela ao entrar como dono. Mostra status da loja, métricas e checklist de perfil.</p>
+
+  <div class="screen-box">
+    <h4>Componentes</h4>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Saudação + banner de status</h5><p>Exibe "Olá, [nome do brechó]" e um banner com o status atual: pendente (âmbar), aprovado (verde), recusado (vermelho). Se pendente ou recusado, orientações aparecem.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Métricas (4 cards)</h5><p>Visitas ao perfil, Cliques no mapa, Curtidas e Salvamentos — todos dos últimos 30 dias, buscados da tabela <code>brecho_eventos</code> e das tabelas <code>curtidas</code> e <code>salvos</code>.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Gráfico de visitas (7 dias)</h5><p>Barras verticais com as visitas dos últimos 7 dias. Cada barra = um dia. Busca eventos do tipo "view" da tabela <code>brecho_eventos</code>.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Preview do card público</h5><p>Mostra como o brechó aparece no feed público — foto, nome, localização, categoria.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Checklist do perfil</h5><p>Lista de campos: nome, localização, descrição, contato, foto de capa. Itens preenchidos aparecem com ✓ verde, faltantes com + em vermelho.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Barras de sinais</h5><p>Comparação visual entre as 4 métricas em barras horizontais — mostra qual é a mais forte.</p></div></div>
+  </div>
+
+  <h3>Sidebar do dono</h3>
+  <table class="doc-table">
+    <thead><tr><th>Item</th><th>Ação</th></tr></thead>
+    <tbody>
+      <tr><td>⌂ Início</td><td>Dashboard com métricas e status</td></tr>
+      <tr><td>⌁ Insights</td><td>Dados de visitas com gráfico ampliado</td></tr>
+      <tr><td>○ Perfil da loja</td><td>Formulário para editar todos os dados do brechó</td></tr>
+      <tr><td>← Voltar ao Repeteco</td><td>Volta para o site público</td></tr>
+      <tr><td>Sair da conta</td><td>Logout</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="painel-dono-insights">
+  <h2>Painel do Dono — Insights</h2>
+  <p>Versão expandida das métricas, focada em análise de desempenho.</p>
+
+  <div class="screen-box">
+    <h4>Dados disponíveis</h4>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>4 cards de métrica</h5><p>Visitas totais, Cliques no mapa, Curtidas e Salvamentos dos últimos 30 dias.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Gráfico de barras</h5><p>Visitas por dia nos últimos 7 dias. Barras com gradiente roxo→teal. A altura de cada barra é relativa ao maior valor do período.</p></div></div>
+  </div>
+
+  <div class="callout warn">
+    <div class="callout-icon">⚠️</div>
+    <div><strong>Atenção:</strong> os dados de visitas só aparecem se o <code>app.js</code> estiver registrando eventos na tabela <code>brecho_eventos</code> quando o usuário abre o modal de um brechó. Se esta chamada não estiver implementada, o gráfico ficará sempre zerado.</div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="painel-dono-perfil">
+  <h2>Painel do Dono — Perfil da Loja</h2>
+  <p>Formulário completo para o dono editar os dados do brechó. Tem uma prévia ao vivo do card público.</p>
+
+  <div class="screen-box">
+    <h4>Campos editáveis</h4>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Dados básicos</h5><p>Nome da loja, categoria, bairro, cidade, endereço completo e descrição.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Contato</h5><p>WhatsApp e Instagram. Ao salvar, esses dados aparecem nos botões de contato na ficha pública.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Foto de capa</h5><p>URL da imagem principal. Se vazia, o feed mostra o emoji padrão. Se preenchida, aparece como foto no feed e na ficha.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Geocodificação automática</h5><p>Se a chave do Google Maps estiver configurada, ao salvar o endereço, o sistema busca as coordenadas automaticamente e salva latitude/longitude no banco — o brechó aparece no mapa real.</p></div></div>
+    <div class="screen-item"><div class="screen-item-dot"></div><div><h5>Prévia ao vivo</h5><p>À medida que o dono edita nome, categoria, bairro e foto, o card de prévia atualiza em tempo real para mostrar como ficará no feed público.</p></div></div>
+  </div>
+
+  <h3>Como salvar</h3>
+  <p>O botão "salvar alterações" chama <code>salvarPerfilLoja()</code>, que faz UPDATE na tabela <code>brechos</code> com os campos editados. A policy RLS verifica que o <code>user_id</code> do brechó corresponde ao usuário logado.</p>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<hr class="doc-divider"/>
+
+<section id="cod-supabase">
+  <h2>Código: supabase.js</h2>
+  <p><strong>Responsabilidade:</strong> criar a instância única do cliente Supabase e disponibilizá-la em <code>window.supabaseClient</code>.</p>
+
+  <pre><code>const SUPABASE_URL  = "https://xhtjrmxkusuqmtpbebzv.supabase.co";
+const SUPABASE_KEY  = "sb_publishable_...";
+
+window.supabaseClient = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);</code></pre>
+
+  <div class="callout info">
+    <div class="callout-icon">ℹ️</div>
+    <div>A chave usada é a <strong>anon/publishable key</strong> — é segura para ficar no frontend porque o acesso real é controlado pelo RLS. Nunca coloque a <strong>service_role key</strong> no frontend.</div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="cod-app">
+  <h2>Código: app.js</h2>
+  <p><strong>Responsabilidade:</strong> toda a lógica do site público. É o arquivo mais extenso (~490 linhas).</p>
+
+  <h3>Principais funções</h3>
+  <table class="doc-table">
+    <thead><tr><th>Função</th><th>O que faz</th></tr></thead>
+    <tbody>
+      <tr><td>initApp()</td><td>Inicializa o app: listener de auth, carrega usuário, carrega brechós. Chamada no DOMContentLoaded.</td></tr>
+      <tr><td>carregarUsuario()</td><td>Verifica sessão ativa no Supabase. Se logado, chama carregarPerfil().</td></tr>
+      <tr><td>carregarPerfil(user)</td><td>Busca o perfil na tabela profiles. Detecta a role e chama uiLogado() ou uiDeslogado().</td></tr>
+      <tr><td>carregarInteracoes()</td><td>Carrega curtidas e salvos do usuário logado do banco e preenche os Sets em memória.</td></tr>
+      <tr><td>carregarBrechos()</td><td>SELECT na tabela brechos com status=approved. Chama renderHomeBrechos(), renderFeed() e renderMapFeed().</td></tr>
+      <tr><td>doLogin()</td><td>signInWithPassword via Supabase Auth. Atualiza UI após login.</td></tr>
+      <tr><td>doSignup()</td><td>signUp via Supabase Auth. Cria perfil se necessário.</td></tr>
+      <tr><td>doLogout()</td><td>signOut via Supabase Auth. Limpa estado e UI.</td></tr>
+      <tr><td>esqueceuSenha()</td><td>resetPasswordForEmail via Supabase Auth.</td></tr>
+      <tr><td>openModal(id)</td><td>Abre ficha do brechó. Preenche todos os campos. Registra evento view.</td></tr>
+      <tr><td>toggleLike(id, btn)</td><td>Curte ou descurte. Exige login. Sincroniza com banco.</td></tr>
+      <tr><td>toggleSave(id, btn)</td><td>Salva ou remove. Exige login. Sincroniza com banco.</td></tr>
+      <tr><td>handleSearch()</td><td>Busca com ilike no Supabase. Exibe resultados no feed.</td></tr>
+      <tr><td>showPage(page)</td><td>Controla qual aba está ativa (home, map, feed).</td></tr>
+      <tr><td>renderFeed(filter)</td><td>Renderiza a grade de 3 colunas com os brechós.</td></tr>
+      <tr><td>renderHomeBrechos()</td><td>Preenche o carrossel com brechós reais do banco.</td></tr>
+      <tr><td>renderNovidades()</td><td>Preenche os 3 cards de novidades da seção roxa.</td></tr>
+      <tr><td>renderMapFeed()</td><td>Preenche o mini-feed abaixo do mapa.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Estado global (variáveis)</h3>
+  <table class="doc-table">
+    <thead><tr><th>Variável</th><th>Tipo</th><th>O que guarda</th></tr></thead>
+    <tbody>
+      <tr><td>currentUser</td><td>Object | null</td><td>Objeto do usuário logado retornado pelo Supabase Auth</td></tr>
+      <tr><td>perfilAtual</td><td>Object | null</td><td>Registro da tabela profiles do usuário logado</td></tr>
+      <tr><td>brechos</td><td>Array</td><td>Lista de brechós aprovados carregados do banco</td></tr>
+      <tr><td>currentFilter</td><td>String</td><td>"all" | "saved" | "liked" — filtro ativo no feed</td></tr>
+      <tr><td>currentModalId</td><td>String | null</td><td>ID do brechó com modal aberto</td></tr>
+      <tr><td>likedSet</td><td>Set</td><td>IDs dos brechós curtidos pelo usuário (sincronizado com banco)</td></tr>
+      <tr><td>savedSet</td><td>Set</td><td>IDs dos brechós salvos pelo usuário (sincronizado com banco)</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="cod-cadastro">
+  <h2>Código: cadastro.js</h2>
+  <p><strong>Responsabilidade:</strong> escutar o submit do formulário de cadastro de brechó e enviar os dados ao Supabase.</p>
+
+  <h3>Pontos importantes</h3>
+  <ul>
+    <li>Não usa <code>.select().single()</code> após o insert — isso causaria erro 401 pela policy RLS</li>
+    <li>Funciona com ou sem usuário logado (<code>user_id</code> pode ser null)</li>
+    <li>Salva o campo <code>foto_capa</code> como URL (não upload de arquivo)</li>
+    <li>Coleta categorias dos checkboxes com name="categorias"</li>
+    <li>Exibe erros no <code>#errorMessage</code>, nunca via <code>alert()</code></li>
+    <li>Requer campos: nome, cidade, bairro, responsavelNome, responsavelEmail, responsavelWhatsapp</li>
+  </ul>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="cod-maps">
+  <h2>Código: maps.js</h2>
+  <p><strong>Responsabilidade:</strong> carregar o Google Maps e posicionar pins dos brechós.</p>
+
+  <h3>Funções exportadas</h3>
+  <table class="doc-table">
+    <thead><tr><th>Função</th><th>O que faz</th></tr></thead>
+    <tbody>
+      <tr><td>iniciarMapaGoogle(brechos)</td><td>Carrega a API do Google Maps, cria o mapa centralizado em SP, plota pins nos brechós que têm latitude/longitude. Em caso de falha (sem chave), mantém o SVG de fallback.</td></tr>
+      <tr><td>localizarEnderecoGoogle(endereco)</td><td>Geocodifica um endereço e retorna latitude, longitude, place_id e endereço formatado. Usada pelo painel do dono ao salvar o perfil.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn">
+    <div class="callout-icon">⚠️</div>
+    <div><strong>Mapa só funciona com chave configurada.</strong> Sem <code>googleMapsApiKey</code> em <code>config.js</code>, o <code>maps.js</code> cai silenciosamente para o SVG de fallback. Os pins do SVG são estáticos e não correspondem a brechós reais.</div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="cod-accessibility">
+  <h2>Código: accessibility.js</h2>
+  <p><strong>Responsabilidade:</strong> gerenciar as preferências de acessibilidade do usuário, salvas no localStorage do browser.</p>
+
+  <h3>Recursos disponíveis</h3>
+  <div class="card-grid">
+    <div class="card"><h4>A− / A+</h4><p>Reduz ou aumenta o tamanho do texto via variável CSS <code>--a11y-scale</code></p></div>
+    <div class="card"><h4>Alto contraste</h4><p>Classe <code>a11y-contrast</code> no body com cores de alto contraste</p></div>
+    <div class="card"><h4>Tons de cinza</h4><p>Classe <code>a11y-grayscale</code> — aplica filtro CSS grayscale</p></div>
+    <div class="card"><h4>Reduzir movimento</h4><p>Classe <code>a11y-no-motion</code> — desativa animações CSS</p></div>
+    <div class="card"><h4>Destacar links</h4><p>Classe <code>a11y-underline</code> — sublinha todos os links</p></div>
+    <div class="card"><h4>Daltonismo</h4><p>Simulação de protanopia, deuteranopia e tritanopia via filtro SVG</p></div>
+  </div>
+  <p>As preferências ficam salvas no localStorage com a chave <code>repeteco-a11y</code> e são aplicadas automaticamente no carregamento da página.</p>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="cod-config">
+  <h2>Código: config.js</h2>
+  <p><strong>Responsabilidade:</strong> centralizar configurações do frontend que podem variar por ambiente.</p>
+
+  <pre><code>window.REPETECO_CONFIG = Object.assign({
+  googleMapsApiKey: "",        // preencher para ativar o mapa
+  googleMapsMapId:  "DEMO_MAP_ID",
+  supabaseUrl:      "https://xhtjrmxkusuqmtpbebzv.supabase.co",
+  version:          "4.0.0"
+}, window.REPETECO_CONFIG || {});</code></pre>
+
+  <div class="callout tip">
+    <div class="callout-icon">💡</div>
+    <div>Para personalizar por ambiente sem editar o arquivo: defina <code>window.REPETECO_CONFIG = { googleMapsApiKey: "sua-chave" }</code> em uma tag script inline no HTML <em>antes</em> de carregar o <code>config.js</code>. O <code>Object.assign</code> vai mesclar os valores.</div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="cod-dashboard-js">
+  <h2>Código: dashboard/dashboard.js</h2>
+  <p><strong>Responsabilidade:</strong> toda a lógica do painel admin e do dono de brechó. Um único arquivo que detecta a role e inicializa a experiência correta.</p>
+
+  <div class="callout danger">
+    <div class="callout-icon">🚨</div>
+    <div><strong>Problema atual:</strong> o arquivo está escrito em formato quase-minificado (todo o código em poucas linhas muito longas). Isso funciona, mas é impossível de manter. A primeira melhoria a fazer é formatar o arquivo corretamente com indentação e quebras de linha.</div>
+  </div>
+
+  <h3>Fluxo de inicialização</h3>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><h4>iniciarDashboard()</h4><p>Verifica sessão. Se não logado → volta para index.html</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Carrega perfil</h4><p>Busca a role em profiles. Se role não for admin ou dono, verifica se tem brechó aprovado.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Sem permissão?</h4><p>Redireciona para index.html. Usuários comuns não acessam o painel.</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><h4>Admin → carregarAdmin()</h4><p>Busca todos os brechós, calcula métricas, renderiza visão geral.</p></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-body"><h4>Dono → carregarDono()</h4><p>Busca o brechó vinculado ao user_id, carrega analytics, renderiza painel do dono.</p></div></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="cod-style">
+  <h2>Código: style.css</h2>
+  <p><strong>Responsabilidade:</strong> todo o visual do site público (index.html e cadastro.html).</p>
+
+  <h3>Variáveis CSS (design tokens)</h3>
+  <pre><code>:root {
+  --cream:        #FAFAE8;  /* fundo geral */
+  --purple:       #2D1B4E;  /* cor principal */
+  --teal:         #8ECFCA;  /* cor secundária */
+  --teal-light:   #B2DDD9;  /* teal suave */
+  --yellow-accent:#E8D44D;  /* destaques amarelos */
+  --text-dark:    #1a1a2e;  /* texto principal */
+  --text-muted:   #6b6b8a;  /* texto secundário */
+  --white:        #ffffff;
+  --nav-h:        56px;     /* altura da navbar */
+}</code></pre>
+
+  <div class="callout danger">
+    <div class="callout-icon">🚨</div>
+    <div><strong>Problema atual:</strong> o seletor <code>html { zoom: 1.25; }</code> escala tudo em 125%. Embora resolva o problema visual de textos pequenos, essa propriedade causa comportamentos imprevisíveis em Firefox, Safari iOS e durante impressão. Deve ser removida e substituída por font-size e espaçamentos maiores nas próprias propriedades.</div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="cod-dashboard-css">
+  <h2>Código: dashboard/dashboard.css</h2>
+  <p><strong>Responsabilidade:</strong> visual do painel administrativo e do dono.</p>
+  <p>Atualmente usa uma paleta ligeiramente diferente do site público (cinzas, preto, verde-água mais neutro). Para consistência visual, deve ser atualizado para usar as mesmas variáveis CSS do <code>style.css</code> — fundo creme, roxo escuro, teal, amarelo.</p>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<hr class="doc-divider"/>
+
+<section id="tabelas">
+  <h2>Banco de Dados — Tabelas</h2>
+
+  <h3>profiles</h3>
+  <table class="doc-table">
+    <thead><tr><th>Coluna</th><th>Tipo</th><th>Descrição</th></tr></thead>
+    <tbody>
+      <tr><td>id</td><td>uuid (PK)</td><td>Mesmo ID do auth.users</td></tr>
+      <tr><td>nome</td><td>text</td><td>Nome de exibição do usuário</td></tr>
+      <tr><td>role</td><td>text</td><td>"usuario" | "dono" | "admin"</td></tr>
+      <tr><td>cidade</td><td>text</td><td>Cidade do usuário (opcional)</td></tr>
+      <tr><td>bio</td><td>text</td><td>Texto livre sobre o usuário</td></tr>
+      <tr><td>avatar_url</td><td>text</td><td>URL da foto de perfil</td></tr>
+      <tr><td>created_at</td><td>timestamptz</td><td>Data de criação</td></tr>
+    </tbody>
+  </table>
+
+  <h3>brechos</h3>
+  <table class="doc-table">
+    <thead><tr><th>Coluna</th><th>Tipo</th><th>Descrição</th></tr></thead>
+    <tbody>
+      <tr><td>id</td><td>uuid (PK)</td><td>Gerado automaticamente</td></tr>
+      <tr><td>user_id</td><td>uuid (FK)</td><td>ID do usuário que cadastrou</td></tr>
+      <tr><td>dono_id</td><td>uuid (FK)</td><td>Alias de user_id para compatibilidade</td></tr>
+      <tr><td>nome</td><td>text (NOT NULL)</td><td>Nome do brechó</td></tr>
+      <tr><td>descricao</td><td>text</td><td>Descrição livre</td></tr>
+      <tr><td>cidade</td><td>text</td><td>Cidade</td></tr>
+      <tr><td>bairro</td><td>text</td><td>Bairro</td></tr>
+      <tr><td>endereco</td><td>text</td><td>Endereço completo</td></tr>
+      <tr><td>categorias</td><td>jsonb</td><td>Array de strings: ["brechó","vintage"]</td></tr>
+      <tr><td>status</td><td>text</td><td>"pending" | "approved" | "rejected"</td></tr>
+      <tr><td>foto_capa</td><td>text</td><td>URL da foto principal</td></tr>
+      <tr><td>fotos</td><td>jsonb</td><td>Array de URLs de fotos adicionais</td></tr>
+      <tr><td>whatsapp</td><td>text</td><td>Número do WhatsApp</td></tr>
+      <tr><td>instagram</td><td>text</td><td>Handle do Instagram (sem @)</td></tr>
+      <tr><td>latitude</td><td>float8</td><td>Coordenada para o mapa</td></tr>
+      <tr><td>longitude</td><td>float8</td><td>Coordenada para o mapa</td></tr>
+      <tr><td>google_place_id</td><td>text</td><td>ID do lugar no Google Maps</td></tr>
+      <tr><td>horario</td><td>text</td><td>Horário de funcionamento</td></tr>
+      <tr><td>nome_responsavel</td><td>text</td><td>Nome do responsável pelo espaço</td></tr>
+      <tr><td>email_responsavel</td><td>text</td><td>E-mail do responsável</td></tr>
+      <tr><td>criado_em / created_at</td><td>timestamptz</td><td>Data de cadastro (duas colunas por compatibilidade)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>curtidas</h3>
+  <table class="doc-table">
+    <thead><tr><th>Coluna</th><th>Tipo</th><th>Descrição</th></tr></thead>
+    <tbody>
+      <tr><td>id</td><td>bigint (PK)</td><td>Auto-incremento</td></tr>
+      <tr><td>user_id</td><td>uuid (FK, NOT NULL)</td><td>Usuário que curtiu</td></tr>
+      <tr><td>brecho_id</td><td>text (NOT NULL)</td><td>ID do brechó curtido</td></tr>
+      <tr><td>created_at</td><td>timestamptz</td><td>Quando curtiu</td></tr>
+    </tbody>
+  </table>
+  <p><em>Constraint UNIQUE(user_id, brecho_id) — cada usuário só pode curtir um brechó uma vez.</em></p>
+
+  <h3>salvos</h3>
+  <p>Estrutura idêntica à tabela <code>curtidas</code>.</p>
+
+  <h3>brecho_eventos</h3>
+  <table class="doc-table">
+    <thead><tr><th>Coluna</th><th>Tipo</th><th>Descrição</th></tr></thead>
+    <tbody>
+      <tr><td>id</td><td>bigint (PK)</td><td>Auto-incremento</td></tr>
+      <tr><td>brecho_id</td><td>uuid (FK, NOT NULL)</td><td>Qual brechó recebeu o evento</td></tr>
+      <tr><td>user_id</td><td>uuid (FK, nullable)</td><td>Usuário que gerou o evento (null = anônimo)</td></tr>
+      <tr><td>tipo</td><td>text (NOT NULL)</td><td>"view" | "map_click" | "whatsapp_click" | "instagram_click"</td></tr>
+      <tr><td>created_at</td><td>timestamptz</td><td>Quando aconteceu</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="rls">
+  <h2>Políticas RLS</h2>
+  <p>Row Level Security controla quem pode ler e escrever cada linha. Mesmo com a chave anon exposta no frontend, os dados ficam protegidos.</p>
+
+  <h3>Resumo das políticas</h3>
+  <table class="doc-table">
+    <thead><tr><th>Tabela</th><th>Operação</th><th>Condição</th></tr></thead>
+    <tbody>
+      <tr><td>profiles</td><td>SELECT</td><td>id = auth.uid() OU is_admin()</td></tr>
+      <tr><td>profiles</td><td>INSERT</td><td>id = auth.uid()</td></tr>
+      <tr><td>profiles</td><td>UPDATE</td><td>id = auth.uid() OU is_admin()</td></tr>
+      <tr><td>brechos</td><td>SELECT</td><td>status='approved' OU user_id=auth.uid() OU dono_id=auth.uid() OU is_admin()</td></tr>
+      <tr><td>brechos</td><td>INSERT</td><td>status='pending' (qualquer pessoa, mesmo anônima)</td></tr>
+      <tr><td>brechos</td><td>UPDATE</td><td>user_id=auth.uid() OU dono_id=auth.uid() OU is_admin()</td></tr>
+      <tr><td>brechos</td><td>DELETE</td><td>user_id=auth.uid() OU dono_id=auth.uid() OU is_admin()</td></tr>
+      <tr><td>curtidas / salvos</td><td>SELECT</td><td>user_id = auth.uid()</td></tr>
+      <tr><td>curtidas / salvos</td><td>INSERT</td><td>user_id = auth.uid()</td></tr>
+      <tr><td>curtidas / salvos</td><td>DELETE</td><td>user_id = auth.uid()</td></tr>
+      <tr><td>brecho_eventos</td><td>SELECT</td><td>is_admin() OU brechó pertence ao usuário</td></tr>
+      <tr><td>brecho_eventos</td><td>INSERT</td><td>user_id IS NULL OU user_id = auth.uid()</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="triggers">
+  <h2>Triggers e Funções SQL</h2>
+
+  <h3>handle_new_user() — criação automática de perfil</h3>
+  <p>Toda vez que um novo usuário se cadastra via Supabase Auth, o trigger <code>on_auth_user_created</code> chama esta função, que cria automaticamente um registro na tabela <code>profiles</code> com role="usuario".</p>
+  <pre><code>CREATE TRIGGER on_auth_user_created
+AFTER INSERT ON auth.users
+FOR EACH ROW EXECUTE PROCEDURE public.handle_new_user();</code></pre>
+
+  <h3>is_admin() — verificação de permissão</h3>
+  <p>Função SQL estável que retorna true se o usuário logado tiver role="admin" em profiles. Usada nas policies RLS para dar acesso total ao admin.</p>
+
+  <h3>is_owner_of_brecho(id) — verificação de propriedade</h3>
+  <p>Retorna true se o usuário logado for dono do brechó com o ID informado. Usada na policy de leitura de eventos.</p>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="migration">
+  <h2>Como Rodar o Migration</h2>
+  <p>O arquivo <code>supabase_migration.sql</code> cria todas as tabelas, políticas, triggers e índices necessários. <strong>Deve ser rodado uma única vez</strong> em um banco vazio ou novo.</p>
+
+  <div class="callout warn">
+    <div class="callout-icon">⚠️</div>
+    <div>O migration usa <code>IF NOT EXISTS</code> e <code>ADD COLUMN IF NOT EXISTS</code> em todos os comandos, então é seguro rodar novamente em um banco que já tem as tabelas — ele apenas ignora o que já existe.</div>
+  </div>
+
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Abrir o Supabase</h4><p>Acesse <strong>supabase.com → seu projeto</strong></p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Ir para o SQL Editor</h4><p>Menu lateral → <strong>SQL Editor</strong> → <strong>New query</strong></p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Colar o SQL</h4><p>Copie todo o conteúdo de <code>supabase_migration.sql</code> e cole no editor</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><h4>Executar</h4><p>Clique em <strong>Run</strong> (atalho: Ctrl+Enter). Deve retornar "Success" em todas as linhas.</p></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-body"><h4>Verificar</h4><p>Menu lateral → <strong>Table Editor</strong> → confirmar que as tabelas profiles, brechos, curtidas, salvos e brecho_eventos existem</p></div></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<hr class="doc-divider"/>
+
+<section id="configurar-google-maps">
+  <h2>Configurar Google Maps</h2>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Criar projeto no Google Cloud</h4><p>Acesse <strong>console.cloud.google.com</strong> → Novo projeto → nomeie como "Repeteco"</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Ativar APIs</h4><p>APIs e Serviços → Ativar APIs → Ativar <strong>Maps JavaScript API</strong> e <strong>Geocoding API</strong></p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Criar chave de API</h4><p>APIs e Serviços → Credenciais → Criar credenciais → Chave de API</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><h4>Restringir a chave</h4><p>Editar a chave → Restrições de aplicativo: <strong>Referenciadores HTTP</strong> → Adicionar seu domínio (ex: repeteco.com.br/*). Restrições de API: selecionar apenas as duas APIs ativadas.</p></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-body"><h4>Configurar no projeto</h4><p>Abrir <code>config.js</code> → preencher <code>googleMapsApiKey: "sua-chave-aqui"</code></p></div></div>
+    <div class="step"><div class="step-num">6</div><div class="step-body"><h4>Criar Map ID</h4><p>No Google Cloud → Maps → Map Management → Criar Map ID (estilo "roadmap"). Copiar o ID e preencher <code>googleMapsMapId</code> no config.js</p></div></div>
+    <div class="step"><div class="step-num">7</div><div class="step-body"><h4>Cadastrar brechó com endereço</h4><p>Ao salvar o perfil no painel do dono com endereço preenchido, a geocodificação automática vai preencher latitude e longitude. O pin aparece no mapa.</p></div></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="configurar-hospedagem">
+  <h2>Hospedagem</h2>
+  <p>O projeto é composto apenas de arquivos estáticos (HTML, CSS, JS) — não precisa de servidor Node, PHP ou similar. Pode ser hospedado gratuitamente.</p>
+
+  <h3>Opção 1 — Vercel (recomendado)</h3>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Criar conta em vercel.com</h4><p>Login com GitHub, GitLab ou Bitbucket</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Subir o código para um repositório Git</h4><p>A pasta <code>tcc/</code> é a raiz do projeto. Subir como repositório no GitHub.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Importar no Vercel</h4><p>New Project → Import Git Repository → selecionar o repositório</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><h4>Configurar Root Directory</h4><p>Em "Root Directory", colocar <code>tcc</code> para que o Vercel sirva os arquivos da pasta correta</p></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-body"><h4>Deploy</h4><p>Clicar em Deploy. O Vercel gera uma URL do tipo <code>repeteco.vercel.app</code>.</p></div></div>
+    <div class="step"><div class="step-num">6</div><div class="step-body"><h4>Domínio próprio</h4><p>Settings → Domains → Add Domain → seguir instruções para apontar o DNS</p></div></div>
+  </div>
+
+  <h3>Opção 2 — Netlify</h3>
+  <p>Processo idêntico ao Vercel. Arrastar a pasta <code>tcc/</code> para o painel do Netlify já faz o deploy.</p>
+
+  <div class="callout info">
+    <div class="callout-icon">ℹ️</div>
+    <div><strong>Após hospedar:</strong> atualizar a <code>googleMapsApiKey</code> no <code>config.js</code> para restringir ao novo domínio. Também atualizar as configurações de CORS e redirect URL no Supabase → Authentication → URL Configuration.</div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="criar-admin">
+  <h2>Criar um Administrador</h2>
+  <p>A role "admin" não pode ser autoatribuída — precisa ser definida diretamente no banco por alguém com acesso ao Supabase.</p>
+
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><h4>Criar a conta normal</h4><p>Registre-se no site como usuário comum via "criar conta"</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><h4>Copiar o UUID</h4><p>Supabase → Authentication → Users → clicar no usuário → copiar o UUID</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><h4>Atualizar no banco</h4><p>Supabase → SQL Editor → rodar:</p></div></div>
+  </div>
+
+  <pre><code>UPDATE public.profiles
+SET role = 'admin'
+WHERE id = 'cole-o-uuid-aqui';</code></pre>
+
+  <div class="step"><div class="step-num">4</div><div class="step-body"><h4>Pronto</h4><p>Na próxima vez que o usuário fizer login, verá o botão "análises" na navbar e terá acesso completo ao painel administrativo.</p></div></div>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<hr class="doc-divider"/>
+
+<section id="afazer">
+  <h2>O Que Falta Fazer — Roadmap</h2>
+  <p>Lista priorizada do que precisa ser implementado para o Repeteco ser um produto profissional e lançável.</p>
+
+  <h3>🔴 Urgente — sem isso o produto não funciona corretamente</h3>
+  <ul>
+    <li><strong>Remover <code>zoom: 1.25</code> do CSS</strong> — substituir por tamanhos de fonte maiores. Causa problemas em Firefox e Safari iOS.</li>
+    <li><strong>Registrar eventos de view no app.js</strong> — sem isso, o gráfico de visitas do painel do dono ficará sempre zerado.</li>
+    <li><strong>Corrigir o formulário duplicado em cadastro.html</strong> — dois <code>&lt;form id="storeForm"&gt;</code> aninhados é HTML inválido.</li>
+    <li><strong>Implementar carregamento de curtidas e salvos ao fazer login</strong> — a função <code>carregarInteracoes()</code> precisa ser chamada após o login para persistir as interações entre sessões.</li>
+    <li><strong>Busca no banco com ilike</strong> — a busca atual filtra apenas os dados já em memória.</li>
+    <li><strong>Carrossel e novidades com dados reais</strong> — atualmente os cards são hardcoded no HTML.</li>
+  </ul>
+
+  <h3>🟡 Importante — para parecer profissional</h3>
+  <ul>
+    <li><strong>Loading states</strong> — skeleton screens ou spinner enquanto os dados carregam.</li>
+    <li><strong>Estado vazio amigável</strong> — quando feed, salvos ou curtidos estão vazios.</li>
+    <li><strong>Botões de WhatsApp e Instagram no modal</strong> — a informação já existe no banco, falta exibir.</li>
+    <li><strong>Recuperação de senha</strong> — link "esqueci minha senha" no modal de login.</li>
+    <li><strong>Rodapé com títulos corretos</strong> — todas as colunas estão com o título "Categorias".</li>
+    <li><strong>Formatação do dashboard.js</strong> — arquivo está minificado e impossível de manter.</li>
+    <li><strong>Deletar arquivos obsoletos</strong> — <code>tcc/dashboard.html</code> e <code>tcc/dashboard/brechos.html</code>.</li>
+    <li><strong>Design system consistente</strong> — o dashboard usa paleta diferente do site público.</li>
+  </ul>
+
+  <h3>🟢 Para lançar — obrigatório em produção</h3>
+  <ul>
+    <li><strong>URL individual por brechó</strong> — ex: <code>/brecho/garimpo-vintage</code>. Sem isso, brechós não aparecem no Google.</li>
+    <li><strong>SEO básico</strong> — meta description, Open Graph, title dinâmico, sitemap.xml, robots.txt.</li>
+    <li><strong>Página "Sobre o Repeteco"</strong> — proposta de valor, história, contato.</li>
+    <li><strong>Termos de uso e privacidade (LGPD)</strong> — obrigatório para coletar dados pessoais.</li>
+    <li><strong>Hospedagem com domínio</strong> — Vercel/Netlify + repeteco.com.br.</li>
+    <li><strong>Google Maps funcionando</strong> — chave configurada, brechós com coordenadas.</li>
+    <li><strong>Upload real de fotos</strong> — Supabase Storage para foto de capa e fotos adicionais.</li>
+    <li><strong>E-mail de confirmação configurado</strong> — template personalizado no Supabase.</li>
+  </ul>
+
+  <h3>⚪ Futuro — para escalar</h3>
+  <ul>
+    <li>Avaliações e comentários de usuários nos brechós</li>
+    <li>Sistema de busca com filtros múltiplos (bairro + categoria + estilo)</li>
+    <li>Notificações por e-mail para o dono quando alguém curte ou salva</li>
+    <li>Blog/editorial com conteúdo sobre moda circular e sustentabilidade</li>
+    <li>Página de eventos e feiras de brechó</li>
+    <li>App mobile (PWA ou React Native)</li>
+    <li>Integração com Instagram para importar fotos automaticamente</li>
+    <li>Plano pago para donos com destaque no feed</li>
+  </ul>
+</section>
+
+<!-- ══════════════════════════════════════ -->
+<section id="erros-comuns">
+  <h2>Erros Comuns e Soluções</h2>
+
+  <table class="doc-table">
+    <thead><tr><th>Erro</th><th>Causa</th><th>Solução</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>POST /brechos 401 (Unauthorized)</td>
+        <td>Policy RLS bloqueando o INSERT</td>
+        <td>Verificar se a policy <code>brechos_insert_anon</code> existe no Supabase. Rodar o migration completo.</td>
+      </tr>
+      <tr>
+        <td>42501 — row violates row-level security policy</td>
+        <td>Mesma causa do 401, ou tentativa de SELECT após INSERT sem policy de SELECT</td>
+        <td>Remover <code>.select().single()</code> após o INSERT no cadastro.js</td>
+      </tr>
+      <tr>
+        <td>Carrossel vazio / "undefined"</td>
+        <td>Nenhum brechó aprovado no banco, ou erro na query</td>
+        <td>Aprovar um brechó no painel admin ou verificar o console do browser por erros de rede</td>
+      </tr>
+      <tr>
+        <td>Mapa não aparece / fica SVG</td>
+        <td>Chave do Google Maps não configurada em config.js</td>
+        <td>Preencher googleMapsApiKey em config.js com uma chave válida</td>
+      </tr>
+      <tr>
+        <td>Dashboard redireciona para index.html</td>
+        <td>Usuário não tem role=admin ou role=dono E não tem brechó aprovado</td>
+        <td>Rodar UPDATE na tabela profiles para definir role=admin, ou aprovar um brechó do usuário</td>
+      </tr>
+      <tr>
+        <td>Login falha silenciosamente</td>
+        <td>Supabase Auth com confirmação de e-mail ativa</td>
+        <td>Desativar "Email Confirm" em Supabase → Authentication → Settings, OU orientar o usuário a confirmar o e-mail</td>
+      </tr>
+      <tr>
+        <td>Curtidas/salvos somem ao recarregar</td>
+        <td>carregarInteracoes() não está sendo chamada após o login</td>
+        <td>Chamar carregarInteracoes() dentro de carregarPerfil() após uiLogado()</td>
+      </tr>
+      <tr>
+        <td>Analytics zerado no painel do dono</td>
+        <td>Evento "view" não está sendo registrado quando o modal abre</td>
+        <td>Adicionar INSERT na tabela brecho_eventos dentro de openModal() no app.js</td>
+      </tr>
+      <tr>
+        <td>Site muito pequeno / zoom estranho</td>
+        <td>zoom: 1.25 no CSS causando inconsistências</td>
+        <td>Remover o zoom e aumentar font-size e espaçamentos nas propriedades individuais</td>
+      </tr>
+      <tr>
+        <td>Brechó cadastrado mas não aparece no feed</td>
+        <td>Status é "pending" e a policy RLS bloqueia o SELECT para anônimos</td>
+        <td>Admin precisa aprovar o brechó. Apenas brechós com status="approved" aparecem no feed.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="callout tip">
+    <div class="callout-icon">💡</div>
+    <div><strong>Dica de debug:</strong> abra o DevTools do browser (F12) → aba Network → filtre por "supabase". Todos os erros do Supabase aparecem ali com o código de erro exato e a mensagem completa. Isso é mais informativo que os erros que aparecem no console.</div>
+  </div>
+</section>
+
+<div style="margin-top:60px;padding:28px;background:var(--purple);border-radius:14px;text-align:center">
+  <div style="font-family:'Playfair Display',serif;font-size:22px;font-weight:900;color:var(--teal);margin-bottom:8px">re<span style="color:var(--yellow)">pé</span>teco</div>
+  <div style="font-size:12px;color:rgba(255,255,255,.5)">Documentação gerada em 2025 · Versão 4.0</div>
+</div>
+
+</main>
+
+<script>
+// Highlight sidebar link based on scroll
+const sections = document.querySelectorAll('section[id]');
+const links = document.querySelectorAll('.doc-sidebar a');
+window.addEventListener('scroll', () => {
+  let current = '';
+  sections.forEach(s => {
+    if (window.scrollY >= s.offsetTop - 80) current = s.id;
+  });
+  links.forEach(a => {
+    a.classList.toggle('active', a.getAttribute('href') === '#' + current);
+  });
+});
+</script>
+</body>
+</html>

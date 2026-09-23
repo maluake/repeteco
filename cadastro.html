@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+<title>Cadastro — Repeteco</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;700;800&display=swap" rel="stylesheet"/>
+
+
+
+<style>
+
+:root {
+  --cream: #FAFAE8;
+  --purple: #2D1B4E;
+  --teal: #8ECFCA;
+  --yellow: #E8D44D;
+  --text: #1a1a2e;
+  --muted: #777;
+  --white: #fff;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  background:var(--cream);
+  font-family:'DM Sans',sans-serif;
+  color:var(--text);
+}
+
+/* NAV */
+
+nav{
+  background:var(--purple);
+  height:60px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 24px;
+}
+
+.logo{
+  font-family:'Playfair Display',serif;
+  color:var(--teal);
+  font-size:24px;
+  font-weight:900;
+}
+
+.logo span{
+  color:var(--yellow);
+}
+
+.back-btn{
+  color:var(--teal);
+  text-decoration:none;
+  font-size:14px;
+  font-weight:700;
+}
+
+/* HERO */
+
+.hero{
+  padding:60px 24px 40px;
+  text-align:center;
+}
+
+.hero h1{
+  font-family:'Playfair Display',serif;
+  font-size:52px;
+  line-height:1.1;
+  color:var(--purple);
+  margin-bottom:18px;
+}
+
+.hero p{
+  max-width:700px;
+  margin:0 auto;
+  color:var(--muted);
+  line-height:1.7;
+  font-size:15px;
+}
+
+/* FORM */
+
+.form-wrap{
+  max-width:900px;
+  margin:auto;
+  padding:0 20px 80px;
+}
+
+.form-card{
+  background:var(--white);
+  border-radius:28px;
+  padding:42px;
+  box-shadow:0 10px 40px rgba(0,0,0,.06);
+}
+
+.form-section{
+  margin-bottom:42px;
+}
+
+.form-section h2{
+  font-size:14px;
+  text-transform:uppercase;
+  letter-spacing:1px;
+  color:var(--purple);
+  margin-bottom:20px;
+}
+
+.form-grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
+}
+
+.form-group{
+  display:flex;
+  flex-direction:column;
+}
+
+.form-group.full{
+  grid-column:1/-1;
+}
+
+label{
+  font-size:13px;
+  font-weight:700;
+  margin-bottom:8px;
+}
+
+input,
+textarea{
+  border:1.5px solid rgba(45,27,78,.12);
+  background:var(--cream);
+  border-radius:16px;
+  padding:15px;
+  font-family:'DM Sans',sans-serif;
+  font-size:14px;
+}
+
+input:focus,
+textarea:focus{
+  outline:none;
+  border-color:var(--purple);
+}
+
+textarea{
+  resize:vertical;
+  min-height:120px;
+}
+
+.checkbox-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:12px;
+}
+
+.checkbox-item{
+  background:var(--cream);
+  border-radius:14px;
+  padding:14px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-size:13px;
+  font-weight:600;
+}
+
+.submit-btn{
+  width:100%;
+  border:none;
+  background:var(--purple);
+  color:var(--teal);
+  border-radius:18px;
+  padding:18px;
+  font-size:15px;
+  font-weight:800;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.submit-btn:hover{
+  background:var(--teal);
+  color:var(--purple);
+}
+
+.success{
+  display:none;
+  margin-top:20px;
+  background:#dff7e3;
+  color:#1f6b2d;
+  padding:18px;
+  border-radius:16px;
+  font-weight:600;
+}
+
+footer{
+  padding:30px;
+  text-align:center;
+  color:#888;
+  font-size:12px;
+}
+
+@media(max-width:700px){
+
+  .hero h1{
+    font-size:38px;
+  }
+
+  .form-card{
+    padding:24px;
+  }
+
+  .form-grid{
+    grid-template-columns:1fr;
+  }
+
+  .checkbox-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<nav>
+  <div class="logo">re<span>pé</span>teco</div>
+
+  <a href="index.html" class="back-btn">
+    voltar
+  </a>
+</nav>
+
+<section class="hero">
+  <h1>Divulgue seu espaço<br>na nossa plataforma</h1>
+
+  <p>
+    Tem um brechó, antiquário, sebo ou espaço cultural?
+    Faça parte do Repeteco e conecte seu negócio a uma comunidade
+    apaixonada por moda circular, cultura e sustentabilidade.
+  </p>
+</section>
+
+<div class="form-wrap">
+
+  <div class="form-card">
+
+    <form id="storeForm">
+
+  <!-- ============================= -->
+  <!-- RESPONSÁVEL -->
+  <!-- ============================= -->
+
+  <div class="form-section">
+
+    <h2>Responsável</h2>
+
+    <div class="form-grid">
+
+      <div class="form-group">
+        <label for="responsavelNome">Nome</label>
+        <input
+          type="text"
+          id="responsavelNome"
+          name="responsavelNome"
+          autocomplete="name"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="responsavelEmail">Email</label>
+        <input
+          type="email"
+          id="responsavelEmail"
+          name="responsavelEmail"
+          autocomplete="email"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="responsavelWhatsapp">WhatsApp</label>
+        <input
+          type="tel"
+          id="responsavelWhatsapp"
+          name="responsavelWhatsapp"
+          autocomplete="tel"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="responsavelInstagram">Instagram</label>
+        <input
+          type="text"
+          id="responsavelInstagram"
+          name="responsavelInstagram"
+          placeholder="@seuinstagram"
+        >
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ============================= -->
+  <!-- SOBRE O ESPAÇO -->
+  <!-- ============================= -->
+
+  <div class="form-section">
+
+    <h2>Sobre o espaço</h2>
+
+    <div class="form-grid">
+
+      <div class="form-group full">
+        <label for="nomeBrecho">Nome do espaço</label>
+
+        <input
+          type="text"
+          id="nomeBrecho"
+          name="nomeBrecho"
+          required
+        >
+      </div>
+
+      <div class="form-group full">
+
+        <label for="descricaoBrecho">Descrição</label>
+
+        <textarea
+          id="descricaoBrecho"
+          name="descricaoBrecho"
+          placeholder="Conte sobre seu espaço..."
+          rows="5"
+        ></textarea>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ============================= -->
+  <!-- CATEGORIAS -->
+  <!-- ============================= -->
+
+  <div class="form-section">
+
+    <h2>Categorias</h2>
+
+    <div class="checkbox-grid">
+
+      <label class="checkbox-item">
+        <input
+          type="checkbox"
+          name="categorias"
+          value="brechó"
+        >
+        Brechó
+      </label>
+
+      <label class="checkbox-item">
+        <input
+          type="checkbox"
+          name="categorias"
+          value="sebo"
+        >
+        Sebo
+      </label>
+
+      <label class="checkbox-item">
+        <input
+          type="checkbox"
+          name="categorias"
+          value="antiquário"
+        >
+        Antiquário
+      </label>
+
+      <label class="checkbox-item">
+        <input
+          type="checkbox"
+          name="categorias"
+          value="moda vintage"
+        >
+        Moda vintage
+      </label>
+
+      <label class="checkbox-item">
+        <input
+          type="checkbox"
+          name="categorias"
+          value="vinil"
+        >
+        Vinil
+      </label>
+
+      <label class="checkbox-item">
+        <input
+          type="checkbox"
+          name="categorias"
+          value="colecionáveis"
+        >
+        Colecionáveis
+      </label>
+
+    </div>
+
+  </div>
+
+
+  <!-- ============================= -->
+  <!-- LOCALIZAÇÃO -->
+  <!-- ============================= -->
+
+  <div class="form-section">
+
+    <h2>Localização</h2>
+
+    <div class="form-grid">
+
+      <div class="form-group">
+
+        <label for="cidade">Cidade</label>
+
+        <input
+          type="text"
+          id="cidade"
+          name="cidade"
+          value="São Paulo"
+          required
+        >
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="bairro">Bairro</label>
+
+        <input
+          type="text"
+          id="bairro"
+          name="bairro"
+          required
+        >
+
+      </div>
+
+
+      <div class="form-group full">
+
+        <label for="endereco">Endereço</label>
+
+        <input
+          type="text"
+          id="endereco"
+          name="endereco"
+          placeholder="Rua, número..."
+        >
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- ============================= -->
+  <!-- IMAGENS -->
+  <!-- ============================= -->
+
+  <div class="form-section">
+
+    <h2>Imagens</h2>
+
+    <div class="form-group">
+
+      <label for="fotosBrecho">
+        Envie fotos do espaço
+      </label>
+
+      <input
+        type="file"
+        id="fotosBrecho"
+        name="fotosBrecho"
+        multiple
+        accept="image/jpeg,image/png,image/webp"
+      >
+
+      <small>
+        Você poderá enviar fotos do espaço, fachada ou produtos.
+      </small>
+
+    </div>
+
+  </div>
+
+
+  <!-- ============================= -->
+  <!-- ENVIO -->
+  <!-- ============================= -->
+
+  <button
+    class="submit-btn"
+    type="submit"
+    id="submitBrecho"
+  >
+    enviar solicitação
+  </button>
+
+
+  <div
+    class="success"
+    id="successMessage"
+    style="display: none;"
+  >
+    💚 solicitação enviada com sucesso!
+  </div>
+
+</form>
+  </div>
+
+</div>
+
+<footer>
+  © 2025 Repeteco · feito com 💚 em SP
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="supabase.js"></script>
+
+<script src="cadastro.js"></script>
+
+</body>
+</html>
