@@ -23,13 +23,15 @@ assets/js/            config, core (Supabase, sessão, SEO), layout (cabeçalho/
                       a11y, interactions (curtir/salvar), media (imagens), map (Leaflet),
                       render, vocab, pages/*.js
 assets/vendor/        supabase-js 2.117.2 e Leaflet 1.9.4 servidos localmente
-supabase/             01_base_v4.sql · 02_v5_produto.sql · tests/
+supabase/             01_base_v4.sql · v5/ (6 partes) · tests/
 tests/e2e/            testes de navegador (Playwright + axe-core)
 ```
 
 ## Configurar o Supabase
 
-1. No **SQL Editor**, rode `supabase/01_base_v4.sql` (se o banco ainda não tiver a v4) e depois `supabase/02_v5_produto.sql`. As duas são idempotentes. O início da v5 lista exatamente o que ela altera.
+1. No **SQL Editor**, rode `supabase/01_base_v4.sql` (só se o banco ainda não tiver a v4) e depois as seis partes de `supabase/v5/`, **em ordem e uma de cada vez**:
+   `1_perfis.sql` → `2_brechos.sql` → `3_publicacoes_curtidas.sql` → `4_views_editorial_contato.sql` → `5_estatisticas.sql` → `6_storage.sql`.
+   Para cada parte: abra uma consulta nova, cole o arquivo **inteiro** e clique em *Run*. Não divida um arquivo em pedaços: funções entre `$$ … $$` precisam ir completas, senão o Postgres acusa `syntax error at or near "$$"`. Todas as partes podem ser repetidas sem problema, inclusive depois de uma execução que falhou no meio. O começo da parte 1 lista exatamente o que a v5 altera.
 2. Em **Authentication → URL Configuration**:
    - *Site URL*: o endereço publicado (ex.: `https://seu-dominio`).
    - *Redirect URLs*: `https://seu-dominio/entrar.html*` e `https://seu-dominio/nova-senha.html` (inclua também `http://127.0.0.1:8090/*` para testes locais).
