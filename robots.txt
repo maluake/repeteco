@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /dashboard/
+Disallow: /perfil.html
+Disallow: /salvos.html
+Disallow: /nova-senha.html

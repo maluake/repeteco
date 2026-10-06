@@ -1,0 +1,14 @@
+{
+  "name": "repeteco",
+  "private": true,
+  "description": "Repeteco — brechós de São Paulo. Site estático + Supabase; não há etapa de build.",
+  "scripts": {
+    "serve": "python3 -m http.server 8090 --bind 127.0.0.1",
+    "test:e2e": "node tests/e2e/run.js",
+    "test:db": "./supabase/tests/run.sh"
+  },
+  "devDependencies": {
+    "axe-core": "^4.10.0",
+    "playwright": "^1.56.0"
+  }
+}

@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mapa de brechós — Repeteco</title>
+  <meta name="description" content="Mapa dos brechós, sebos e antiquários aprovados no Repeteco, por bairro de São Paulo.">
+  <meta property="og:site_name" content="Repeteco">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Mapa de brechós">
+  <meta property="og:description" content="Mapa dos brechós, sebos e antiquários aprovados no Repeteco, por bairro de São Paulo.">
+  <meta property="og:image" content="assets/img/og-repeteco.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#340C3D">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/pages.css">
+  <script src="assets/js/a11y.js"></script>
+  <script defer src="assets/vendor/supabase-2.117.2.js"></script>
+  <script defer src="assets/vendor/leaflet/leaflet.js"></script>
+  <script defer src="assets/js/config.js"></script>
+  <script defer src="assets/js/core.js"></script>
+  <script defer src="assets/js/vocab.js"></script>
+  <script defer src="assets/js/layout.js"></script>
+  <script defer src="assets/js/interactions.js"></script>
+  <script defer src="assets/js/render.js"></script>
+  <script defer src="assets/js/map.js"></script>
+  <script defer src="assets/js/pages/brechos.js"></script>
+</head>
+<body data-page="brechos">
+  <header id="site-header"></header>
+  <main id="conteudo" tabindex="-1">
+    <header class="page-head">
+      <h1 class="visually-hidden">Mapa de brechós</h1>
+      <form class="search-pill" id="shopSearch" role="search">
+        <label class="visually-hidden" for="shopQ">Buscar brechó por nome ou bairro</label>
+        <input id="shopQ" name="q" type="search" placeholder="buscar brechós, bairros, antiquários…" autocomplete="off">
+        <button class="btn btn-sm" type="submit">buscar</button>
+      </form>
+      <nav aria-label="Filtrar por bairro"><ul class="filter-tabs scrolls" id="hoodTabs" role="list"></ul></nav>
+    </header>
+    <p class="visually-hidden" id="shopStatus" role="status" aria-live="polite"></p>
+    <div class="wrap">
+      <section class="map-frame" aria-label="Mapa dos brechós"><div class="map-canvas" id="mapCanvas"></div></section>
+      <p class="map-note" id="mapNote"></p>
+      <section aria-labelledby="shopsTitle">
+        <h2 class="section-title-center" id="shopsTitle">brechós no mapa</h2>
+        <div id="shopList" aria-busy="true"></div>
+      </section>
+      <section aria-labelledby="recentTitle" id="recentSection" hidden>
+        <h2 class="section-title-center" id="recentTitle">mais recente no nosso feed!</h2>
+        <div class="tile-grid" id="recentPieces"></div>
+      </section>
+    </div>
+    <div class="section"></div>
+  </main>
+  <footer id="site-footer"></footer>
+  <noscript><p class="noscript">O Repeteco precisa de JavaScript para funcionar.</p></noscript>
+</body>
+</html>

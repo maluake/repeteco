@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Achados — feed de peças dos brechós de SP — Repeteco</title>
+  <meta name="description" content="Peças de brechós de São Paulo publicadas pelos próprios brechós: vestidos, jaquetas, calças, acessórios e mais. Curta, salve e descubra onde encontrar.">
+  <meta property="og:site_name" content="Repeteco">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Achados — feed de peças dos brechós de SP">
+  <meta property="og:description" content="Peças publicadas pelos brechós de São Paulo. Curta, salve e descubra onde encontrar.">
+  <meta property="og:image" content="assets/img/og-repeteco.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#340C3D">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/pages.css">
+  <script src="assets/js/a11y.js"></script>
+  <script defer src="assets/vendor/supabase-2.117.2.js"></script>
+  <script defer src="assets/js/config.js"></script>
+  <script defer src="assets/js/core.js"></script>
+  <script defer src="assets/js/vocab.js"></script>
+  <script defer src="assets/js/layout.js"></script>
+  <script defer src="assets/js/interactions.js"></script>
+  <script defer src="assets/js/render.js"></script>
+  <script defer src="assets/js/pages/feed.js"></script>
+</head>
+<body data-page="feed">
+  <header id="site-header"></header>
+  <main id="conteudo" tabindex="-1">
+    <header class="page-head">
+      <h1 class="visually-hidden">Feed de peças dos brechós</h1>
+      <form class="search-pill" action="busca.html" role="search">
+        <label class="visually-hidden" for="feedSearch">Buscar peças, brechós e bairros</label>
+        <input id="feedSearch" name="q" type="search" placeholder="buscar peças, brechós, bairros…" autocomplete="off">
+        <button class="btn btn-sm" type="submit">buscar</button>
+      </form>
+      <nav aria-label="Filtrar o feed">
+        <ul class="filter-tabs scrolls" id="feedTabs" role="list"></ul>
+      </nav>
+    </header>
+    <p class="visually-hidden" id="feedStatus" role="status" aria-live="polite"></p>
+    <section class="wrap" aria-labelledby="feedGridTitle" style="padding-bottom:3.5rem">
+      <h2 class="visually-hidden" id="feedGridTitle">Peças</h2>
+      <div class="mosaic" id="feedGrid" aria-busy="true"></div>
+      <div class="load-more" id="feedMore" hidden>
+        <button class="btn btn-teal" type="button" id="feedMoreBtn">carregar mais</button>
+      </div>
+    </section>
+  </main>
+  <footer id="site-footer"></footer>
+  <noscript><p class="noscript">O Repeteco precisa de JavaScript para carregar as peças e os brechós.</p></noscript>
+</body>
+</html>

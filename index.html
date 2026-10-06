@@ -1,500 +1,103 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Repeteco — Brechos de SP</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
-  <link rel="stylesheet" href="style.css"/>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Repeteco — brechós, sebos e antiquários de São Paulo</title>
+  <meta name="description" content="Descubra brechós de São Paulo, veja as peças que acabaram de chegar e encontre no mapa onde garimpar. Moda circular com curadoria.">
+  <meta property="og:site_name" content="Repeteco">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Repeteco — brechós de São Paulo">
+  <meta property="og:description" content="Peças recém-chegadas, brechós no mapa e um editorial sobre moda circular.">
+  <meta property="og:image" content="assets/img/og-repeteco.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#340C3D">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/pages.css">
+  <script src="assets/js/a11y.js"></script>
+  <script defer src="assets/vendor/supabase-2.117.2.js"></script>
+  <script defer src="assets/js/config.js"></script>
+  <script defer src="assets/js/core.js"></script>
+  <script defer src="assets/js/vocab.js"></script>
+  <script defer src="assets/js/layout.js"></script>
+  <script defer src="assets/js/interactions.js"></script>
+  <script defer src="assets/js/render.js"></script>
+  <script defer src="assets/js/pages/home.js"></script>
 </head>
-<body>
-<a class="skip-link" href="#main-content">pular para o conteúdo</a>
-<div class="a11y-toolbar"><button class="a11y-trigger" type="button" onclick="toggleAccessibility()" aria-controls="accessibilityPanel" aria-expanded="false">acessibilidade</button></div>
-
-<!-- ══════════════════════════════
-     NAVBAR
-══════════════════════════════ -->
-
-<nav>
-
-    <div class="nav-logo">
-        re<span>pé</span>teco
+<body data-page="home">
+  <header id="site-header"></header>
+  <main id="conteudo" tabindex="-1">
+    <h1 class="visually-hidden">Repeteco — brechós, sebos e antiquários de São Paulo</h1>
+    <div class="home-hero">
+      <img src="https://images.unsplash.com/photo-1543059080-f9b1272213d5?w=1600&q=80&auto=format&fit=crop" alt="Rua arborizada entre prédios no centro de São Paulo" fetchpriority="high" data-fallback>
     </div>
 
-    <div class="nav-tabs">
-
-        <button
-            class="nav-tab active"
-            onclick="showPage('home')"
-        >
-            início
-        </button>
-
-        <button
-            class="nav-tab"
-            onclick="showPage('map')"
-        >
-            mapa
-        </button>
-
-        <button
-            class="nav-tab"
-            onclick="showPage('feed')"
-        >
-            feed
-        </button>
-
-        <!-- aparece somente para dono de brechó ou admin -->
-        <button
-            class="nav-tab nav-analises"
-            id="navAnalises"
-            onclick="abrirAnalises()"
-            style="display: none;"
-        >
-            análises
-        </button>
-
-    </div>
-
-
-    <!-- ══════════════════════════════
-         LOGIN / PERFIL
-    ══════════════════════════════ -->
-
-    <div
-        class="nav-actions"
-        id="navActions"
-    >
-
-        <!-- DESLOGADO -->
-
-        <button
-            class="btn-login"
-            id="btnLogin"
-            onclick="openAuth('login')"
-        >
-            entrar
-        </button>
-
-        <button
-            class="btn-signup"
-            id="btnSignup"
-            onclick="openAuth('signup')"
-        >
-            criar conta
-        </button>
-
-
-        <!-- LOGADO -->
-
-        <button
-            class="avatar-btn"
-            id="avatarBtn"
-            onclick="toggleProfile()"
-            type="button"
-            aria-label="Abrir perfil"
-            style="display: none;"
-        >
-            ?
-        </button>
-
-    </div>
-
-</nav>
-
-
-<!-- ══════════════════════════════
-     PROFILE DROPDOWN
-══════════════════════════════ -->
-
-<div
-    class="profile-dropdown"
-    id="profileDropdown"
->
-
-    <div
-        class="profile-name"
-        id="profileName"
-    >
-        usuário
-    </div>
-
-    <div
-        class="profile-email"
-        id="profileEmail"
-    >
-        —
-    </div>
-
-    <div class="profile-menu">
-        <button class="profile-menu-button" type="button" onclick="abrirPerfilCliente()">editar meu perfil</button>
-        <button class="profile-menu-button" type="button" onclick="toggleAccessibility();closeProfile()">acessibilidade</button>
-
-        <a
-            href="#"
-            onclick="
-                showPage('feed');
-                switchFeed('saved', this);
-                closeProfile();
-                return false;
-            "
-        >
-            🔖 salvos
-        </a>
-
-        <a
-            href="#"
-            onclick="
-                showPage('feed');
-                switchFeed('liked', this);
-                closeProfile();
-                return false;
-            "
-        >
-            ❤️ curtidos
-        </a>
-
-        <a href="cadastro.html">
-            📬 divulgar meu brechó
-        </a>
-
-    </div>
-
-    <button
-        class="btn-logout"
-        id="btnLogout"
-        onclick="doLogout()"
-        type="button"
-    >
-        sair da conta
-    </button>
-
-</div>
-
-<!-- ══════════════════════════════
-     HOME
-══════════════════════════════ -->
-<main id="main-content">
-<div class="page active" id="page-home">
-
-  <div class="hero">
-    <img
-      src="https://images.unsplash.com/photo-1543059080-f9b1272213d5?w=900&q=80&auto=format&fit=crop"
-      alt="São Paulo"
-      onerror="this.style.display='none'"
-    />
-  </div>
-
-  <div class="search-bar-wrap">
-    <div class="search-bar">
-      <input type="text" id="homeSearch" placeholder="descubra os melhores lugares para garimpar…"/>
-      <button onclick="handleSearch()">🔍</button>
-    </div>
-  </div>
-
-  <div class="section-label">Espaços em destaque</div>
-  <div class="carousel-wrap">
-    <button class="carousel-btn prev" onclick="scrollCarousel('carousel1',-1)">‹</button>
-    <div class="carousel" id="carousel1">
-      <div class="carousel-card" style="background:#8ECFCA;" onclick="openModal(0)"><div class="card-tag">novo</div><div class="card-label">Bê Brecho · Vila Madalena</div></div>
-      <div class="carousel-card" style="background:#A8D8B0;" onclick="openModal(1)"><div class="card-tag">destaque</div><div class="card-label">Trocadilho · Pinheiros</div></div>
-      <div class="carousel-card" style="background:#B8C4E8;" onclick="openModal(2)"><div class="card-label">Cê Trocou · Liberdade</div></div>
-      <div class="carousel-card" style="background:#E8C4A0;" onclick="openModal(3)"><div class="card-tag">vintage</div><div class="card-label">Aramado Vintage · Bela Vista</div></div>
-      <div class="carousel-card" style="background:#C4B8E8;" onclick="openModal(4)"><div class="card-label">Outro Ciclo · Moema</div></div>
-      <div class="carousel-card" style="background:#A0C8E0;" onclick="openModal(5)"><div class="card-tag">destaque</div><div class="card-label">Re:Veste · Itaim Bibi</div></div>
-    </div>
-    <button class="carousel-btn next" onclick="scrollCarousel('carousel1',1)">›</button>
-  </div>
-
-  <div class="manifesto">
-    <h2>A <span class="hl-yellow">sustentabilidade</span> de um<br/>jeito mais <span class="hl-teal">style</span></h2>
-    <p>Descubra os melhores lugares de SP para garimpar roupas, objetos e o que mais sua mente pensar.</p>
-  </div>
-
-  <div class="explore-section">
-    <div class="explore-header-row">
-      <h3>Explore o seu próximo rolê!</h3>
-      <button class="arrow-btn" onclick="showPage('map')">›</button>
-    </div>
-    <div class="explore-grid">
-      <div class="explore-card" style="background:#8ECFCA;" onclick="filterMap('Vila Madalena')"><div class="card-mini-label">Vila Madalena</div></div>
-      <div class="explore-card" style="background:#9ecec5;" onclick="filterMap('Pinheiros')"><div class="card-mini-label">Pinheiros</div></div>
-      <div class="explore-card" style="background:#8ECFCA;" onclick="filterMap('Bela Vista')"><div class="card-mini-label">Bela Vista</div></div>
-      <div class="explore-card" style="background:#9ecec5;" onclick="filterMap('Liberdade')"><div class="card-mini-label">Liberdade</div></div>
-      <div class="explore-card" style="background:#8ECFCA;" onclick="filterMap('Moema')"><div class="card-mini-label">Moema</div></div>
-      <div class="explore-card" style="background:#9ecec5;" onclick="filterMap('Itaim Bibi')"><div class="card-mini-label">Itaim Bibi</div></div>
-      <div class="explore-card" style="background:#8ECFCA;" onclick="filterMap('Consolação')"><div class="card-mini-label">Consolação</div></div>
-      <div class="explore-card" style="background:#9ecec5;" onclick="filterMap('Santana')"><div class="card-mini-label">Santana</div></div>
-    </div>
-    <div style="margin-top:22px;">
-      <div style="font-size:12px;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:10px;">Novidades no feed</div>
-      <div class="novidades-grid">
-        <div class="novidade-card" style="background:#8ECFCA;" onclick="openModal(6)"><div class="card-mini-label">Garimpeira</div></div>
-        <div class="novidade-card" style="background:#9ecec5;" onclick="openModal(7)"><div class="card-mini-label">Fio a Fio</div></div>
-        <div class="novidade-card" style="background:#8ECFCA;" onclick="openModal(8)"><div class="card-mini-label">Baú da Avó</div></div>
+    <form class="home-search" action="busca.html" role="search">
+      <div class="search-pill">
+        <label class="visually-hidden" for="homeSearch">Buscar brechós, peças e bairros</label>
+        <input id="homeSearch" name="q" type="search" placeholder="buscar brechós, peças, bairros…" autocomplete="off">
+        <button class="btn btn-sm" type="submit">buscar</button>
       </div>
-    </div>
-  </div>
-
-  <div class="cta-outer">
-    <div class="cta-banner">
-      <div class="cta-left">
-        <h3>Divulgue o seu espaço<br/>na nossa plataforma!</h3>
-        <div class="cta-btns">
-          <a href="cadastro.html" class="cta-btn-pill">
-  quero divulgar
-</a>
-          <button class="cta-btn-pill outline" onclick="openAuth('signup')">criar conta</button>
-        </div>
-      </div>
-      <div class="cta-right">
-        <div class="cta-img-big"></div>
-        <div class="cta-img-row"><div class="cta-img-sm"></div><div class="cta-img-sm"></div></div>
-      </div>
-    </div>
-  </div>
-
-  <footer>
-    <div><h4>Categorias</h4><ul><li><a href="#">brechos</a></li><li><a href="#">eventos</a></li><li><a href="#">antiquários</a></li><li><a href="#">sebos</a></li><li><a href="#">lojas de vinil</a></li><li><a href="#">outros</a></li></ul></div>
-    <div><h4>Categorias</h4><ul><li><a href="#">roupas</a></li><li><a href="#">acessórios</a></li><li><a href="#">calçados</a></li><li><a href="#">bijoux</a></li><li><a href="#">arte</a></li></ul></div>
-    <div><h4>Categorias</h4><ul><li><a href="#" onclick="showPage('map');return false;">mapa</a></li><li><a href="#">circular</a></li><li><a href="#">arredores</a></li><li><a href="#">bairros</a></li></ul></div>
-    <div><h4>Categorias</h4><ul><li><a href="#">blog do site</a></li><li><a href="#">sobre nós</a></li><li><a href="#">parceiros</a></li><li><a href="#" onclick="openContact();return false;">contato</a></li></ul></div>
-    <div><h4>Categorias</h4><ul><li><a href="#" onclick="openAuth('signup');return false;">criar conta</a></li><li><a href="#" onclick="openAuth('login');return false;">entrar</a></li><li><a href="#">favoritos</a></li><li><a href="#">curtidos</a></li></ul></div>
-  </footer>
-  <div class="footer-bottom">© 2025 Repeteco · feito com 💚 em SP</div>
-</div>
-
-<!-- ══════════════════════════════
-     MAPA
-══════════════════════════════ -->
-<div class="page" id="page-map">
-  <div class="map-search">
-    <div class="search-bar">
-      <input type="text" id="mapSearch" placeholder="buscar por bairro, nome…"/>
-      <button onclick="handleMapSearch()">🔍</button>
-    </div>
-  </div>
-
-  <div class="map-container">
-    <div id="googleMap" class="google-map" role="application" aria-label="Mapa dos brechós aprovados"></div>
-    <div id="mapFallback" class="map-fallback"><strong>Mapa interativo</strong><span>Configure a chave do Google Maps para ativar o mapa real.</span></div>
-    <svg class="map-svg" viewBox="0 0 400 280" xmlns="http://www.w3.org/2000/svg">
-      <rect width="400" height="280" fill="#d4e8c4"/>
-      <line x1="0" y1="140" x2="400" y2="140" stroke="#fff" stroke-width="6" opacity=".7"/>
-      <line x1="200" y1="0" x2="200" y2="280" stroke="#fff" stroke-width="6" opacity=".7"/>
-      <line x1="0" y1="70" x2="400" y2="200" stroke="#fff" stroke-width="4" opacity=".5"/>
-      <line x1="0" y1="210" x2="300" y2="80" stroke="#fff" stroke-width="4" opacity=".5"/>
-      <line x1="80" y1="0" x2="80" y2="280" stroke="#fff" stroke-width="3" opacity=".4"/>
-      <line x1="320" y1="0" x2="320" y2="280" stroke="#fff" stroke-width="3" opacity=".4"/>
-      <path d="M 0 220 Q 100 200 200 220 Q 300 240 400 220" stroke="#7bb8d4" stroke-width="10" fill="none" opacity=".7"/>
-      <ellipse cx="60" cy="100" rx="35" ry="25" fill="#a8d88c" opacity=".6"/>
-      <ellipse cx="340" cy="170" rx="28" ry="20" fill="#a8d88c" opacity=".6"/>
-      <rect x="90" y="50" width="50" height="40" rx="3" fill="rgba(255,255,255,.3)"/>
-      <rect x="150" y="60" width="40" height="30" rx="3" fill="rgba(255,255,255,.3)"/>
-      <rect x="220" y="50" width="45" height="35" rx="3" fill="rgba(255,255,255,.3)"/>
-      <rect x="100" y="155" width="45" height="35" rx="3" fill="rgba(255,255,255,.3)"/>
-      <rect x="210" y="160" width="50" height="30" rx="3" fill="rgba(255,255,255,.3)"/>
-      <rect x="280" y="80" width="40" height="35" rx="3" fill="rgba(255,255,255,.3)"/>
-      <g class="map-pin" onclick="openModal(0)" transform="translate(120,90)"><circle cx="0" cy="0" r="13" fill="#2D1B4E" opacity=".9"/><text x="0" y="5" text-anchor="middle" fill="#8ECFCA" font-size="10" font-family="sans-serif">●</text></g>
-      <g class="map-pin" onclick="openModal(1)" transform="translate(175,110)"><circle cx="0" cy="0" r="13" fill="#2D1B4E" opacity=".9"/><text x="0" y="5" text-anchor="middle" fill="#8ECFCA" font-size="10" font-family="sans-serif">●</text></g>
-      <g class="map-pin" onclick="openModal(2)" transform="translate(240,75)"><circle cx="0" cy="0" r="13" fill="#E8D44D"/><text x="0" y="5" text-anchor="middle" fill="#2D1B4E" font-size="10" font-family="sans-serif">●</text></g>
-      <g class="map-pin" onclick="openModal(3)" transform="translate(300,130)"><circle cx="0" cy="0" r="13" fill="#2D1B4E" opacity=".9"/><text x="0" y="5" text-anchor="middle" fill="#8ECFCA" font-size="10" font-family="sans-serif">●</text></g>
-      <g class="map-pin" onclick="openModal(4)" transform="translate(150,185)"><circle cx="0" cy="0" r="13" fill="#2D1B4E" opacity=".9"/><text x="0" y="5" text-anchor="middle" fill="#8ECFCA" font-size="10" font-family="sans-serif">●</text></g>
-      <g class="map-pin" onclick="openModal(5)" transform="translate(230,170)"><circle cx="0" cy="0" r="13" fill="#E8D44D"/><text x="0" y="5" text-anchor="middle" fill="#2D1B4E" font-size="10" font-family="sans-serif">●</text></g>
-    </svg>
-  </div>
-
-  <div class="map-feed-section">
-    <h3>Mais recente no nosso feed!</h3>
-    <div class="feed-grid-map" id="mapFeedGrid"></div>
-  </div>
-
-  <div class="cta-outer">
-    <div class="cta-banner">
-      <div class="cta-left">
-        <h3>Divulgue o seu espaço<br/>na nossa plataforma!</h3>
-        <div class="cta-btns">
-          <a href="cadastro.html" class="cta-btn-pill">
-  quero divulgar
-</a>
-          <button class="cta-btn-pill outline" onclick="openAuth('signup')">criar conta</button>
-        </div>
-      </div>
-      <div class="cta-right">
-        <div class="cta-img-big"></div>
-        <div class="cta-img-row"><div class="cta-img-sm"></div><div class="cta-img-sm"></div></div>
-      </div>
-    </div>
-  </div>
-
-  <footer>
-    <div><h4>Categorias</h4><ul><li><a href="#">brechos</a></li><li><a href="#">eventos</a></li><li><a href="#">antiquários</a></li><li><a href="#">sebos</a></li><li><a href="#">lojas de vinil</a></li></ul></div>
-    <div><h4>Categorias</h4><ul><li><a href="#">roupas</a></li><li><a href="#">acessórios</a></li><li><a href="#">calçados</a></li><li><a href="#">bijoux</a></li></ul></div>
-    <div><h4>Categorias</h4><ul><li><a href="#">mapa</a></li><li><a href="#">circular</a></li><li><a href="#">bairros</a></li></ul></div>
-    <div><h4>Categorias</h4><ul><li><a href="#">blog</a></li><li><a href="#">sobre nós</a></li><li><a href="#" onclick="openContact();return false;">contato</a></li></ul></div>
-    <div><h4>Categorias</h4><ul><li><a href="#" onclick="openAuth('signup');return false;">criar conta</a></li><li><a href="#" onclick="openAuth('login');return false;">entrar</a></li></ul></div>
-  </footer>
-  <div class="footer-bottom">© 2025 Repeteco · feito com 💚 em SP</div>
-</div>
-
-<!-- ══════════════════════════════
-     FEED
-══════════════════════════════ -->
-<div class="page" id="page-feed">
-  <div class="feed-header">
-    <div class="saved-toggle">
-      <button class="saved-btn active" onclick="switchFeed('all',this)">todos</button>
-      <button class="saved-btn"        onclick="switchFeed('saved',this)">salvos</button>
-      <button class="saved-btn"        onclick="switchFeed('liked',this)">curtidos</button>
-    </div>
-    <button class="feed-search-icon" onclick="showPage('home')">🔍</button>
-  </div>
-
-  <div id="feed-section">
-    <div id="feedContent"></div>
-  </div>
-
-  <div class="cta-outer" style="margin-top:8px;">
-    <div class="cta-banner">
-      <div class="cta-left">
-        <h3>Divulgue o seu espaço<br/>na nossa plataforma!</h3>
-        <div class="cta-btns">
-          <a href="cadastro.html" class="cta-btn-pill">
-  quero divulgar
-</a>
-          <button class="cta-btn-pill outline" onclick="openAuth('signup')">criar conta</button>
-        </div>
-      </div>
-      <div class="cta-right">
-        <div class="cta-img-big"></div>
-        <div class="cta-img-row"><div class="cta-img-sm"></div><div class="cta-img-sm"></div></div>
-      </div>
-    </div>
-  </div>
-
-  <footer>
-    <div><h4>Categorias</h4><ul><li><a href="#">brechos</a></li><li><a href="#">eventos</a></li><li><a href="#">antiquários</a></li><li><a href="#">sebos</a></li><li><a href="#">lojas de vinil</a></li></ul></div>
-    <div><h4>Categorias</h4><ul><li><a href="#">roupas</a></li><li><a href="#">acessórios</a></li><li><a href="#">calçados</a></li><li><a href="#">bijoux</a></li></ul></div>
-    <div><h4>Categorias</h4><ul><li><a href="#" onclick="showPage('map');return false;">mapa</a></li><li><a href="#">circular</a></li><li><a href="#">bairros</a></li></ul></div>
-    <div><h4>Categorias</h4><ul><li><a href="#">blog</a></li><li><a href="#">sobre nós</a></li><li><a href="#" onclick="openContact();return false;">contato</a></li></ul></div>
-    <div><h4>Categorias</h4><ul><li><a href="#" onclick="openAuth('signup');return false;">criar conta</a></li><li><a href="#" onclick="openAuth('login');return false;">entrar</a></li><li><a href="#">favoritos</a></li></ul></div>
-  </footer>
-  <div class="footer-bottom">© 2025 Repeteco · feito com 💚 em SP</div>
-</div>
-</main>
-
-<!-- ══════════════════════════════
-     MODAIS / OVERLAYS
-══════════════════════════════ -->
-
-<!-- PERFIL DO CLIENTE -->
-<div class="profile-modal" id="clientProfileModal" aria-hidden="true">
-  <div class="profile-modal-box" role="dialog" aria-modal="true" aria-labelledby="clientProfileTitle">
-    <button class="auth-close" onclick="fecharPerfilCliente()" aria-label="Fechar">✕</button>
-    <span class="section-kicker">minha conta</span>
-    <h2 id="clientProfileTitle">Meu perfil</h2>
-    <p class="profile-help">Atualize seus dados sem alterar o e-mail usado para entrar.</p>
-    <form onsubmit="salvarPerfilCliente(event)">
-      <div class="form-group"><label for="clientProfileName">Nome</label><input id="clientProfileName" required maxlength="80"></div>
-      <div class="form-group"><label for="clientProfileCity">Cidade</label><input id="clientProfileCity" maxlength="80" placeholder="São Paulo"></div>
-      <div class="form-group"><label for="clientProfileBio">Sobre você</label><textarea id="clientProfileBio" rows="3" maxlength="240" placeholder="Conte um pouco sobre seu estilo de garimpo…"></textarea></div>
-      <div class="form-group"><label for="clientProfileEmail">E-mail</label><input id="clientProfileEmail" type="email" readonly></div>
-      <div class="profile-form-footer"><span id="clientProfileMessage" aria-live="polite"></span><button class="btn-auth" type="submit">salvar alterações</button></div>
     </form>
-  </div>
-</div>
 
-<!-- ACESSIBILIDADE -->
-<div class="accessibility-panel" id="accessibilityPanel" role="dialog" aria-labelledby="a11yTitle">
-  <div class="a11y-header"><div><span class="section-kicker">acessibilidade</span><h2 id="a11yTitle">Personalize sua experiência</h2></div><button type="button" onclick="toggleAccessibility()" aria-label="Fechar acessibilidade">✕</button></div>
-  <p class="a11y-intro">Recursos para leitura, contraste, movimento e percepção de cores. As preferências ficam salvas neste dispositivo.</p>
-  <div class="a11y-grid">
-    <button type="button" onclick="a11yFont(-1)">A− <span>texto menor</span></button>
-    <button type="button" onclick="a11yFont(1)">A+ <span>texto maior</span></button>
-    <button type="button" onclick="a11yContrast()">◐ <span>alto contraste</span></button>
-    <button type="button" onclick="a11yGrayscale()">◑ <span>tons de cinza</span></button>
-    <button type="button" onclick="a11yMotion()">∿ <span>reduzir movimento</span></button>
-    <button type="button" onclick="a11yUnderline()">T̲ <span>destacar links</span></button>
-    <button type="button" onclick="a11yColor('protanopia')">P <span>simulação protanopia</span></button>
-    <button type="button" onclick="a11yColor('deuteranopia')">D <span>simulação deuteranopia</span></button>
-    <button type="button" onclick="a11yColor('tritanopia')">T <span>simulação tritanopia</span></button>
-  </div>
-  <div class="a11y-footer"><span id="a11yStatus" aria-live="polite">preferências prontas</span><button type="button" onclick="a11yReset()">restaurar padrão</button></div>
-</div>
-
-<!-- Card Modal -->
-<div class="modal-overlay" id="cardModal" onclick="closeModalOnBg(event)">
-  <div class="modal-sheet">
-    <button class="modal-close" onclick="closeModal()">✕</button>
-    <div class="modal-handle"></div>
-    <div class="modal-img" id="modalImg"><span id="modalEmoji">🧥</span></div>
-    <div class="modal-body">
-      <div class="modal-tags" id="modalTags"></div>
-      <div class="modal-title" id="modalTitle">—</div>
-      <div class="modal-loc"   id="modalLoc">—</div>
-      <div class="modal-desc"  id="modalDesc">—</div>
-      <div class="modal-actions">
-        <button class="modal-btn primary"   onclick="likeFromModal()">❤️ curtir</button>
-        <button class="modal-btn secondary" onclick="saveFromModal()">🔖 salvar</button>
-        <button class="modal-btn secondary" onclick="closeModal();showPage('map')">📍 mapa</button>
+    <section class="wrap carousel-section" aria-labelledby="destaqueTitle" id="destaqueSection">
+      <h2 class="carousel-label" id="destaqueTitle">Brechós em destaque</h2>
+      <div class="carousel-wrap">
+        <button class="carousel-btn prev" type="button" data-scroll="-1" aria-controls="destaques" aria-label="Brechós anteriores">‹</button>
+        <div class="carousel" id="destaques" tabindex="0" aria-label="Brechós em destaque (role para ver mais)">
+          <div class="carousel-card skeleton" aria-hidden="true"></div>
+        </div>
+        <button class="carousel-btn next" type="button" data-scroll="1" aria-controls="destaques" aria-label="Próximos brechós">›</button>
       </div>
+    </section>
+
+    <section class="manifesto" aria-labelledby="manifestoTitle">
+      <h2 id="manifestoTitle"><span class="hl-teal">A</span> sustentabilidade <span class="hl-teal">de um jeito mais</span> style</h2>
+      <p>Descubra os melhores lugares de SP para garimpar roupas, objetos e o que mais a sua mente permitir!</p>
+    </section>
+
+    <section class="explore on-dark" aria-label="Explore e novidades">
+      <div class="wrap">
+        <div class="explore-head">
+          <h2 id="exploreTitle">Explore o seu próximo rolê!</h2>
+          <a href="brechos.html">ver tudo</a>
+        </div>
+        <div class="hood-row-wrap">
+          <nav class="hood-row" id="homeHoods" aria-labelledby="exploreTitle"></nav>
+          <button class="carousel-btn next" type="button" data-scroll="1" aria-controls="homeHoods" aria-label="Mais bairros">›</button>
+        </div>
+        <div class="explore-head" style="margin-top:2rem">
+          <h2>Novidades no feed</h2>
+          <a href="feed.html">ver o feed</a>
+        </div>
+        <div class="news-grid" id="homeLatest" aria-busy="true"></div>
+      </div>
+    </section>
+
+    <section class="section wrap" aria-labelledby="storiesTitle" id="storiesSection" hidden>
+      <div class="section-head">
+        <h2 id="storiesTitle">Do editorial</h2>
+        <a class="link-arrow" href="editorial.html">todas as matérias <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="story-grid" id="homeStories"></div>
+    </section>
+
+    <div class="cta-outer">
+      <section class="cta-banner on-dark" aria-labelledby="ctaTitle">
+        <div>
+          <h2 id="ctaTitle">Divulgue o seu espaço<br>na nossa plataforma!</h2>
+          <p>É gratuito. Depois da aprovação você publica peças, aparece no mapa e acompanha curtidas e visitas.</p>
+          <div class="cta-btns">
+            <a class="btn btn-teal" href="cadastro.html">quero divulgar</a>
+            <a class="btn btn-outline-light" href="como-funciona.html">como funciona</a>
+          </div>
+        </div>
+        <div class="cta-visual" id="ctaVisual" aria-hidden="true"><div></div><div></div><div></div></div>
+      </section>
     </div>
-  </div>
-</div>
-
-<!-- Auth Modal -->
-<div class="auth-modal" id="authModal" onclick="closeAuthOnBg(event)">
-  <div class="auth-box">
-    <button class="auth-close" onclick="closeAuth()">✕</button>
-    <div class="auth-logo">re<span>pé</span>teco</div>
-    <div class="auth-subtitle">brechos de SP que você vai amar 💚</div>
-    <div class="auth-tabs">
-      <button class="auth-tab-btn active" id="authTabLogin"  onclick="switchAuth('login')">Entrar</button>
-      <button class="auth-tab-btn"        id="authTabSignup" onclick="switchAuth('signup')">Criar conta</button>
-    </div>
-    <div class="auth-form active" id="formLogin">
-      <div class="form-group"><label>E-mail</label><input type="email" id="loginEmail" placeholder="seu@email.com"/></div>
-      <div class="form-group"><label>Senha</label><input type="password" id="loginPass" placeholder="••••••••"/></div>
-      <button class="btn-auth" onclick="doLogin()">Entrar</button>
-    </div>
-    <div class="auth-form" id="formSignup">
-      <div class="form-group"><label>Nome</label><input type="text" id="signupName" placeholder="Seu nome"/></div>
-      <div class="form-group"><label>E-mail</label><input type="email" id="signupEmail" placeholder="seu@email.com"/></div>
-      <div class="form-group"><label>Senha</label><input type="password" id="signupPass" placeholder="••••••••"/></div>
-      <button class="btn-auth" onclick="doSignup()">Criar conta gratuita</button>
-    </div>
-  </div>
-</div>
-
-<!-- Toast -->
-<!-- ══════════════════════════════
-     TOAST
-══════════════════════════════ -->
-
-<div
-    class="toast"
-    id="toast"
-></div>
-
-
-<!-- SUPABASE -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<!-- CONFIGURAÇÃO DO SUPABASE -->
-<script src="supabase.js"></script>
-
-<!-- CADASTRO -->
-<script src="cadastro.js"></script>
-
-<!-- APP PRINCIPAL -->
-<script src="app.js"></script>
-<script src="config.js"></script>
-<script src="accessibility.js"></script>
-<script src="maps.js"></script>
-<script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
-<script>new window.VLibras.Widget({ rootPath: "https://vlibras.gov.br/app", avatar: "random", position: "R" });</script>
-
+  </main>
+  <footer id="site-footer"></footer>
+  <noscript><p class="noscript">O Repeteco precisa de JavaScript para carregar as peças e os brechós.</p></noscript>
 </body>
 </html>
