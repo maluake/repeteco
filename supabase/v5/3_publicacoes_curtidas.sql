@@ -86,6 +86,8 @@ $$;
 
 -- ------------------------------------------------------------
 -- 4. CURTIDAS / SALVOS — brechós e publicações
+-- brecho_id pode ser text (migration v4) ou uuid (tabelas criadas antes);
+-- por isso as comparações convertem os dois lados para text.
 -- ------------------------------------------------------------
 alter table public.curtidas add column if not exists publicacao_id uuid references public.publicacoes(id) on delete cascade;
 alter table public.salvos   add column if not exists publicacao_id uuid references public.publicacoes(id) on delete cascade;
@@ -126,12 +128,12 @@ $$;
 drop policy if exists "curtidas_insert_own" on public.curtidas;
 create policy "curtidas_insert_own"
 on public.curtidas for insert
-with check (user_id = auth.uid() and public.alvo_interacao_valido(brecho_id, publicacao_id));
+with check (user_id = auth.uid() and public.alvo_interacao_valido(brecho_id::text, publicacao_id));
 
 drop policy if exists "salvos_insert_own" on public.salvos;
 create policy "salvos_insert_own"
 on public.salvos for insert
-with check (user_id = auth.uid() and public.alvo_interacao_valido(brecho_id, publicacao_id));
+with check (user_id = auth.uid() and public.alvo_interacao_valido(brecho_id::text, publicacao_id));
 
 -- Eventos: só tipos conhecidos e só para brechós publicados.
 drop policy if exists "eventos_public_insert" on public.brecho_eventos;

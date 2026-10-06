@@ -21,7 +21,7 @@ select
   b.whatsapp, b.instagram, b.site, b.horario, b.foto_capa, b.logo_url,
   b.created_at,
   (select count(*) from public.publicacoes p where p.brecho_id = b.id and p.status = 'publicado')::int as total_publicacoes,
-  (select count(*) from public.curtidas c where c.brecho_id = b.id::text)::int as total_curtidas
+  (select count(*) from public.curtidas c where c.brecho_id::text = b.id::text)::int as total_curtidas
 from public.brechos b
 where b.status = 'approved';
 
