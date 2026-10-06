@@ -1,5 +1,6 @@
 -- ============================================================
 -- REPETECO — migration v5, parte 5 de 6: funções de estatística (admin e dono)
+-- VERSÃO CORRIGIDA (compatível com brecho_id uuid) — revisão 2
 -- Cole ESTE ARQUIVO INTEIRO no SQL Editor e clique em Run.
 -- Rode as partes em ordem (1 → 6). Cada uma pode ser repetida
 -- sem problema (idempotente).
