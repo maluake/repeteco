@@ -1,0 +1,61 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Brechós e mapa — Repeteco</title>
+  <meta name="description" content="Todos os brechós, sebos e antiquários aprovados no Repeteco, por bairro e no mapa de São Paulo.">
+  <meta property="og:site_name" content="Repeteco">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Brechós e mapa">
+  <meta property="og:description" content="Todos os brechós, sebos e antiquários aprovados no Repeteco, por bairro e no mapa de São Paulo.">
+  <meta property="og:image" content="assets/img/og-repeteco.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#2D1B4E">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap">
+  <link rel="stylesheet" href="assets/vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/pages.css">
+  <script src="assets/js/a11y.js"></script>
+  <script defer src="assets/vendor/supabase-2.117.2.js"></script>
+  <script defer src="assets/vendor/leaflet/leaflet.js"></script>
+  <script defer src="assets/js/config.js"></script>
+  <script defer src="assets/js/core.js"></script>
+  <script defer src="assets/js/vocab.js"></script>
+  <script defer src="assets/js/layout.js"></script>
+  <script defer src="assets/js/interactions.js"></script>
+  <script defer src="assets/js/render.js"></script>
+  <script defer src="assets/js/map.js"></script>
+  <script defer src="assets/js/pages/brechos.js"></script>
+</head>
+<body data-page="brechos">
+  <header id="site-header"></header>
+  <main id="conteudo" tabindex="-1">
+    <header class="page-head">
+      <h1>Brechós</h1>
+      <p>Brechós, sebos e antiquários aprovados pela equipe do Repeteco. Escolha um bairro ou explore pelo mapa.</p>
+      <nav aria-label="Filtrar por bairro"><ul class="filter-tabs scrolls" id="hoodTabs" role="list"></ul></nav>
+    </header>
+    <p class="visually-hidden" id="shopStatus" role="status" aria-live="polite"></p>
+    <div class="wrap">
+      <div class="view-switch" role="group" aria-label="Modo de visualização">
+        <button type="button" data-view-btn="lista" aria-pressed="true">Lista</button>
+        <button type="button" data-view-btn="mapa" aria-pressed="false">Mapa</button>
+      </div>
+      <div class="directory" id="directory" data-view="lista">
+        <section class="directory-list" aria-label="Lista de brechós"><div id="shopList" aria-busy="true"></div></section>
+        <section class="directory-map" aria-label="Mapa dos brechós">
+          <div class="map-canvas" id="mapCanvas"></div>
+          <p class="map-note" id="mapNote"></p>
+        </section>
+      </div>
+    </div>
+    <div class="section"></div>
+  </main>
+  <footer id="site-footer"></footer>
+  <noscript><p class="noscript">O Repeteco precisa de JavaScript para funcionar.</p></noscript>
+</body>
+</html>

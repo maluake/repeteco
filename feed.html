@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Achados — feed de peças dos brechós de SP — Repeteco</title>
+  <meta name="description" content="Peças de brechós de São Paulo publicadas pelos próprios brechós: vestidos, jaquetas, calças, acessórios e mais. Curta, salve e descubra onde encontrar.">
+  <meta property="og:site_name" content="Repeteco">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Achados — feed de peças dos brechós de SP">
+  <meta property="og:description" content="Peças publicadas pelos brechós de São Paulo. Curta, salve e descubra onde encontrar.">
+  <meta property="og:image" content="assets/img/og-repeteco.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#2D1B4E">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/pages.css">
+  <script src="assets/js/a11y.js"></script>
+  <script defer src="assets/vendor/supabase-2.117.2.js"></script>
+  <script defer src="assets/js/config.js"></script>
+  <script defer src="assets/js/core.js"></script>
+  <script defer src="assets/js/vocab.js"></script>
+  <script defer src="assets/js/layout.js"></script>
+  <script defer src="assets/js/interactions.js"></script>
+  <script defer src="assets/js/render.js"></script>
+  <script defer src="assets/js/pages/feed.js"></script>
+</head>
+<body data-page="feed">
+  <header id="site-header"></header>
+  <main id="conteudo" tabindex="-1">
+    <header class="page-head">
+      <h1>Achados</h1>
+      <p>Peças publicadas pelos brechós de São Paulo. Abra uma foto para ver preço, tamanho e onde encontrar.</p>
+      <nav aria-label="Filtrar por tipo de peça">
+        <ul class="filter-tabs scrolls" id="feedTabs" role="list"></ul>
+      </nav>
+    </header>
+    <p class="visually-hidden" id="feedStatus" role="status" aria-live="polite"></p>
+    <section aria-labelledby="feedGridTitle">
+      <h2 class="visually-hidden" id="feedGridTitle">Peças</h2>
+      <div class="tile-grid" id="feedGrid" aria-busy="true"></div>
+      <div class="load-more" id="feedMore" hidden>
+        <button class="btn btn-outline" type="button" id="feedMoreBtn">Carregar mais peças</button>
+      </div>
+    </section>
+    <div class="section"></div>
+  </main>
+  <footer id="site-footer"></footer>
+  <noscript><p class="noscript">O Repeteco precisa de JavaScript para carregar as peças e os brechós.</p></noscript>
+</body>
+</html>

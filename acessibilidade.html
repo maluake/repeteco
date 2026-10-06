@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Acessibilidade — Repeteco</title>
+  <meta name="description" content="Declaração de acessibilidade do Repeteco: recursos disponíveis, padrões seguidos, limitações conhecidas e como relatar problemas.">
+  <meta property="og:site_name" content="Repeteco">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Acessibilidade">
+  <meta property="og:description" content="Declaração de acessibilidade do Repeteco: recursos disponíveis, padrões seguidos, limitações conhecidas e como relatar problemas.">
+  <meta property="og:image" content="assets/img/og-repeteco.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#2D1B4E">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/pages.css">
+  <script src="assets/js/a11y.js"></script>
+  <script defer src="assets/vendor/supabase-2.117.2.js"></script>
+  <script defer src="assets/js/config.js"></script>
+  <script defer src="assets/js/core.js"></script>
+  <script defer src="assets/js/vocab.js"></script>
+  <script defer src="assets/js/layout.js"></script>
+  <script defer src="assets/js/interactions.js"></script>
+  <script defer src="assets/js/render.js"></script>
+
+</head>
+<body data-page="acessibilidade">
+  <header id="site-header"></header>
+  <main id="conteudo" tabindex="-1">
+    <article class="wrap-narrow section prose">
+      <span class="eyebrow">Declaração</span>
+      <h1>Acessibilidade</h1>
+    
+      <p class="lede">Queremos que qualquer pessoa consiga encontrar brechós e peças no Repeteco, usando teclado, leitor de tela, ampliação ou outras tecnologias assistivas.</p>
+      <h2>Padrão de referência</h2>
+      <p>O site é desenvolvido tendo como meta as Diretrizes de Acessibilidade para Conteúdo Web (WCAG) 2.1, nível AA, e o Modelo de Acessibilidade em Governo Eletrônico (eMAG) como referência complementar.</p>
+      <h2>Recursos disponíveis</h2>
+      <ul>
+        <li><strong>Ajustes de acessibilidade</strong>, no rodapé de todas as páginas e no menu da conta: tamanho do texto (de 90% a 160%), alto contraste, cores seguras para daltonismo, destaque de links, espaçamento de texto, tons de cinza e redução de movimento. As escolhas ficam salvas no seu navegador.</li>
+        <li><strong>Libras:</strong> o widget VLibras, do Governo Federal, traduz textos para Libras. Pode ser desligado nos ajustes.</li>
+        <li><strong>Teclado:</strong> todas as funções podem ser usadas com Tab, Shift+Tab, Enter, Espaço e setas. O link “Pular para o conteúdo” é o primeiro item de cada página.</li>
+        <li><strong>Foco visível</strong> em todos os elementos interativos.</li>
+        <li><strong>Leitores de tela:</strong> páginas com títulos hierárquicos, regiões nomeadas, rótulos em todos os campos e avisos de carregamento, erro e sucesso anunciados automaticamente.</li>
+        <li><strong>Movimento reduzido:</strong> respeitamos a preferência do sistema operacional.</li>
+        <li><strong>Estados que não dependem só de cor:</strong> status, filtros e botões ativos também mudam de forma, texto ou ícone.</li>
+      </ul>
+      <h2>Limitações conhecidas</h2>
+      <ul>
+        <li>O mapa (OpenStreetMap) é um recurso visual. Todas as informações dele também estão na lista de brechós e na página de cada espaço.</li>
+        <li>O texto alternativo das fotos de peças é escrito pelos próprios brechós. Quando não é informado, usamos o nome da peça e do brechó.</li>
+        <li>O VLibras é um serviço externo e pode ficar indisponível.</li>
+      </ul>
+      <h2>Encontrou uma barreira?</h2>
+      <p>Conte para a gente pelo <a href="contato.html?assunto=acessibilidade">formulário de contato</a>, escolhendo o assunto “Acessibilidade”. Diga a página, o que tentou fazer e, se quiser, qual tecnologia assistiva usa.</p>
+    </article>
+  </main>
+  <footer id="site-footer"></footer>
+  <noscript><p class="noscript">O Repeteco precisa de JavaScript para funcionar.</p></noscript>
+</body>
+</html>

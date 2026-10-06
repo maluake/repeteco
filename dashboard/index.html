@@ -1,139 +1,48 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Painel — Repeteco</title>
+  <meta name="description" content="Painel do Repeteco para administração da plataforma e gestão de brechós.">
+  <meta name="robots" content="noindex">
   <meta name="theme-color" content="#2D1B4E">
-  <title>Repeteco — Painel</title>
+  <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap">
+  <link rel="stylesheet" href="../assets/vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="../assets/css/base.css">
+  <link rel="stylesheet" href="../assets/css/pages.css">
   <link rel="stylesheet" href="dashboard.css">
+  <script src="../assets/js/a11y.js"></script>
+  <script defer src="../assets/vendor/supabase-2.117.2.js"></script>
+  <script defer src="../assets/vendor/leaflet/leaflet.js"></script>
+  <script defer src="../assets/js/config.js"></script>
+  <script defer src="../assets/js/core.js"></script>
+  <script defer src="../assets/js/vocab.js"></script>
+  <script defer src="../assets/js/layout.js"></script>
+  <script defer src="../assets/js/interactions.js"></script>
+  <script defer src="../assets/js/render.js"></script>
+  <script defer src="../assets/js/media.js"></script>
+  <script defer src="../assets/js/map.js"></script>
+  <script defer src="js/common.js"></script>
+  <script defer src="js/admin.js"></script>
+  <script defer src="js/editorial-admin.js"></script>
+  <script defer src="js/owner.js"></script>
+  <script defer src="js/start.js"></script>
 </head>
-<body>
-  <div class="app-shell">
-    <aside class="sidebar">
-      <div>
-        <div class="brand"><span>repé</span>teco <small id="brandContext">painel</small></div>
-        <div class="sidebar-caption">nesta página</div>
-        <nav class="nav" aria-label="Navegação do painel">
-          <button id="navInicio" class="nav-item active" onclick="mostrarSecao('inicio', this)"><span>⌂</span> painel geral</button>
-          <button id="navAprovacao" class="nav-item admin-only" onclick="mostrarSecao('aprovacao', this)"><span>✓</span> fila de aprovação <b id="navPendingBadge">0</b></button>
-          <button id="navBrechos" class="nav-item admin-only" onclick="mostrarSecao('brechos', this)"><span>▦</span> brechós</button>
-          <button id="navInsights" class="nav-item owner-only" onclick="mostrarSecao('insights', this)"><span>⌁</span> insights</button>
-          <button id="navPerfilLoja" class="nav-item owner-only" onclick="mostrarSecao('perfil', this)"><span>○</span> perfil da loja</button>
-        </nav>
-        <div class="sidebar-caption secondary-caption">site</div>
-        <nav class="nav">
-          <button class="nav-item" onclick="voltarRepeteco()"><span>↗</span> voltar ao Repeteco</button>
-        </nav>
+<body data-page="painel">
+  <header id="site-header"></header>
+  <main id="conteudo" tabindex="-1">
+    <div class="wrap panel-shell">
+      <nav class="panel-nav" id="panelNav" aria-label="Seções do painel"></nav>
+      <div class="panel-view" id="view" aria-live="off">
+        <p class="muted">Carregando painel…</p>
       </div>
-      <div class="sidebar-footer">
-        <div class="account-mini"><div class="account-avatar" id="accountAvatar">M</div><div><strong id="accountName">usuário</strong><small id="accountRole">—</small></div></div>
-        <button class="logout-button" onclick="logout()">sair da conta</button>
-      </div>
-    </aside>
-
-    <main class="main">
-      <header class="topbar">
-        <div class="topbar-left">
-          <div class="eyebrow" id="tipoPainel">painel</div>
-          <h1 id="saudacao">Olá! 👋</h1>
-          <p id="subtitulo">carregando seu painel...</p>
-        </div>
-        <div class="topbar-right">
-          <button class="top-action" onclick="voltarRepeteco()">ver site ↗</button>
-          <div class="user-chip"><span id="usuarioEmail">...</span><i id="roleChip">—</i></div>
-        </div>
-      </header>
-
-      <div id="mensagemErro" class="error-message" style="display:none"></div>
-      <div id="toast" class="dashboard-toast"></div>
-
-      <!-- ADMIN: VISÃO GERAL -->
-      <section id="adminView" class="view-section" style="display:none">
-        <div class="section-heading"><div><span class="section-kicker">visão geral</span><h2>O Repeteco por aqui.</h2></div><button class="soft-button" onclick="carregarAdmin()">↻ atualizar</button></div>
-        <div class="stats-grid admin-stats">
-          <article class="stat-card"><div class="stat-top"><span>lojas ativas</span><span class="stat-icon">↗</span></div><strong id="totalBrechos">0</strong><small class="stat-change positive">aprovadas na plataforma</small></article>
-          <article class="stat-card"><div class="stat-top"><span>pendentes</span><span class="stat-icon">!</span></div><strong id="pendentes">0</strong><small class="stat-change warning">precisam de revisão</small></article>
-          <article class="stat-card"><div class="stat-top"><span>novos esta semana</span><span class="stat-icon">✦</span></div><strong id="novosSemana">0</strong><small class="stat-change">últimos 7 dias</small></article>
-          <article class="stat-card"><div class="stat-top"><span>perfis cadastrados</span><span class="stat-icon">○</span></div><strong id="totalUsuarios">0</strong><small class="stat-change">contas no Repeteco</small></article>
-        </div>
-
-        <div class="content-grid admin-grid">
-          <section class="panel approval-panel">
-            <div class="panel-heading"><div><span class="section-kicker">atenção</span><h3>Fila de aprovação</h3></div><button class="text-button" onclick="mostrarSecao('aprovacao', document.getElementById('navAprovacao'))">ver todas →</button></div>
-            <div id="filaAprovacao" class="approval-list"><div class="loading">carregando...</div></div>
-          </section>
-          <section class="panel summary-panel">
-            <div class="panel-heading"><div><span class="section-kicker">resumo</span><h3>Lojas ativas</h3></div></div>
-            <div id="ultimosBrechos" class="compact-list"><div class="loading">carregando...</div></div>
-          </section>
-        </div>
-      </section>
-
-      <!-- ADMIN: APROVAÇÃO -->
-      <section id="aprovacaoView" class="view-section" style="display:none">
-        <div class="section-heading"><div><span class="section-kicker">moderação</span><h2>Fila de aprovação</h2><p>Revise os espaços antes que eles apareçam para o público.</p></div><div class="heading-actions"><button class="soft-button" onclick="filtrarAprovacao('all')">todos</button><button class="soft-button" onclick="filtrarAprovacao('pendente')">pendentes</button></div></div>
-        <div class="approval-layout">
-          <section class="panel approval-panel large"><div class="panel-heading"><div><h3 id="approvalCountLabel">Solicitações</h3></div><span class="small-note">clique em uma loja para ver os detalhes</span></div><div id="approvalFullList" class="approval-list"><div class="loading">carregando...</div></div></section>
-          <aside class="panel detail-panel" id="adminDetail"><div class="detail-placeholder"><span>⌁</span><h3>Selecione um brechó</h3><p>As informações da loja aparecerão aqui para revisão.</p></div></aside>
-        </div>
-      </section>
-
-      <!-- ADMIN: TODOS -->
-      <section id="brechosView" class="view-section" style="display:none">
-        <div class="section-heading"><div><span class="section-kicker">cadastros</span><h2>Brechós cadastrados</h2><p>Uma visão geral dos espaços registrados na plataforma.</p></div></div>
-        <div class="panel"><div class="table-toolbar"><input id="brechoSearch" class="search-input" placeholder="buscar por nome, bairro ou cidade…" oninput="filtrarTabelaBrechos()"><div class="table-meta" id="tableMeta">0 lojas</div></div><div id="todosBrechos" class="data-table"><div class="loading">carregando...</div></div></div>
-      </section>
-
-      <!-- DONO: VISÃO GERAL -->
-      <section id="ownerView" class="view-section" style="display:none">
-        <div class="owner-welcome"><div><span class="section-kicker">seu espaço está em destaque</span><h2 id="ownerTitle">Olá, seu brechó.</h2><p id="ownerWelcomeText">acompanhe o desempenho e mantenha seu perfil atualizado.</p></div><button class="primary-button" onclick="mostrarSecao('perfil', document.getElementById('navPerfilLoja'))">editar perfil →</button></div>
-        <div id="ownerStatusBanner" class="status-banner"></div>
-        <div class="stats-grid owner-stats">
-          <article class="stat-card"><div class="stat-top"><span>visitas no perfil</span><span class="stat-icon">↗</span></div><strong id="ownerViews">0</strong><small class="stat-change positive">últimos 30 dias</small></article>
-          <article class="stat-card"><div class="stat-top"><span>cliques no mapa</span><span class="stat-icon">⌖</span></div><strong id="ownerMapClicks">0</strong><small class="stat-change">interesse na localização</small></article>
-          <article class="stat-card"><div class="stat-top"><span>curtidas</span><span class="stat-icon">♡</span></div><strong id="ownerLikes">0</strong><small class="stat-change">pessoas que gostaram</small></article>
-          <article class="stat-card"><div class="stat-top"><span>salvamentos</span><span class="stat-icon">☆</span></div><strong id="ownerSaves">0</strong><small class="stat-change">guardados por visitantes</small></article>
-        </div>
-        <div class="content-grid owner-grid">
-          <section class="panel chart-panel"><div class="panel-heading"><div><span class="section-kicker">últimos 7 dias</span><h3>Visitas ao longo do tempo</h3></div><span class="chart-total" id="chartTotal">0 visitas</span></div><div id="ownerChart" class="chart"><div class="loading">carregando...</div></div></section>
-          <section class="panel profile-preview-panel"><div class="panel-heading"><div><span class="section-kicker">prévia</span><h3>Como aparece no feed</h3></div></div><div id="ownerPreview" class="owner-preview"></div></section>
-        </div>
-        <div class="content-grid owner-bottom-grid"><section class="panel"><div class="panel-heading"><div><span class="section-kicker">desempenho</span><h3>De onde vêm os sinais</h3></div></div><div id="ownerSignals" class="signals"></div></section><section class="panel checklist-panel"><div class="panel-heading"><div><span class="section-kicker">presença</span><h3>Complete seu perfil</h3></div></div><div id="ownerChecklist"></div></section></div>
-      </section>
-
-      <!-- DONO: INSIGHTS -->
-      <section id="insightsView" class="view-section" style="display:none">
-        <div class="section-heading"><div><span class="section-kicker">dados da loja</span><h2>Insights</h2><p>Indicadores calculados a partir das interações reais da plataforma.</p></div></div>
-        <div class="stats-grid owner-stats"><article class="stat-card"><span>visitas</span><strong id="insightViews">0</strong><small>últimos 30 dias</small></article><article class="stat-card"><span>curtidas</span><strong id="insightLikes">0</strong><small>total atual</small></article><article class="stat-card"><span>salvamentos</span><strong id="insightSaves">0</strong><small>total atual</small></article><article class="stat-card"><span>mapa</span><strong id="insightMap">0</strong><small>cliques no endereço</small></article></div>
-        <div class="panel chart-panel"><div class="panel-heading"><div><h3>Atividade dos últimos 7 dias</h3></div></div><div id="insightChart" class="chart large-chart"></div></div>
-      </section>
-
-      <!-- DONO: PERFIL -->
-      <section id="perfilView" class="view-section" style="display:none">
-        <div class="section-heading"><div><span class="section-kicker">perfil da loja</span><h2>Deixe seu espaço com a sua cara.</h2><p>Essas informações são exibidas no Repeteco.</p></div><span class="edit-status" id="editStatus">salvo automaticamente após confirmar</span></div>
-        <div id="ownerProfileEmpty" class="panel empty" style="display:none"></div>
-        <form id="ownerProfileForm" class="profile-editor" onsubmit="salvarPerfilLoja(event)">
-          <section class="panel form-panel"><div class="panel-heading"><div><h3>Informações principais</h3><p>Conte o essencial para quem está procurando onde garimpar.</p></div></div><div class="form-grid"><label>nome do brechó<input id="editNome" required></label><label>categoria<input id="editCategoria" placeholder="Brechó, vintage, sebo…"></label><label>bairro<input id="editBairro" required></label><label>cidade<input id="editCidade" required></label><label class="full">endereço<input id="editEndereco" placeholder="Rua, número e complemento"><small>Com uma chave do Google Maps configurada, o Repeteco salva as coordenadas para o mapa.</small></label><label class="full">descrição<textarea id="editDescricao" rows="4" placeholder="Fale um pouco sobre o seu espaço…"></textarea></label><label>whatsapp<input id="editWhatsapp" placeholder="(11) 99999-9999"></label><label>instagram<input id="editInstagram" placeholder="@seubrecho"></label><label class="full">foto de capa (URL)<input id="editFoto" placeholder="https://…"><small>Para o TCC, uma URL pública é suficiente. O armazenamento de imagens pode ser conectado ao Storage depois.</small></label></div><div class="form-footer"><span id="profileSaveMessage"></span><button class="primary-button" type="submit" id="saveProfileButton">salvar alterações</button></div></section>
-          <aside class="panel live-preview"><div class="panel-heading"><div><span class="section-kicker">prévia</span><h3>card do feed</h3></div></div><div id="livePreviewCard" class="feed-preview-card"></div><p class="preview-note">A prévia usa os mesmos dados que serão publicados no Repeteco.</p></aside>
-        </form>
-      </section>
-
-      <div id="genericLoading" class="loading-screen"><div class="loader"></div><span>carregando painel…</span></div>
-    </main>
-  </div>
-
-  <div class="modal-overlay" id="detailModal" onclick="fecharModalDetalhe(event)"><div class="detail-modal" id="detailModalContent"></div></div>
-
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../supabase.js"></script>
-  <script src="../config.js"></script>
-  <script src="../accessibility.js"></script>
-  <script src="../maps.js"></script>
-  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
-  <script>new window.VLibras.Widget({ rootPath: "https://vlibras.gov.br/app", avatar: "random", position: "R" });</script>
-  <script src="dashboard.js"></script>
+    </div>
+  </main>
+  <footer id="site-footer"></footer>
+  <noscript><p class="noscript">O painel precisa de JavaScript.</p></noscript>
 </body>
 </html>

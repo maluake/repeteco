@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Busca de peças e brechós — Repeteco</title>
+  <meta name="description" content="Busque peças e brechós de São Paulo combinando bairro, tipo de peça, tamanho, preço, condição e estilo.">
+  <meta property="og:site_name" content="Repeteco">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Busca de peças e brechós">
+  <meta property="og:description" content="Busque peças e brechós de São Paulo combinando bairro, tipo de peça, tamanho, preço, condição e estilo.">
+  <meta property="og:image" content="assets/img/og-repeteco.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#2D1B4E">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/pages.css">
+  <script src="assets/js/a11y.js"></script>
+  <script defer src="assets/vendor/supabase-2.117.2.js"></script>
+  <script defer src="assets/js/config.js"></script>
+  <script defer src="assets/js/core.js"></script>
+  <script defer src="assets/js/vocab.js"></script>
+  <script defer src="assets/js/layout.js"></script>
+  <script defer src="assets/js/interactions.js"></script>
+  <script defer src="assets/js/render.js"></script>
+  <script defer src="assets/js/pages/busca.js"></script>
+</head>
+<body data-page="busca">
+  <header id="site-header"></header>
+  <main id="conteudo" tabindex="-1">
+    <div class="wrap search-top">
+      <h1>Busca</h1>
+      <form id="searchForm" role="search" class="search-form-main">
+        <label class="visually-hidden" for="q">Buscar por nome, peça, brechó ou bairro</label>
+        <input class="input" id="q" name="q" type="search" placeholder="Ex.: jaqueta jeans, Pinheiros, vintage" autocomplete="off">
+        <button class="btn" type="submit">Buscar</button>
+      </form>
+      <fieldset class="search-mode" style="border:0;padding:0">
+        <legend class="visually-hidden">O que você procura</legend>
+        <label class="check"><input type="radio" name="tipo_busca" value="pecas" checked> Peças</label>
+        <label class="check"><input type="radio" name="tipo_busca" value="brechos"> Brechós</label>
+      </fieldset>
+    </div>
+    <div class="wrap search-layout">
+      <aside class="filters" id="filtersAside" aria-label="Filtros">
+        <form id="filtersForm">
+          <p class="small muted" id="pieceFiltersNote" hidden style="margin-bottom:1rem">Em brechós, os filtros de peça mostram os brechós que têm peças com essas características.</p>
+          <fieldset><legend>Bairro</legend><div id="fBairro"></div></fieldset>
+          <details class="filter-group" data-group="fCidade"><summary>Cidade</summary><fieldset><legend class="visually-hidden">Cidade</legend><div id="fCidade"></div></fieldset></details>
+          <details class="filter-group" data-group="fCat"><summary>Categoria do brechó</summary><fieldset><legend class="visually-hidden">Categoria do brechó</legend><div id="fCat"></div></fieldset></details>
+          <details class="filter-group" data-group="fTipo"><summary>Tipo de peça</summary><fieldset><legend class="visually-hidden">Tipo de peça</legend><div id="fTipo"></div></fieldset></details>
+          <fieldset><legend>Tamanho</legend><div id="fTam"></div></fieldset>
+          <fieldset><legend>Preço</legend><div id="fPreco"></div></fieldset>
+          <details class="filter-group" data-group="fCondicao"><summary>Condição</summary><fieldset><legend class="visually-hidden">Condição</legend><div id="fCondicao"></div></fieldset></details>
+          <details class="filter-group" data-group="fEstilo"><summary>Estilo</summary><fieldset><legend class="visually-hidden">Estilo</legend><div id="fEstilo"></div></fieldset></details>
+          <details class="filter-group" data-group="fGenero"><summary>Gênero</summary><fieldset><legend class="visually-hidden">Gênero</legend><div id="fGenero"></div></fieldset></details>
+          <fieldset><legend>Disponibilidade</legend><label class="check"><input type="checkbox" name="disp" value="1"> Só peças disponíveis</label></fieldset>
+        </form>
+      </aside>
+      <section aria-labelledby="resultsCount">
+        <div class="results-bar">
+          <h2 class="results-count small" id="resultsCount" style="font-family:var(--font-ui);font-size:1rem">Buscando…</h2>
+          <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+            <button class="btn btn-outline btn-sm filters-open" type="button" id="openFilters" aria-haspopup="dialog">Filtros<span id="filterCount"></span></button>
+            <label class="small" for="ordem">Ordenar</label>
+            <select class="select" id="ordem" style="width:auto;min-height:2.5rem"></select>
+          </div>
+        </div>
+        <ul class="active-filters" id="activeFilters" aria-label="Filtros ativos"></ul>
+        <p class="visually-hidden" id="resultsStatus" role="status" aria-live="polite"></p>
+        <div id="results" aria-busy="true"></div>
+        <div class="load-more" id="resultsMore" hidden><button class="btn btn-outline" type="button" id="resultsMoreBtn">Mostrar mais</button></div>
+      </section>
+    </div>
+    <dialog class="sheet filters-dialog" id="filtersDialog" aria-labelledby="filtersDialogTitle">
+      <div class="sheet-head"><h2 id="filtersDialogTitle">Filtros</h2><button class="btn btn-sm" type="button" data-close-filters>Ver resultados</button></div>
+      <div class="sheet-body filters" id="filtersDialogBody"></div>
+    </dialog>
+  </main>
+  <footer id="site-footer"></footer>
+  <noscript><p class="noscript">O Repeteco precisa de JavaScript para funcionar.</p></noscript>
+</body>
+</html>
