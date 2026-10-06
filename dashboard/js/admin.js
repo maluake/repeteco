@@ -85,7 +85,7 @@
         <div><dt>Enviado em</dt><dd>${R.fmt.date(b.created_at)}</dd></div>
       </dl>
       <div class="detail-actions">
-        ${b.status !== "approved" ? `<button class="btn" type="button" data-status="approved" data-id="${R.esc(b.id)}" data-nome="${R.esc(b.nome)}">Aprovar e publicar</button>` : ""}
+        ${b.status !== "approved" ? `<button class="btn btn-success" type="button" data-status="approved" data-id="${R.esc(b.id)}" data-nome="${R.esc(b.nome)}">Aprovar e publicar</button>` : ""}
         ${b.status !== "rejected" ? `<button class="btn btn-danger" type="button" data-status="rejected" data-id="${R.esc(b.id)}" data-nome="${R.esc(b.nome)}">Recusar</button>` : ""}
       </div>`;
   }

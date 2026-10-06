@@ -34,7 +34,7 @@ Reproduzidas em Postgres local com a migration v4 (`supabase/tests/`):
 
 ## 4. Preservado
 
-Paleta (creme, roxo, teal, teal claro, amarelo e vermelho só para destrutivo), Playfair Display + DM Sans, os nomes das tabelas e colunas, o modelo de roles (`usuario`/`dono`/`admin`), o fluxo de aprovação de brechós, as métricas de visitas e cliques no mapa (`brecho_eventos`), o editor de perfil do dono, o VLibras e o painel de acessibilidade, agora funcionando de verdade.
+Identidade visual do projeto (layouts de referência do site e do painel): paleta `#340C3D`, `#4E3557`, `#A0CAC6`, `#B6D6DA` e `#FFFFDF`; Lilita One no logo "RePeteco" e nos títulos e DM Sans nos textos (fontes servidas pelo próprio site); barra roxa, botões em pílula, cartões arredondados; estrutura original da home (foto de SP, busca, carrossel, manifesto, faixa roxa, chamada para divulgar), do mapa, do feed em mosaico e do painel (menu lateral creme, cartões brancos). O verde-água dos títulos sobre o creme foi escurecido o mínimo (`#569A93`) para atingir contraste 3:1. Também foram preservados os nomes das tabelas e colunas, o modelo de roles (`usuario`/`dono`/`admin`), o fluxo de aprovação de brechós, as métricas de visitas e cliques no mapa (`brecho_eventos`), o editor de perfil do dono, o VLibras e o painel de acessibilidade, agora funcionando de verdade.
 
 ## 5. O que mudou
 

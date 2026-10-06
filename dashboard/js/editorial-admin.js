@@ -41,7 +41,7 @@
       ${D.head(id ? "Editar matéria" : "Nova matéria", id ? `Status atual: ${D.statusLabel(a.status)}.` : "Comece como rascunho; publique quando estiver pronta.", '<a class="btn btn-ghost" href="#editorial">Voltar à lista</a>')}
       <form id="artForm" novalidate>
         <div class="article-editor">
-          <div style="display:grid;gap:1rem">
+          <div class="panel-card" style="display:grid;gap:1rem">
             <div class="field"><label for="aTitulo">Título</label><input class="input" id="aTitulo" maxlength="140" value="${R.esc(a.titulo)}" required></div>
             <div class="field"><label for="aSub">Subtítulo</label><input class="input" id="aSub" maxlength="240" value="${R.esc(a.subtitulo || "")}"></div>
             <div class="form-grid">
@@ -62,7 +62,7 @@
               <p class="hint" id="aConteudo-dica">Separe parágrafos com uma linha em branco. Use “## ” para intertítulos, “> ” para citação, “- ” para listas, **negrito**, *itálico* e [texto](https://link).</p>
             </div>
           </div>
-          <section class="preview" aria-label="Pré-visualização">
+          <section class="preview panel-card" aria-label="Pré-visualização">
             <span class="eyebrow">Pré-visualização</span>
             <h2 id="pvTitle" style="margin-top:.5rem"></h2>
             <p class="lede" id="pvSub"></p>

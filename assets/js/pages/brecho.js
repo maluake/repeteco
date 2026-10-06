@@ -33,29 +33,31 @@
     const cats = Array.isArray(b.categorias) ? b.categorias : [];
 
     root.innerHTML = `
-      <section class="shop-hero on-ink" aria-labelledby="shopName">
-        ${b.foto_capa ? `<div class="shop-cover">${R.img(b.foto_capa, `Fachada ou ambiente do ${b.nome}`, { eager: true })}</div>` : ""}
-        <div class="wrap shop-head">
-          <div class="shop-logo">${R.img(b.logo_url || b.foto_capa, `Logo do ${b.nome}`)}</div>
-          <div>
-            <h1 id="shopName">${R.esc(b.nome)}</h1>
-            <p class="place">${R.esc(place || "São Paulo")}</p>
+      <div class="wrap shop-hero">
+        <section class="shop-banner on-dark" aria-labelledby="shopName">
+          ${b.foto_capa ? `<div class="shop-cover">${R.img(b.foto_capa, `Fachada ou ambiente do ${b.nome}`, { eager: true })}</div>` : ""}
+          <div class="shop-head">
+            <div class="shop-logo">${R.img(b.logo_url || b.foto_capa, `Logo do ${b.nome}`)}</div>
+            <div>
+              <h1 id="shopName">${R.esc(b.nome)}</h1>
+              <p class="place">${R.esc(place || "São Paulo")}</p>
+            </div>
+            <div class="shop-head-actions" style="display:flex;gap:.5rem">${R.actionButtons("b", b.id, { title: b.nome, count: b.total_curtidas })}</div>
           </div>
-          <div class="shop-head-actions" style="display:flex;gap:.5rem">${R.actionButtons("b", b.id, { title: b.nome, count: b.total_curtidas })}</div>
-        </div>
-      </section>
+        </section>
+      </div>
       <nav class="wrap breadcrumb" aria-label="Você está em">
-        <ol><li><a href="${R.url("brechos.html")}">Brechós</a></li>${b.bairro ? `<li><a href="${R.url(`brechos.html?bairro=${encodeURIComponent(b.bairro)}`)}">${R.esc(b.bairro)}</a></li>` : ""}<li aria-current="page">${R.esc(b.nome)}</li></ol>
+        <ol><li><a href="${R.url("brechos.html")}">Mapa</a></li>${b.bairro ? `<li><a href="${R.url(`brechos.html?bairro=${encodeURIComponent(b.bairro)}`)}">${R.esc(b.bairro)}</a></li>` : ""}<li aria-current="page">${R.esc(b.nome)}</li></ol>
       </nav>
       <div class="wrap shop-info">
-        <section class="about" aria-labelledby="aboutTitle">
-          <h2 id="aboutTitle" class="eyebrow">Sobre o espaço</h2>
-          <p style="margin-top:.75rem">${R.esc(b.descricao || "Este brechó ainda não escreveu uma apresentação.")}</p>
-          ${cats.length ? `<div class="shop-row-foot">${cats.map(c => `<a class="tag" href="${R.url(`busca.html?tipo_busca=brechos&cat=${encodeURIComponent(c)}`)}">${R.esc(c)}</a>`).join("")}</div>` : ""}
+        <section class="card card-pad about" aria-labelledby="aboutTitle">
+          <h2 id="aboutTitle">Sobre o espaço</h2>
+          <p>${R.esc(b.descricao || "Este brechó ainda não escreveu uma apresentação.")}</p>
+          ${cats.length ? `<div class="tag-row">${cats.map(c => `<a class="tag" href="${R.url(`busca.html?tipo_busca=brechos&cat=${encodeURIComponent(c)}`)}">${R.esc(c)}</a>`).join("")}</div>` : ""}
         </section>
-        <section aria-labelledby="visitTitle">
-          <h2 id="visitTitle" class="eyebrow">Como visitar</h2>
-          <dl class="facts" style="margin-top:.75rem">
+        <section class="card card-pad" aria-labelledby="visitTitle">
+          <h2 id="visitTitle">Como visitar</h2>
+          <dl class="facts">
             <div><dt>Endereço</dt><dd>${R.esc(address || "Não informado")}</dd></div>
             <div><dt>Bairro</dt><dd>${R.esc(b.bairro || "—")}</dd></div>
             ${b.horario ? `<div><dt>Horário</dt><dd>${R.esc(b.horario)}</dd></div>` : ""}
@@ -65,16 +67,14 @@
             ${wa ? `<a class="btn" href="${wa}" target="_blank" rel="noopener" data-contact>WhatsApp<span class="visually-hidden"> (abre em nova aba)</span></a>` : ""}
             ${ig ? `<a class="btn btn-outline" href="${ig}" target="_blank" rel="noopener" data-contact>Instagram<span class="visually-hidden"> (abre em nova aba)</span></a>` : ""}
             ${site ? `<a class="btn btn-outline" href="${R.esc(site)}" target="_blank" rel="noopener" data-contact>Site<span class="visually-hidden"> (abre em nova aba)</span></a>` : ""}
-            ${mapsLink ? `<a class="btn btn-ghost" href="${mapsLink}" target="_blank" rel="noopener" data-map-link>${R.icon("pin")} Abrir rota<span class="visually-hidden"> no OpenStreetMap (nova aba)</span></a>` : ""}
+            ${mapsLink ? `<a class="btn btn-ghost" href="${mapsLink}" target="_blank" rel="noopener" data-map-link>${R.icon("pin")} como chegar<span class="visually-hidden"> no OpenStreetMap (nova aba)</span></a>` : ""}
           </div>
           ${R.map.hasCoords(b) ? '<div class="shop-map map-canvas" id="shopMap"></div>' : ""}
         </section>
       </div>
-      <section class="section" aria-labelledby="piecesTitle" style="padding-top:1rem">
-        <div class="wrap section-head">
-          <div><span class="eyebrow">No acervo</span><h2 id="piecesTitle">Peças do ${R.esc(b.nome)}</h2></div>
-        </div>
-        <div class="wrap"><div class="tile-grid contained" id="shopPieces" aria-busy="true">${R.render.skeletonTiles(4)}</div></div>
+      <section class="wrap" aria-labelledby="piecesTitle" style="padding-bottom:3.5rem">
+        <h2 class="section-title-center" id="piecesTitle">peças do ${R.esc(b.nome)}</h2>
+        <div class="tile-grid" id="shopPieces" aria-busy="true">${R.render.skeletonTiles(4)}</div>
       </section>`;
 
     R.interactions.sync(root);

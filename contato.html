@@ -11,11 +11,8 @@
   <meta property="og:description" content="Fale com a equipe do Repeteco: dúvidas, cadastro de brechó, imprensa, parcerias, privacidade e acessibilidade.">
   <meta property="og:image" content="assets/img/og-repeteco.png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="theme-color" content="#2D1B4E">
+  <meta name="theme-color" content="#340C3D">
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap">
   <link rel="stylesheet" href="assets/css/base.css">
   <link rel="stylesheet" href="assets/css/pages.css">
   <script src="assets/js/a11y.js"></script>
@@ -31,23 +28,24 @@
 <body data-page="contato">
   <header id="site-header"></header>
   <main id="conteudo" tabindex="-1">
-    <div class="wrap section split-intro">
-      <div>
-        <h1>Contato</h1>
-        <p class="lede" style="margin-top:1rem">Dúvidas, sugestões, problemas com a conta ou com um brechó: escreva para a equipe. Respondemos pelo e-mail informado.</p>
-        <p class="muted" style="margin-top:1rem">Para pedidos sobre seus dados pessoais, escolha o assunto “Privacidade e dados”. Para relatar uma barreira de acessibilidade, escolha “Acessibilidade”.</p>
-      </div>
-      <form id="contactForm" novalidate style="display:grid;gap:1rem">
-        <div class="field">
+    <header class="page-head">
+      <h1>Contato</h1>
+      <p>Dúvidas, sugestões, problemas com a conta ou com um brechó: escreva para a equipe. Respondemos pelo e-mail informado.</p>
+    </header>
+    <div class="wrap-narrow" style="padding-bottom:3.5rem">
+      <form id="contactForm" class="card card-pad" novalidate style="display:grid;gap:1rem">
+        <div class="form-grid">
+          <div class="field">
       <label for="ctNome">Nome</label>
       <input class="input" id="ctNome" autocomplete="name" maxlength="80" required>
       
     </div>
-        <div class="field">
+          <div class="field">
       <label for="ctEmail">E-mail para resposta</label>
       <input class="input" id="ctEmail" type="email" autocomplete="email" maxlength="160" required>
       
     </div>
+        </div>
         <div class="field">
       <label for="ctAssunto">Assunto</label>
       <select class="select" id="ctAssunto">
@@ -61,8 +59,9 @@
       <textarea class="textarea" id="ctMensagem" maxlength="3000" rows="6" required></textarea>
       
     </div>
+        <p class="small muted">Pedidos sobre seus dados pessoais: escolha “Privacidade e dados”. Barreiras de acessibilidade: escolha “Acessibilidade”.</p>
         <p class="form-status" id="contactStatus" tabindex="-1"></p>
-        <div><button class="btn" type="submit" id="contactBtn">Enviar mensagem</button></div>
+        <div><button class="btn" type="submit" id="contactBtn">enviar mensagem</button></div>
       </form>
     </div>
   </main>

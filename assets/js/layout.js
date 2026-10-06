@@ -8,10 +8,11 @@
   const u = R.url;
 
   const NAV = [
-    { id: "home", href: "index.html", label: "Início" },
-    { id: "feed", href: "feed.html", label: "Feed" },
-    { id: "brechos", href: "brechos.html", label: "Brechós e mapa" },
-    { id: "editorial", href: "editorial.html", label: "Editorial" }
+    { id: "home", href: "index.html", label: "início" },
+    { id: "brechos", href: "brechos.html", label: "mapa" },
+    { id: "feed", href: "feed.html", label: "feed" },
+    { id: "editorial", href: "editorial.html", label: "editorial" },
+    { id: "contato", href: "contato.html", label: "contato" }
   ];
 
   const FOOTER = [
@@ -37,16 +38,16 @@
     host.className = "site-header";
     host.innerHTML = `
       <div class="wrap header-inner">
-        <a class="logo" href="${u("index.html")}">re<span>pé</span>teco<span class="visually-hidden">, página inicial</span></a>
+        <a class="logo" href="${u("index.html")}"><span class="re">Re</span>Peteco<span class="visually-hidden">, página inicial</span></a>
         <nav class="main-nav" id="mainNav" aria-label="Principal">
           <ul>
             ${NAV.map(n => `<li><a class="nav-link" href="${u(n.href)}"${n.id === page ? ' aria-current="page"' : ""}>${n.label}</a></li>`).join("")}
           </ul>
         </nav>
         <div class="header-actions">
-          <a class="header-search" href="${u("busca.html")}"${page === "busca" ? ' aria-current="page"' : ""}>${R.icon("search")}<span class="label-text">Busca</span><span class="visually-hidden"> (peças e brechós)</span></a>
+          <a class="header-action" href="${u("busca.html")}"${page === "busca" ? ' aria-current="page"' : ""}>${R.icon("search")}<span class="visually-hidden">Busca de peças e brechós</span></a>
           <div id="headerAccount" class="user-menu"></div>
-          <button class="icon-btn menu-toggle" id="menuToggle" type="button" aria-controls="mainNav" aria-expanded="false">
+          <button class="icon-btn menu-toggle header-action" id="menuToggle" type="button" aria-controls="mainNav" aria-expanded="false">
             ${R.icon("menu")}<span class="visually-hidden">Abrir menu</span>
           </button>
         </div>
@@ -73,7 +74,7 @@
     if (!state.user) {
       const next = encodeURIComponent(location.pathname.replace(new URL(R.root).pathname, "") + location.search);
       const onAuthPage = page === "entrar";
-      host.innerHTML = `<a class="header-link" href="${u("entrar.html" + (onAuthPage ? "" : `?next=${next}`))}">${R.icon("user")}<span class="hide-mobile">Entrar</span><span class="visually-hidden"> ou criar conta</span></a>`;
+      host.innerHTML = `<a class="header-action" href="${u("entrar.html" + (onAuthPage ? "" : `?next=${next}`))}">${R.icon("user")}<span class="hide-mobile">entrar</span><span class="visually-hidden"> ou criar conta</span></a>`;
       return;
     }
     const nome = R.displayName();
@@ -83,8 +84,8 @@
       : state.brecho ? `<a href="${u("dashboard/index.html")}">Painel do meu brechó</a>`
       : `<a href="${u("cadastro.html")}">Divulgar meu brechó</a>`;
     host.innerHTML = `
-      <button class="header-link" id="accountBtn" type="button" aria-expanded="false" aria-controls="accountPanel">
-        <span class="avatar">${avatar}</span><span class="hide-mobile">${R.esc(nome.split(" ")[0])}</span>
+      <button class="header-action" id="accountBtn" type="button" aria-expanded="false" aria-controls="accountPanel">
+        <span class="avatar">${avatar}</span>
         <span class="visually-hidden">Abrir menu da conta</span>
       </button>
       <div class="user-menu-panel" id="accountPanel" hidden>
@@ -126,7 +127,7 @@
     host.innerHTML = `
       <div class="wrap footer-top">
         <div class="footer-brand">
-          <a class="logo" href="${u("index.html")}">re<span>pé</span>teco</a>
+          <a class="logo" href="${u("index.html")}"><span class="re">Re</span>Peteco</a>
           <p>Curadoria de brechós, sebos e antiquários de São Paulo. Moda que já teve uma história e ainda tem muitas pela frente.</p>
         </div>
         ${FOOTER.map(col => `

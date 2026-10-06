@@ -11,11 +11,8 @@
   <meta property="og:description" content="Cadastre gratuitamente seu brechó, sebo ou antiquário de São Paulo no Repeteco. Depois da aprovação, publique peças e apareça no mapa.">
   <meta property="og:image" content="assets/img/og-repeteco.png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="theme-color" content="#2D1B4E">
+  <meta name="theme-color" content="#340C3D">
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap">
   <link rel="stylesheet" href="assets/css/base.css">
   <link rel="stylesheet" href="assets/css/pages.css">
   <script src="assets/js/a11y.js"></script>
@@ -32,96 +29,93 @@
 <body data-page="cadastro">
   <header id="site-header"></header>
   <main id="conteudo" tabindex="-1">
-    <div class="wrap section split-intro">
-      <div>
-        <span class="eyebrow">Para brechós</span>
-        <h1 id="storeIntro" tabindex="-1">Divulgue seu espaço</h1>
-        <p class="lede" style="margin-top:1rem">O cadastro é gratuito. A equipe revisa cada solicitação para manter o Repeteco com espaços reais e cuidados.</p>
-        <ol class="steps" style="margin-top:2rem">
-          <li><div><h3>Envie os dados</h3><p class="muted">Nome, bairro, contato e uma foto do espaço.</p></div></li>
-          <li><div><h3>Análise</h3><p class="muted">Conferimos as informações em até 3 dias úteis.</p></div></li>
-          <li><div><h3>Publique</h3><p class="muted">Aprovado, você ganha um painel para publicar peças e ver estatísticas.</p></div></li>
-        </ol>
-      </div>
-      <div>
-        <div id="storeGate" hidden></div>
-        <form id="storeForm" novalidate hidden style="display:grid;gap:2rem">
-          <fieldset style="border:0;padding:0;margin:0;min-width:0">
-            <legend class="eyebrow" style="margin-bottom:1rem">Responsável</legend>
-            <div class="form-grid">
-              <div class="field">
+    <header class="page-head">
+      <h1 id="storeIntro" tabindex="-1">Divulgue seu espaço<br>na nossa plataforma</h1>
+      <p>Tem um brechó, antiquário, sebo ou espaço cultural? Faça parte do Repeteco e conecte seu negócio a uma comunidade apaixonada por moda circular, cultura e sustentabilidade.</p>
+    </header>
+    <div class="wrap" style="max-width:56rem;padding-bottom:3.5rem">
+      <ol class="steps" style="grid-template-columns:repeat(auto-fit,minmax(14rem,1fr));margin-bottom:1.5rem">
+        <li><div><h3>Envie os dados</h3><p class="small">Nome, bairro, contato e uma foto do espaço.</p></div></li>
+        <li><div><h3>Análise</h3><p class="small">Conferimos as informações em até 3 dias úteis.</p></div></li>
+        <li><div><h3>Publique</h3><p class="small">Aprovado, você ganha um painel para publicar peças.</p></div></li>
+      </ol>
+      <div id="storeGate" class="card card-pad" hidden></div>
+      <form id="storeForm" class="card card-pad" novalidate hidden style="display:grid;gap:2rem">
+        <fieldset style="border:0;padding:0;margin:0;min-width:0">
+          <legend><h2 style="font-size:1.3rem;margin-bottom:1rem">Responsável</h2></legend>
+          <div class="form-grid">
+            <div class="field">
       <label for="respNome">Nome</label>
       <input class="input" id="respNome" autocomplete="name" required>
       
     </div>
-              <div class="field">
+            <div class="field">
       <label for="respEmail">E-mail</label>
       <input class="input" id="respEmail" type="email" autocomplete="email" required>
       
     </div>
-              <div class="field">
+            <div class="field">
       <label for="respWhats">WhatsApp com DDD</label>
       <input class="input" id="respWhats" type="tel" autocomplete="tel" inputmode="tel" placeholder="(11) 99999-9999" required>
       
     </div>
-              <div class="field">
+            <div class="field">
       <label for="respInsta">Instagram do espaço</label>
       <input class="input" id="respInsta" placeholder="@seubrecho">
       
     </div>
-            </div>
-          </fieldset>
-          <fieldset style="border:0;padding:0;margin:0;min-width:0">
-            <legend class="eyebrow" style="margin-bottom:1rem">O espaço</legend>
-            <div class="form-grid">
-              <div class="field full">
+          </div>
+        </fieldset>
+        <fieldset style="border:0;padding:0;margin:0;min-width:0">
+          <legend><h2 style="font-size:1.3rem;margin-bottom:1rem">Sobre o espaço</h2></legend>
+          <div class="form-grid">
+            <div class="field full">
       <label for="lojaNome">Nome do espaço</label>
       <input class="input" id="lojaNome" maxlength="80" required>
       
     </div>
-              <div class="field full">
-      <label for="lojaDesc">Apresentação</label>
-      <textarea class="textarea" id="lojaDesc" maxlength="1200" aria-describedby="lojaDesc-dica"></textarea>
+            <div class="field full">
+      <label for="lojaDesc">Descrição</label>
+      <textarea class="textarea" id="lojaDesc" maxlength="1200" aria-describedby="lojaDesc-dica" placeholder="Conte sobre seu espaço…"></textarea>
       <p class="hint" id="lojaDesc-dica">O que vocês vendem, a curadoria, o que torna o espaço especial.</p>
     </div>
-            </div>
-          </fieldset>
-          <fieldset style="border:0;padding:0;margin:0;min-width:0">
-            <legend class="eyebrow" style="margin-bottom:.5rem">Categorias</legend>
-            <span id="catFirst" tabindex="-1" class="visually-hidden">Categorias</span>
-            <div id="catGroup" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(10rem,1fr));gap:0 1rem"></div>
-          </fieldset>
-          <fieldset style="border:0;padding:0;margin:0;min-width:0">
-            <legend class="eyebrow" style="margin-bottom:1rem">Localização</legend>
-            <div class="form-grid">
-              <div class="field">
+          </div>
+        </fieldset>
+        <fieldset style="border:0;padding:0;margin:0;min-width:0">
+          <legend><h2 style="font-size:1.3rem;margin-bottom:.5rem">Categorias</h2></legend>
+          <span id="catFirst" tabindex="-1" class="visually-hidden">Categorias</span>
+          <div id="catGroup" class="check-grid"></div>
+        </fieldset>
+        <fieldset style="border:0;padding:0;margin:0;min-width:0">
+          <legend><h2 style="font-size:1.3rem;margin-bottom:1rem">Localização</h2></legend>
+          <div class="form-grid">
+            <div class="field">
       <label for="lojaCidade">Cidade</label>
       <input class="input" id="lojaCidade" value="São Paulo" autocomplete="address-level2" required>
       
     </div>
-              <div class="field">
+            <div class="field">
       <label for="lojaBairro">Bairro</label>
       <input class="input" id="lojaBairro" required>
       
     </div>
-              <div class="field full">
+            <div class="field full">
       <label for="lojaEndereco">Endereço</label>
-      <input class="input" id="lojaEndereco" autocomplete="street-address" placeholder="Rua, número e complemento" aria-describedby="lojaEndereco-dica">
+      <input class="input" id="lojaEndereco" autocomplete="street-address" placeholder="Rua, número…" aria-describedby="lojaEndereco-dica">
       <p class="hint" id="lojaEndereco-dica">Depois da aprovação você marca a posição exata no mapa pelo painel.</p>
     </div>
-            </div>
-          </fieldset>
-          <fieldset style="border:0;padding:0;margin:0;min-width:0">
-            <legend class="eyebrow" style="margin-bottom:1rem">Foto do espaço (opcional)</legend>
-            <div style="display:grid;grid-template-columns:8rem 1fr;gap:1rem;align-items:center">
-              <div id="lojaFotoPreview" class="shop-row-media"></div>
-              <div class="field"><label for="lojaFoto">Fachada, arara ou ambiente</label><input class="input" id="lojaFoto" type="file"><p class="hint">JPG, PNG ou WebP. Reduzimos a imagem antes do envio.</p></div>
-            </div>
-          </fieldset>
-          <p class="form-status" id="storeStatus"></p>
-          <div><button class="btn" type="submit" id="storeSubmit">Enviar para análise</button></div>
-        </form>
-      </div>
+          </div>
+        </fieldset>
+        <fieldset style="border:0;padding:0;margin:0;min-width:0">
+          <legend><h2 style="font-size:1.3rem;margin-bottom:1rem">Imagens</h2></legend>
+          <div class="media-row">
+            <div id="lojaFotoPreview" class="photo-preview"></div>
+            <div class="field"><label for="lojaFoto">Envie uma foto do espaço (opcional)</label><input class="input" id="lojaFoto" type="file"><p class="hint">Fachada, arara ou ambiente. JPG, PNG ou WebP; reduzimos a imagem antes do envio.</p></div>
+          </div>
+        </fieldset>
+        <p class="form-status" id="storeStatus"></p>
+        <button class="btn btn-block" type="submit" id="storeSubmit">enviar solicitação</button>
+      </form>
     </div>
   </main>
   <footer id="site-footer"></footer>

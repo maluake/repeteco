@@ -52,14 +52,14 @@
         ])}
         <div class="two-col">
           <div>
-            <div class="charts" style="grid-template-columns:1fr">${D.bars({ title: "Visitas por dia", points: days, unit: "visitas", note: "últimos 14 dias" })}</div>
-            <h2 style="font-size:1.3rem;margin-bottom:.75rem">Peças com mais interesse</h2>
+            <div class="charts" style="grid-template-columns:1fr;margin-bottom:1rem">${D.bars({ title: "Visitas por dia", points: days, unit: "visitas", note: "últimos 14 dias" })}</div>
+            <h2 style="margin-bottom:.75rem">Peças com mais interesse</h2>
             ${(s.top_publicacoes || []).length ? `<div class="table-wrap"><table class="dtable"><thead><tr><th scope="col">Peça</th><th scope="col">Curtidas</th><th scope="col">Salvos</th></tr></thead><tbody>
               ${s.top_publicacoes.map(p => `<tr><td><a class="link" href="#pecas/${p.id}">${R.esc(p.titulo)}</a></td><td>${p.curtidas}</td><td>${p.salvos}</td></tr>`).join("")}
             </tbody></table></div>` : '<p class="muted">Publique peças para acompanhar quais chamam mais atenção.</p>'}
           </div>
-          <section aria-labelledby="checkTitle">
-            <h2 id="checkTitle" style="font-size:1.3rem">Perfil completo: ${done} de ${checks.length}</h2>
+          <section class="panel-card" aria-labelledby="checkTitle">
+            <h2 id="checkTitle">Perfil completo: ${done} de ${checks.length}</h2>
             <p class="muted small" style="margin:.4rem 0 1rem">Perfis completos aparecem melhor na busca e no mapa.</p>
             <ul class="checklist">${checks.map(([l, ok]) => `<li class="${ok ? "ok" : "todo"}"><span>${l}<span class="visually-hidden">${ok ? ": feito" : ": pendente"}</span></span>${ok ? "" : `<a class="link small" href="${l.startsWith("Primeira") ? "#pecas/nova" : "#perfil"}">Resolver</a>`}</li>`).join("")}</ul>
           </section>
@@ -224,8 +224,8 @@
       el.innerHTML = `
         ${D.head("Perfil do brechó", "Estas informações aparecem na página pública, na busca e no mapa.", b.status === "approved" ? `<a class="btn btn-outline" href="${R.url(`brecho.html?b=${encodeURIComponent(b.slug || b.id)}`)}">Ver página pública</a>` : "")}
         ${banner()}
-        <form id="shopForm" novalidate style="display:grid;gap:2.5rem">
-          <section aria-labelledby="sIdent"><h2 id="sIdent" style="font-size:1.3rem;margin-bottom:1rem">Identidade</h2>
+        <div class="shop-editor"><form id="shopForm" novalidate style="display:grid;gap:1rem">
+          <section class="panel-card" aria-labelledby="sIdent"><h2 id="sIdent" style="margin-bottom:1rem">Identidade</h2>
             <div class="form-grid">
               ${f("sNome", "Nome do brechó", b.nome, 'maxlength="80" required')}
               <div class="field full"><label for="sDesc">Apresentação</label><textarea class="textarea" id="sDesc" maxlength="1200">${R.esc(b.descricao || "")}</textarea></div>
@@ -234,13 +234,13 @@
               <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(10rem,1fr));gap:0 1rem">${V.categoriasBrecho.map(c => `<label class="check"><input type="checkbox" name="sCat" value="${R.esc(c)}"${cats.includes(c) ? " checked" : ""}> ${R.esc(c[0].toUpperCase() + c.slice(1))}</label>`).join("")}</div>
             </fieldset>
           </section>
-          <section aria-labelledby="sImgs"><h2 id="sImgs" style="font-size:1.3rem;margin-bottom:1rem">Imagens</h2>
+          <section class="panel-card" aria-labelledby="sImgs"><h2 id="sImgs" style="margin-bottom:1rem">Imagens</h2>
             <div class="form-grid">
               <div class="media-pair"><div class="image-preview square" id="sLogoPrev">${b.logo_url ? R.img(b.logo_url, "Logo atual") : "Sem logo"}</div><div class="field"><label for="sLogo">Logo</label><input class="input" id="sLogo" type="file"><p class="hint">Quadrada, de preferência.</p></div></div>
               <div class="media-pair"><div class="image-preview wide" id="sCapaPrev">${b.foto_capa ? R.img(b.foto_capa, "Capa atual") : "Sem capa"}</div><div class="field"><label for="sCapa">Foto de capa</label><input class="input" id="sCapa" type="file"><p class="hint">Fachada ou ambiente, na horizontal.</p></div></div>
             </div>
           </section>
-          <section aria-labelledby="sContato"><h2 id="sContato" style="font-size:1.3rem;margin-bottom:1rem">Contato e horário</h2>
+          <section class="panel-card" aria-labelledby="sContato"><h2 id="sContato" style="margin-bottom:1rem">Contato e horário</h2>
             <div class="form-grid">
               ${f("sWhats", "WhatsApp com DDD", b.whatsapp, 'type="tel" inputmode="tel"')}
               ${f("sInsta", "Instagram", b.instagram ? "@" + String(b.instagram).replace(/^@/, "") : "", 'placeholder="@seubrecho"')}
@@ -248,7 +248,7 @@
               ${f("sHorario", "Horário de funcionamento", b.horario, 'maxlength="120" placeholder="Ter a sáb, 11h às 19h"')}
             </div>
           </section>
-          <section aria-labelledby="sLocal"><h2 id="sLocal" style="font-size:1.3rem;margin-bottom:1rem">Localização</h2>
+          <section class="panel-card" aria-labelledby="sLocal"><h2 id="sLocal" style="margin-bottom:1rem">Localização</h2>
             <div class="form-grid">
               ${f("sEndereco", "Endereço", b.endereco, 'autocomplete="street-address" placeholder="Rua, número"')}
               ${f("sBairro", "Bairro", b.bairro, "required")}
@@ -262,14 +262,34 @@
             <p class="hint" style="margin-top:.5rem">O mapa é opcional para quem usa teclado: o endereço por escrito também aparece na página do brechó.</p>
           </section>
           <p class="form-status" id="sStatus"></p>
-          <div><button class="btn" type="submit" id="sSave">Salvar perfil</button></div>
-        </form>`;
+          <div><button class="btn" type="submit" id="sSave">Salvar alterações</button></div>
+        </form>
+        <aside class="shop-preview" aria-labelledby="pvTitle">
+          <p id="pvTitle">prévia — card no site</p>
+          <div class="preview-card" id="shopPreview"></div>
+          <p class="note">A prévia muda enquanto você edita. Salve para publicar.</p>
+        </aside></div>`;
 
       const $ = s => el.querySelector(s);
+      const preview = () => {
+        const cover = $("#sCapaPrev img")?.getAttribute("src");
+        const cat = R.$$('input[name="sCat"]:checked', el)[0]?.value;
+        $("#shopPreview").innerHTML = `
+          <div class="pc-cover">${cover ? `<img src="${R.esc(cover)}" alt="">` : "foto de capa"}</div>
+          <div class="pc-body">
+            <span class="pc-name">${R.esc($("#sNome").value || "Seu brechó")}</span>
+            ${cat ? `<span class="tag" style="justify-self:start">${R.esc(cat)}</span>` : ""}
+            <span class="pc-place">${R.esc(R.fmt.place($("#sBairro").value, $("#sCidade").value) || "Bairro, cidade")}</span>
+            <span class="btn btn-sm" aria-hidden="true">ver no mapa</span>
+          </div>`;
+      };
+      el.addEventListener("input", R.debounce(preview, 120));
+      el.addEventListener("change", () => setTimeout(preview, 50));
       const logo = R.media.picker($("#sLogo"), $("#sLogoPrev"), { onError: m => R.fieldError($("#sLogo"), m) });
       const capa = R.media.picker($("#sCapa"), $("#sCapaPrev"), { onError: m => R.fieldError($("#sCapa"), m) });
       let coords = R.map.hasCoords(b) ? { latitude: Number(b.latitude), longitude: Number(b.longitude), endereco_formatado: b.endereco_formatado } : null;
 
+      preview();
       const map = R.map.create($("#sMap"), { center: coords ? [coords.latitude, coords.longitude] : undefined, zoom: coords ? 16 : undefined });
       let pin = null;
       const placePin = (lat, lng) => {

@@ -16,7 +16,7 @@
       <h2>${R.esc(g.title)}</h2>
       <ul>${g.items.map(id => {
         const r = D.routes.get(id);
-        return `<li><a href="#${id}" data-route="${id}">${R.esc(r.label)}<span class="badge" data-badge="${id}" hidden></span></a></li>`;
+        return `<li><a href="#${id}" data-route="${id}"><span class="nav-ico" aria-hidden="true"></span><span class="nav-label">${R.esc(r.label)}</span><span class="badge" data-badge="${id}" hidden></span></a></li>`;
       }).join("")}</ul>`).join("");
   };
 

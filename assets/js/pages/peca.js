@@ -34,7 +34,7 @@
       </nav>
       <article class="wrap piece">
         <figure class="piece-media">${R.img(p.imagem_url, alt, { eager: true })}</figure>
-        <div class="piece-info">
+        <div class="piece-info card card-pad">
           <a class="eyebrow" href="${R.links.brecho(p)}">${R.esc(p.brecho_nome)}</a>
           <h1>${R.esc(p.titulo)}</h1>
           ${p.preco !== null && p.preco !== undefined ? `<p class="piece-price">${R.fmt.price(p.preco)}</p>` : ""}

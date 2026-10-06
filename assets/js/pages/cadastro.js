@@ -21,7 +21,7 @@
       gate.innerHTML = `
         <h2>Primeiro, entre na sua conta</h2>
         <p class="muted" style="margin-top:.5rem">O brechó fica vinculado à sua conta. Assim só você consegue editar o perfil e publicar peças.</p>
-        <div class="hero-actions"><a class="btn" href="${R.url(`entrar.html?modo=cadastro&next=${next}`)}">Criar conta</a><a class="btn btn-outline" href="${R.url(`entrar.html?next=${next}`)}">Já tenho conta</a></div>`;
+        <div class="cta-btns"><a class="btn" href="${R.url(`entrar.html?modo=cadastro&next=${next}`)}">Criar conta</a><a class="btn btn-outline" href="${R.url(`entrar.html?next=${next}`)}">Já tenho conta</a></div>`;
       gate.hidden = false;
       form.hidden = true;
       return;
@@ -32,7 +32,7 @@
         <span class="status ${R.esc(state.brecho.status)}">${{ pending: "Em análise", approved: "Aprovado", rejected: "Precisa de ajustes" }[state.brecho.status] || "Em análise"}</span>
         <h2 style="margin-top:.75rem">${title}</h2>
         <p class="muted" style="margin-top:.5rem">${text}</p>
-        <div class="hero-actions"><a class="btn" href="${R.url("dashboard/index.html")}">Abrir o painel do ${R.esc(state.brecho.nome)}</a></div>`;
+        <div class="cta-btns"><a class="btn" href="${R.url("dashboard/index.html")}">Abrir o painel do ${R.esc(state.brecho.nome)}</a></div>`;
       gate.hidden = false;
       form.hidden = true;
       return;

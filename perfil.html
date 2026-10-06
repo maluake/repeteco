@@ -12,11 +12,8 @@
   <meta property="og:description" content="Edite seu nome, foto, cidade e bio no Repeteco.">
   <meta property="og:image" content="assets/img/og-repeteco.png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="theme-color" content="#2D1B4E">
+  <meta name="theme-color" content="#340C3D">
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap">
   <link rel="stylesheet" href="assets/css/base.css">
   <link rel="stylesheet" href="assets/css/pages.css">
   <script src="assets/js/a11y.js"></script>
@@ -33,19 +30,20 @@
 <body data-page="perfil">
   <header id="site-header"></header>
   <main id="conteudo" tabindex="-1">
-    <div class="wrap section" style="padding-bottom:0">
+    <header class="page-head">
       <h1>Meu perfil</h1>
-      <p class="muted" id="memberSince" style="margin-top:.5rem"></p>
-    </div>
+      <p id="memberSince"></p>
+    </header>
     <div class="wrap profile-layout">
-      <div class="avatar-edit">
+      <div class="card card-pad avatar-edit">
         <div class="avatar-lg" id="avatarPreview" aria-live="polite"></div>
-        <span class="btn btn-outline btn-sm file-btn">Escolher foto<input type="file" id="avatarFile" form="profileForm" aria-label="Escolher foto de perfil (JPG, PNG ou WebP)"></span>
-        <button class="btn btn-ghost btn-sm" type="button" id="avatarRemove" hidden>Remover foto</button>
+        <span class="btn btn-outline btn-sm file-btn">escolher foto<input type="file" id="avatarFile" form="profileForm" aria-label="Escolher foto de perfil (JPG, PNG ou WebP)"></span>
+        <button class="btn btn-ghost btn-sm" type="button" id="avatarRemove" hidden>remover foto</button>
         <p class="small muted">JPG, PNG ou WebP. A imagem é reduzida antes do envio.</p>
       </div>
-      <div>
-        <form id="profileForm" novalidate>
+      <div style="display:grid;gap:1.25rem">
+        <form id="profileForm" class="card card-pad" novalidate>
+          <h2 style="font-size:1.35rem;margin-bottom:1rem">Seus dados</h2>
           <div class="form-grid">
             <div class="field">
       <label for="pNome">Nome</label>
@@ -69,12 +67,11 @@
     </div>
           </div>
           <p class="form-status" id="profileStatus" style="margin-top:1.25rem"></p>
-          <div style="margin-top:1.25rem"><button class="btn" type="submit" id="profileSave">Salvar alterações</button></div>
+          <div style="margin-top:1.25rem"><button class="btn" type="submit" id="profileSave">salvar alterações</button></div>
+          <p id="roleNote" style="margin-top:1.25rem" class="small"></p>
         </form>
-        <p id="roleNote" style="margin-top:2rem" class="small"></p>
-        <hr class="rule" style="margin-block:2.5rem">
-        <h2 style="font-size:1.4rem">Alterar senha</h2>
-        <form id="passForm" novalidate style="margin-top:1rem">
+        <form id="passForm" class="card card-pad" novalidate>
+          <h2 style="font-size:1.35rem;margin-bottom:1rem">Alterar senha</h2>
           <div class="form-grid">
             <div class="field">
       <label for="newPass">Nova senha</label>
@@ -88,7 +85,7 @@
     </div>
           </div>
           <p class="form-status" id="passStatus" style="margin-top:1rem"></p>
-          <div style="margin-top:1rem"><button class="btn btn-outline" type="submit" id="passSave">Alterar senha</button></div>
+          <div style="margin-top:1rem"><button class="btn btn-outline" type="submit" id="passSave">alterar senha</button></div>
         </form>
       </div>
     </div>

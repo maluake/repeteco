@@ -91,16 +91,19 @@
     toggle(btn);
   });
 
-  R.actionButtons = (kind, id, { title = "", count = null, variant = "" } = {}) => {
+  R.likeButton = (kind, id, { title = "", count = null, variant = "" } = {}) => {
     const t = R.esc(title);
-    const like = `<button type="button" class="act act-like ${variant}" data-act="like" data-kind="${kind}" data-id="${R.esc(id)}" data-title="${t}" aria-pressed="false">
+    return `<button type="button" class="act act-like ${variant}" data-act="like" data-kind="${kind}" data-id="${R.esc(id)}" data-title="${t}" aria-pressed="false">
         ${R.icon("heart")}<span class="act-label visually-hidden">Curtir${t ? ": " + t : ""}</span>${count !== null ? `<span class="act-count"><span class="visually-hidden">, curtidas: </span><span class="act-n">${Number(count) || 0}</span></span>` : ""}
       </button>`;
-    const save = `<button type="button" class="act act-save ${variant}" data-act="save" data-kind="${kind}" data-id="${R.esc(id)}" data-title="${t}" aria-pressed="false">
+  };
+  R.saveButton = (kind, id, { title = "", variant = "" } = {}) => {
+    const t = R.esc(title);
+    return `<button type="button" class="act act-save ${variant}" data-act="save" data-kind="${kind}" data-id="${R.esc(id)}" data-title="${t}" aria-pressed="false">
         ${R.icon("bookmark")}<span class="act-label visually-hidden">Salvar${t ? ": " + t : ""}</span>
       </button>`;
-    return like + save;
   };
+  R.actionButtons = (kind, id, opts = {}) => R.likeButton(kind, id, opts) + R.saveButton(kind, id, opts);
 
   R.interactions = { liked, saved, sync, reload: () => load(R.auth) };
   R.onAuth(load);

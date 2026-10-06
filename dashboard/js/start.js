@@ -16,6 +16,7 @@
       return;
     }
 
+    R.$("#dashContext").textContent = admin ? "admin" : "painel da loja";
     const groups = [];
     if (shop) groups.push({ title: shop.nome, items: ["visao-dono", "pecas", "perfil"] });
     if (admin) groups.push({ title: "Administração", items: ["visao-admin", "solicitacoes", "brechos", "usuarios", "publicacoes", "editorial", "mensagens"] });

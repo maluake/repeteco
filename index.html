@@ -11,11 +11,8 @@
   <meta property="og:description" content="Peças recém-chegadas, brechós no mapa e um editorial sobre moda circular.">
   <meta property="og:image" content="assets/img/og-repeteco.png">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="theme-color" content="#2D1B4E">
+  <meta name="theme-color" content="#340C3D">
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&display=swap">
   <link rel="stylesheet" href="assets/css/base.css">
   <link rel="stylesheet" href="assets/css/pages.css">
   <script src="assets/js/a11y.js"></script>
@@ -31,86 +28,74 @@
 <body data-page="home">
   <header id="site-header"></header>
   <main id="conteudo" tabindex="-1">
-    <section class="wrap home-hero" aria-labelledby="heroTitle">
-      <div>
-        <span class="eyebrow">Brechós de São Paulo</span>
-        <h1 id="heroTitle" class="display">Roupa com <em>história</em>, garimpo com <span class="mark">endereço</span>.</h1>
-        <p class="lede">O Repeteco reúne brechós, sebos e antiquários da cidade. Veja o que acabou de chegar, salve o que gostar e descubra no mapa onde ir.</p>
-        <div class="hero-actions">
-          <a class="btn" href="feed.html">Ver os achados</a>
-          <a class="btn btn-outline" href="brechos.html">Brechós no mapa</a>
-        </div>
+    <h1 class="visually-hidden">Repeteco — brechós, sebos e antiquários de São Paulo</h1>
+    <div class="home-hero">
+      <img src="https://images.unsplash.com/photo-1543059080-f9b1272213d5?w=1600&q=80&auto=format&fit=crop" alt="Rua arborizada entre prédios no centro de São Paulo" fetchpriority="high" data-fallback>
+    </div>
+
+    <form class="home-search" action="busca.html" role="search">
+      <div class="search-pill">
+        <label class="visually-hidden" for="homeSearch">Buscar brechós, peças e bairros</label>
+        <input id="homeSearch" name="q" type="search" placeholder="buscar brechós, peças, bairros…" autocomplete="off">
+        <button class="btn btn-sm" type="submit">buscar</button>
       </div>
-      <div id="heroVisual">
-        <div class="hero-statement" aria-hidden="true"><p>Cada peça que volta a circular é uma peça a menos sendo produzida.</p></div>
+    </form>
+
+    <section class="wrap carousel-section" aria-labelledby="destaqueTitle" id="destaqueSection">
+      <h2 class="carousel-label" id="destaqueTitle">Brechós em destaque</h2>
+      <div class="carousel-wrap">
+        <button class="carousel-btn prev" type="button" data-scroll="-1" aria-controls="destaques" aria-label="Brechós anteriores">‹</button>
+        <div class="carousel" id="destaques" tabindex="0" aria-label="Brechós em destaque (role para ver mais)">
+          <div class="carousel-card skeleton" aria-hidden="true"></div>
+        </div>
+        <button class="carousel-btn next" type="button" data-scroll="1" aria-controls="destaques" aria-label="Próximos brechós">›</button>
       </div>
     </section>
 
-    <section class="section" aria-labelledby="latestTitle">
+    <section class="manifesto" aria-labelledby="manifestoTitle">
+      <h2 id="manifestoTitle"><span class="hl-teal">A</span> sustentabilidade <span class="hl-teal">de um jeito mais</span> style</h2>
+      <p>Descubra os melhores lugares de SP para garimpar roupas, objetos e o que mais a sua mente permitir!</p>
+    </section>
+
+    <section class="explore on-dark" aria-label="Explore e novidades">
       <div class="wrap">
-        <div class="section-head">
-          <div>
-            <span class="eyebrow">Chegou agora</span>
-            <h2 id="latestTitle">Os últimos achados</h2>
-          </div>
-          <a class="link-arrow" href="feed.html">Ver o feed completo <span aria-hidden="true">→</span></a>
+        <div class="explore-head">
+          <h2 id="exploreTitle">Explore o seu próximo rolê!</h2>
+          <a href="brechos.html">ver tudo</a>
         </div>
-        <div class="tile-grid contained" id="homeLatest" aria-busy="true"></div>
+        <div class="hood-row-wrap">
+          <nav class="hood-row" id="homeHoods" aria-labelledby="exploreTitle"></nav>
+          <button class="carousel-btn next" type="button" data-scroll="1" aria-controls="homeHoods" aria-label="Mais bairros">›</button>
+        </div>
+        <div class="explore-head" style="margin-top:2rem">
+          <h2>Novidades no feed</h2>
+          <a href="feed.html">ver o feed</a>
+        </div>
+        <div class="news-grid" id="homeLatest" aria-busy="true"></div>
       </div>
     </section>
 
-    <section class="section" aria-labelledby="hoodsTitle" id="hoodsSection" hidden>
-      <div class="wrap">
-        <div class="section-head">
-          <div>
-            <span class="eyebrow">Por bairro</span>
-            <h2 id="hoodsTitle">Onde garimpar</h2>
-          </div>
-          <a class="link-arrow" href="brechos.html">Abrir o mapa <span aria-hidden="true">→</span></a>
-        </div>
-        <ul class="neighborhoods" id="homeHoods" role="list"></ul>
+    <section class="section wrap" aria-labelledby="storiesTitle" id="storiesSection" hidden>
+      <div class="section-head">
+        <h2 id="storiesTitle">Do editorial</h2>
+        <a class="link-arrow" href="editorial.html">todas as matérias <span aria-hidden="true">→</span></a>
       </div>
+      <div class="story-grid" id="homeStories"></div>
     </section>
 
-    <section class="section" aria-labelledby="shopsTitle" id="shopsSection" hidden>
-      <div class="wrap">
-        <div class="section-head">
-          <div>
-            <span class="eyebrow">Novos no Repeteco</span>
-            <h2 id="shopsTitle">Brechós para conhecer</h2>
-          </div>
-          <a class="link-arrow" href="brechos.html">Todos os brechós <span aria-hidden="true">→</span></a>
-        </div>
-        <div class="shop-list" id="homeShops"></div>
-      </div>
-    </section>
-
-    <section class="section" aria-labelledby="storiesTitle" id="storiesSection" hidden>
-      <div class="wrap">
-        <div class="section-head">
-          <div>
-            <span class="eyebrow">Editorial</span>
-            <h2 id="storiesTitle">Para ler com calma</h2>
-          </div>
-          <a class="link-arrow" href="editorial.html">Todas as matérias <span aria-hidden="true">→</span></a>
-        </div>
-        <div class="story-grid" id="homeStories"></div>
-      </div>
-    </section>
-
-    <section class="band" aria-labelledby="ctaTitle">
-      <div class="wrap band-inner">
+    <div class="cta-outer">
+      <section class="cta-banner on-dark" aria-labelledby="ctaTitle">
         <div>
-          <span class="eyebrow">Para brechós</span>
-          <h2 id="ctaTitle">Tem um brechó, sebo ou antiquário em SP?</h2>
-          <p class="lede">Cadastre seu espaço gratuitamente. Depois da aprovação, você publica suas peças, aparece no mapa e acompanha quem curtiu e salvou.</p>
+          <h2 id="ctaTitle">Divulgue o seu espaço<br>na nossa plataforma!</h2>
+          <p>É gratuito. Depois da aprovação você publica peças, aparece no mapa e acompanha curtidas e visitas.</p>
+          <div class="cta-btns">
+            <a class="btn btn-teal" href="cadastro.html">quero divulgar</a>
+            <a class="btn btn-outline-light" href="como-funciona.html">como funciona</a>
+          </div>
         </div>
-        <div class="actions">
-          <a class="btn" href="cadastro.html">Divulgar meu brechó</a>
-          <a class="btn btn-outline" href="como-funciona.html">Como funciona</a>
-        </div>
-      </div>
-    </section>
+        <div class="cta-visual" id="ctaVisual" aria-hidden="true"><div></div><div></div><div></div></div>
+      </section>
+    </div>
   </main>
   <footer id="site-footer"></footer>
   <noscript><p class="noscript">O Repeteco precisa de JavaScript para carregar as peças e os brechós.</p></noscript>

@@ -96,7 +96,7 @@ async function install(context, { session = null, log = [] } = {}) {
   await context.route(/nominatim\.openstreetmap\.org/, route => route.fulfill({
     json: [{ lat: "-23.5614", lon: "-46.6916", display_name: "Rua dos Pinheiros, 500, Pinheiros, São Paulo" }]
   }));
-  await context.route(/img\.test\//, route => {
+  await context.route(/img\.test\/|images\.unsplash\.com/, route => {
     const name = new URL(route.request().url()).pathname.split("/").pop().replace(/\.\w+$/, "");
     const hue = [...name].reduce((a, c) => a + c.charCodeAt(0), 0) % 360;
     route.fulfill({ contentType: "image/svg+xml", body: svgImage(name, hue) });
