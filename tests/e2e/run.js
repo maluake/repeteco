@@ -46,7 +46,8 @@ const PUBLIC_PAGES = [
   "index.html", "feed.html", "busca.html", "brechos.html", "brecho.html?b=garimpo-da-vila",
   "peca.html?id=20000000-0000-0000-0000-000000000001", "editorial.html", "artigo.html?slug=como-garimpar-em-sao-paulo",
   "entrar.html", "nova-senha.html", "contato.html", "cadastro.html", "sobre.html", "como-funciona.html",
-  "sustentabilidade.html", "acessibilidade.html", "termos.html", "privacidade.html", "404.html"
+  "sustentabilidade.html", "acessibilidade.html", "termos.html", "privacidade.html", "404.html",
+  "eventos.html", "evento.html?e=feira-repeteco-primavera", "brecho.html?b=baú-da-avo"
 ];
 const PRIVATE_PAGES = [
   ["salvos.html", "user@x.com"], ["perfil.html", "user@x.com"], ["cadastro.html", "user@x.com"],
@@ -55,7 +56,9 @@ const PRIVATE_PAGES = [
   ["dashboard/index.html#publicacoes", "admin@x.com"], ["dashboard/index.html#editorial", "admin@x.com"],
   ["dashboard/index.html#editorial/novo", "admin@x.com"], ["dashboard/index.html#mensagens", "admin@x.com"],
   ["dashboard/index.html#visao-dono", "dona@x.com"], ["dashboard/index.html#pecas", "dona@x.com"],
-  ["dashboard/index.html#perfil", "dona@x.com"]
+  ["dashboard/index.html#perfil", "dona@x.com"],
+  ["dashboard/index.html#eventos", "admin@x.com"], ["dashboard/index.html#eventos/novo", "admin@x.com"],
+  ["dashboard/index.html#parcerias", "admin@x.com"]
 ];
 
 async function settle(page) {
@@ -64,7 +67,7 @@ async function settle(page) {
 }
 
 (async () => {
-  browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || undefined });
+  browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || "/opt/pw-browsers/chromium" });
 
   /* ---------- 1. links e navegação ---------- */
   console.log("\nNavegação e links");
@@ -285,25 +288,44 @@ async function settle(page) {
     await context.close();
   });
 
-  await test("curtir e salvar gravam no banco, refletem aria-pressed e desfazem", async () => {
+  await test("curtir e salvar chamam a função do banco, refletem aria-pressed e desfazem", async () => {
     const { page, log, context } = await ctx({ email: "user@x.com" });
     await page.goto(BASE + "feed.html");
     await settle(page);
     const first = fixtures.tables.feed_publicacoes[2].id;
     const like = `[data-act="like"][data-id="${first}"]`;
     await page.click(like);
-    await page.waitForTimeout(200);
-    const post = log.find(l => l.method === "POST" && l.path.endsWith("/curtidas"));
-    assert(post && JSON.parse(post.body).publicacao_id === first && JSON.parse(post.body).user_id === fixtures.USERS["user@x.com"].id, "POST de curtida incorreto");
+    await page.waitForTimeout(250);
+    const call = log.find(l => l.method === "POST" && l.path.endsWith("/rpc/alternar_interacao"));
+    const body = call && JSON.parse(call.body);
+    assert(body && body.p_tipo === "curtida" && body.p_publicacao_id === first && body.p_brecho_id === null, `chamada incorreta: ${call && call.body}`);
     assert(await page.getAttribute(like, "aria-pressed") === "true", "aria-pressed não ficou true");
     await page.click(like);
-    await page.waitForTimeout(200);
-    assert(log.some(l => l.method === "DELETE" && l.path.endsWith("/curtidas") && l.search.includes(first)), "DELETE da curtida não enviado");
+    await page.waitForTimeout(250);
+    assert(await page.getAttribute(like, "aria-pressed") === "false", "segunda chamada deveria descurtir");
     const already = fixtures.tables.feed_publicacoes[0].id;
-    assert(await page.getAttribute(`[data-act="like"][data-id="${already}"]`, "aria-pressed") === "true", "curtida existente não carregada do banco");
+    assert(await page.getAttribute(`[data-act="like"][data-id="${already}"]`, "aria-pressed") === "true", "curtida existente não carregada de minhas_interacoes");
     await page.click(`[data-act="save"][data-id="${first}"]`);
-    await page.waitForTimeout(200);
-    assert(log.some(l => l.method === "POST" && l.path.endsWith("/salvos")), "POST de salvo não enviado");
+    await page.waitForTimeout(250);
+    const save = log.filter(l => l.path.endsWith("/rpc/alternar_interacao")).pop();
+    assert(JSON.parse(save.body).p_tipo === "salvo", "salvar não chamou a função");
+    await page.click(`[data-act="save"][data-id="${first}"]`);
+    await page.waitForTimeout(250);
+    assert(!log.some(l => l.method === "POST" && /\/rest\/v1\/(curtidas|salvos)$/.test(l.path)), "não deveria gravar direto nas tabelas");
+    await context.close();
+  });
+
+  await test("erro ao curtir mostra a mensagem real e desfaz o estado", async () => {
+    const { page, context } = await ctx({ email: "user@x.com" });
+    await context.route("**/rest/v1/rpc/alternar_interacao", route => route.fulfill({ status: 400, json: { code: "XX000", message: "falha simulada no banco" } }));
+    await page.goto(BASE + "feed.html");
+    await settle(page);
+    const id = fixtures.tables.feed_publicacoes[3].id;
+    await page.click(`[data-act="like"][data-id="${id}"]`);
+    await page.waitForTimeout(300);
+    const toast = await page.textContent("#toastRegion");
+    assert(/falha simulada no banco/.test(toast), `toast sem o erro real: ${toast}`);
+    assert(await page.getAttribute(`[data-act="like"][data-id="${id}"]`, "aria-pressed") === "false", "estado deveria voltar");
     await context.close();
   });
 
@@ -380,6 +402,7 @@ async function settle(page) {
     await settle(page);
     const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFklEQVR4nGP4z8Dwn4GBgYGJAQoAAP//AwB7Dwr0PmK9xQAAAABJRU5ErkJggg==", "base64");
     await page.setInputFiles("#avatarFile", { name: "foto.png", mimeType: "image/png", buffer: png });
+    await page.click(".cropper [data-ok]");
     assert(await page.isVisible("#avatarPreview img"), "prévia não apareceu");
     await page.click("#profileSave");
     await page.waitForSelector("#profileStatus:not(:empty)");
@@ -405,25 +428,38 @@ async function settle(page) {
     await context.close();
   });
 
-  await test("dono publica peça: foto no Storage + insert vinculado ao brechó", async () => {
+  await test("dono publica peça com várias fotos recortadas, miniaturas e promoção", async () => {
     const { page, log, context } = await ctx({ email: "dona@x.com" });
     await page.goto(BASE + "dashboard/index.html#pecas");
     await settle(page);
     await page.click("[data-new] >> nth=0");
     await page.click('[data-intent="publicado"]');
-    assert(await page.getAttribute("#pcFoto", "aria-invalid") === "true", "deveria exigir foto");
+    assert(await page.getAttribute("#pcFotos", "aria-invalid") === "true", "deveria exigir foto");
     const png = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAFklEQVR4nGP4z8Dwn4GBgYGJAQoAAP//AwB7Dwr0PmK9xQAAAABJRU5ErkJggg==", "base64");
-    await page.setInputFiles("#pcFoto", { name: "peca.png", mimeType: "image/png", buffer: png });
-    await page.fill("#pcTitulo", "Casaco de lã");
-    await page.fill("#pcPreco", "120");
-    await page.selectOption("#pcTipo", "casaco");
+    await page.setInputFiles("#pcFotos", [{ name: "a.png", mimeType: "image/png", buffer: png }, { name: "b.png", mimeType: "image/png", buffer: png }]);
+    await page.click(".cropper [data-aspect='1']");
+    await page.click(".cropper [data-ok]");
+    await page.click(".cropper [data-ok]");
+    await page.waitForFunction(() => document.querySelectorAll("#fotoList .photo-item").length === 2);
+    await page.fill("#alt-0", "Casaco visto de frente");
+    await page.fill("#pcTitulo", "Bota de couro");
+    await page.selectOption("#pcTipo", "bota");
+    assert(await page.textContent("#pcTamLabel") === "Numeração", "tipo calçado deveria pedir numeração");
+    await page.selectOption("#pcTam", "38");
+    await page.fill("#pcPreco", "90");
+    await page.check("#pcPromo");
+    await page.fill("#pcOrig", "150");
+    await page.fill("#pcEstilo", "  Anos   90 ");
     await page.click('[data-intent="publicado"]');
-    await page.waitForTimeout(600);
-    const up = log.find(l => l.method === "POST" && l.path.includes("/storage/v1/object/brechos/"));
+    await page.waitForTimeout(800);
+    const ups = log.filter(l => l.method === "POST" && l.path.includes("/storage/v1/object/brechos/"));
+    assert(ups.length === 4, `esperava 2 fotos + 2 miniaturas, houve ${ups.length}`);
     const ins = log.find(l => l.method === "POST" && l.path.endsWith("/publicacoes"));
-    assert(up, "upload da foto não aconteceu");
     const body = ins && JSON.parse(ins.body);
-    assert(body && body.brecho_id === "10000000-0000-0000-0000-000000000001" && body.status === "publicado" && body.preco === 120 && body.imagem_url, `insert incorreto: ${ins && ins.body}`);
+    assert(body && body.brecho_id === "10000000-0000-0000-0000-000000000001" && body.status === "publicado", `insert incorreto: ${ins && ins.body}`);
+    assert(body.imagens.length === 2 && body.imagens[0].thumb_url && body.imagens[0].alt === "Casaco visto de frente", "galeria não gravada");
+    assert(body.imagem_url === body.imagens[0].url && body.thumb_url === body.imagens[0].thumb_url, "capa deveria ser a 1ª foto");
+    assert(body.tamanho === "38" && body.preco === 90 && body.preco_original === 150 && body.estilo === "anos 90", `campos: ${ins.body}`);
     await context.close();
   });
 
@@ -486,6 +522,130 @@ async function settle(page) {
     await settle(page);
     const html = await page.evaluate(() => window.R.render.articleHtml('<img src=x onerror=alert(1)> [x](javascript:alert(1))'));
     assert(!html.includes("<img") && !html.includes("javascript:"), `HTML inseguro: ${html}`);
+    await context.close();
+  });
+
+  /* ---------- v6: mapa, promoções, galeria, online, eventos ---------- */
+  await test("mapa fica por baixo do cabeçalho fixo ao rolar", async () => {
+    const { page, context } = await ctx({ width: 1024, height: 700 });
+    await page.goto(BASE + "brechos.html");
+    await settle(page);
+    const box = await page.locator("#mapCanvas").boundingBox();
+    await page.evaluate(y => window.scrollTo(0, y), box.y - 20);
+    await page.waitForTimeout(200);
+    const hit = await page.evaluate(() => {
+      const h = document.querySelector("#site-header").getBoundingClientRect();
+      const el = document.elementFromPoint(h.left + h.width / 2, h.top + h.height / 2);
+      return !!el.closest("#site-header");
+    });
+    assert(hit, "o mapa está desenhado por cima do cabeçalho");
+    await context.close();
+  });
+
+  await test("feed: aba promoções consulta em_promocao e mostra preço riscado", async () => {
+    const { page, log, context } = await ctx();
+    await page.goto(BASE + "feed.html");
+    await settle(page);
+    await page.click('[data-lista="promocoes"]');
+    await settle(page);
+    const q = log.filter(l => l.path.endsWith("/feed_publicacoes")).pop().search;
+    assert(q.includes("em_promocao=eq.true"), `consulta: ${q}`);
+    assert(await page.locator(".promo-flag").count() > 0 && await page.locator("s").count() > 0, "sem selo/preço riscado");
+    await context.close();
+  });
+
+  await test("peça com várias fotos: galeria troca imagem por miniatura e teclado", async () => {
+    const { page, context } = await ctx();
+    await page.goto(BASE + "peca.html?id=20000000-0000-0000-0000-000000000001");
+    await settle(page);
+    assert(await page.locator(".gallery-thumbs button").count() === 3, "deveria ter 3 miniaturas");
+    await page.click(".gallery-thumbs button >> nth=2");
+    assert(/peca-1-3\.jpg/.test(await page.getAttribute(".gallery-main img", "src")), "não trocou para a 3ª foto");
+    assert(await page.getAttribute(".gallery-thumbs button >> nth=2", "aria-pressed") === "true", "miniatura não marcada");
+    await page.click(".gallery-nav.next");
+    assert(/peca-1\.jpg/.test(await page.getAttribute(".gallery-main img", "src")), "próxima deveria voltar à 1ª");
+    await context.close();
+  });
+
+  await test("busca: numeração de calçado filtra por tipo de calçado + número", async () => {
+    const { page, log, context } = await ctx();
+    await page.goto(BASE + "busca.html?num=38");
+    await settle(page);
+    const q = decodeURIComponent(log.filter(l => l.path.endsWith("/feed_publicacoes")).pop().search);
+    assert(/tamanho\.in\.\(.*38/.test(q) && q.includes("tipo.in.(") && q.includes("bota"), `consulta: ${q}`);
+    await context.close();
+  });
+
+  await test("brechó online: sem mapa, com selo e link da loja", async () => {
+    const { page, context } = await ctx();
+    await page.goto(BASE + "brecho.html?b=baú-da-avo");
+    await settle(page);
+    assert(await page.locator("#shopMap").count() === 0, "brechó online não deveria ter mapa");
+    assert(/só online/.test(await page.textContent(".shop-head")), "selo online ausente");
+    assert(await page.locator('a[href="https://baudaavo.com.br/loja"]').count() === 1, "link da loja ausente");
+    await page.goto(BASE + "brechos.html");
+    await settle(page);
+    await page.click('[data-bairro="online"]');
+    await settle(page);
+    assert(await page.locator(".shop-card").count() === 2, "aba online deveria listar 2 brechós");
+    await context.close();
+  });
+
+  await test("eventos: agenda separa próximos e passados; rascunho não aparece", async () => {
+    const { page, context } = await ctx();
+    await page.goto(BASE + "eventos.html");
+    await settle(page);
+    const up = await page.textContent("#upcomingList");
+    assert(up.includes("Feira Repeteco de Primavera") && up.includes("garimpo consciente") && !up.includes("planejamento"), `próximos: ${up}`);
+    assert((await page.textContent("#pastList")).includes("Bazar de inverno"), "passado ausente");
+    assert(await page.getAttribute('.main-nav a[href$="eventos.html"]', "aria-current") === "page", "aba eventos não marcada no menu");
+    await context.close();
+  });
+
+  await test("evento: formulário de parceria grava em evento_parcerias", async () => {
+    const { page, log, context } = await ctx({ email: "dona@x.com" });
+    await page.goto(BASE + "evento.html?e=feira-repeteco-primavera");
+    await settle(page);
+    await page.click("#parBtn");
+    await page.fill("#parNome", "");
+    await page.click("#parBtn");
+    assert(await page.getAttribute("#parNome", "aria-invalid") === "true", "deveria validar nome");
+    await page.fill("#parNome", "Garimpo da Vila");
+    await page.selectOption("#parTipo", "expositor");
+    await page.fill("#parMsg", "Levamos duas araras.");
+    await page.click("#parBtn");
+    await page.waitForFunction(() => /Recebemos/.test(document.querySelector("#parStatus").textContent));
+    const post = log.find(l => l.method === "POST" && l.path.endsWith("/evento_parcerias"));
+    const body = post && JSON.parse(post.body);
+    assert(body && body.evento_id === "40000000-0000-0000-0000-000000000001" && body.tipo === "expositor" && body.brecho_id === "10000000-0000-0000-0000-000000000001" && body.user_id === "00000000-0000-0000-0000-00000000000b" && !("status" in body), `POST: ${post && post.body}`);
+    await page.goto(BASE + "evento.html?e=live-garimpo-consciente");
+    await settle(page);
+    assert(await page.locator("#partnerForm").count() === 0, "evento sem parcerias não deveria ter formulário");
+    await context.close();
+  });
+
+  await test("admin cria evento online e muda andamento de parceria", async () => {
+    const { page, log, context } = await ctx({ email: "admin@x.com" });
+    await page.goto(BASE + "dashboard/index.html#eventos/novo");
+    await settle(page);
+    await page.fill("#eTitulo", "Oficina de costura");
+    await page.fill("#eInicio", "2030-05-10T14:00");
+    await page.selectOption("#eFormato", "online");
+    assert(await page.isHidden("#eLocalWrap"), "local deveria sumir para evento online");
+    await page.click('[data-intent="publicado"]');
+    assert(await page.getAttribute("#eLink", "aria-invalid") === "true", "online sem link não deveria publicar");
+    await page.fill("#eLink", "meet.example.com/oficina");
+    await page.click('[data-intent="publicado"]');
+    await page.waitForTimeout(500);
+    const ins = log.find(l => l.method === "POST" && l.path.endsWith("/eventos"));
+    const body = ins && JSON.parse(ins.body);
+    assert(body && body.status === "publicado" && body.formato === "online" && body.link === "https://meet.example.com/oficina" && body.local_nome === null && body.data_inicio.startsWith("2030-05-10"), `POST: ${ins && ins.body}`);
+    await page.goto(BASE + "dashboard/index.html#parcerias");
+    await settle(page);
+    await page.selectOption("[data-parceria] >> nth=0", "em_conversa");
+    await page.waitForTimeout(300);
+    const patch = log.find(l => l.method === "PATCH" && l.path.endsWith("/evento_parcerias"));
+    assert(patch && JSON.parse(patch.body).status === "em_conversa", "PATCH de andamento ausente");
     await context.close();
   });
 

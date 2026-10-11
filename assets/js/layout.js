@@ -11,6 +11,7 @@
     { id: "home", href: "index.html", label: "início" },
     { id: "brechos", href: "brechos.html", label: "mapa" },
     { id: "feed", href: "feed.html", label: "feed" },
+    { id: "eventos", href: "eventos.html", label: "eventos" },
     { id: "editorial", href: "editorial.html", label: "editorial" },
     { id: "contato", href: "contato.html", label: "contato" }
   ];
@@ -18,7 +19,7 @@
   const FOOTER = [
     { title: "Explorar", links: [
       ["feed.html", "Feed de peças"], ["brechos.html", "Brechós e mapa"], ["busca.html", "Busca com filtros"],
-      ["editorial.html", "Editorial"], ["salvos.html", "Meus salvos"]
+      ["eventos.html", "Eventos"], ["editorial.html", "Editorial"], ["salvos.html", "Meus salvos"]
     ] },
     { title: "O Repeteco", links: [
       ["sobre.html", "Sobre o Repeteco"], ["como-funciona.html", "Como funciona"],

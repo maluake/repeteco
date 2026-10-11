@@ -47,17 +47,31 @@
   R.$("#catGroup").innerHTML = R.vocab.categoriasBrecho.map(c =>
     `<label class="check"><input type="checkbox" name="categorias" value="${R.esc(c)}"> ${R.esc(c[0].toUpperCase() + c.slice(1))}</label>`).join("");
 
+  R.$("#modoGroup").innerHTML = Object.entries(R.vocab.modalidades).map(([v, l], i) =>
+    `<label class="check"><input type="radio" name="modalidade" value="${v}"${i === 0 ? " checked" : ""}> ${l}</label>`).join("");
+  const modo = () => R.$('input[name="modalidade"]:checked')?.value || "fisica";
+  const syncModo = () => {
+    R.$("#lojaOnlineWrap").hidden = modo() === "fisica";
+    R.$("#lojaBairro").required = modo() !== "online";
+    R.$("#lojaEndereco").closest(".field").hidden = modo() === "online";
+  };
+  R.$("#modoGroup").addEventListener("change", syncModo);
+
   form.addEventListener("submit", async ev => {
     ev.preventDefault();
     const v = id => R.$(`#${id}`).value.trim();
     const cats = R.$$('input[name="categorias"]:checked').map(i => i.value);
     const wa = v("respWhats").replace(/\D/g, "");
+    const m = modo();
+    const lojaRaw = v("lojaOnline");
+    const loja = lojaRaw ? (lojaRaw.includes("://") ? lojaRaw : "https://" + lojaRaw) : "";
     if (!R.validate([
       [R.$("#respNome"), !v("respNome") ? "Informe o nome da pessoa responsável." : null],
       [R.$("#respEmail"), !R.$("#respEmail").validity.valid || !v("respEmail") ? "Informe um e-mail válido." : null],
       [R.$("#respWhats"), wa.length < 10 ? "Informe o WhatsApp com DDD." : null],
       [R.$("#lojaNome"), v("lojaNome").length < 2 ? "Informe o nome do espaço." : null],
-      [R.$("#lojaBairro"), !v("lojaBairro") ? "Informe o bairro." : null],
+      [R.$("#lojaBairro"), m !== "online" && !v("lojaBairro") ? "Informe o bairro." : null],
+      [R.$("#lojaOnline"), loja && !R.safeUrl(loja) ? "Informe um link válido." : m === "online" && !loja && !v("respInsta") ? "Informe o link da loja online ou o Instagram." : null],
       [R.$("#lojaCidade"), !v("lojaCidade") ? "Informe a cidade." : null],
       [R.$("#catFirst"), !cats.length ? "Escolha pelo menos uma categoria." : null]
     ])) return;
@@ -69,7 +83,8 @@
       const { data, error } = await R.sb.from("brechos").insert({
         user_id: R.auth.user.id,
         nome: v("lojaNome"), descricao: v("lojaDesc") || null, categorias: cats,
-        cidade: v("lojaCidade"), bairro: v("lojaBairro"), endereco: v("lojaEndereco") || null,
+        cidade: v("lojaCidade"), bairro: v("lojaBairro") || null, endereco: m === "online" ? null : (v("lojaEndereco") || null),
+        modalidade: m, loja_online_url: m === "fisica" ? null : (loja || null),
         nome_responsavel: v("respNome"), email_responsavel: v("respEmail"),
         whatsapp: wa, instagram: v("respInsta").replace(/^@/, "") || null
       }).select("id").single();
@@ -79,7 +94,7 @@
       if (file) {
         R.formStatus(st, "Cadastro criado. Enviando a foto…");
         try {
-          const up = await R.media.upload("brechos", file, { max: 1800 });
+          const up = await R.media.upload("brechos", file, { max: 1600, maxBytes: 220 * 1024 });
           const upd = await R.sb.from("brechos").update({ foto_capa: up.url }).eq("id", data.id);
           if (upd.error) throw upd.error;
         } catch (imgErr) {
@@ -99,6 +114,6 @@
     }
   });
 
-  picker = R.media.picker(R.$("#lojaFoto"), R.$("#lojaFotoPreview"), { onError: m => R.fieldError(R.$("#lojaFoto"), m) });
+  picker = R.media.picker(R.$("#lojaFoto"), R.$("#lojaFotoPreview"), { aspect: 16 / 9, onError: m => R.fieldError(R.$("#lojaFoto"), m) });
   R.onAuth(renderGate);
 })();

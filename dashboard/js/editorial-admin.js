@@ -89,7 +89,7 @@
     ["#aTitulo", "#aSub", "#aConteudo"].forEach(s => $(s).addEventListener("input", R.debounce(preview, 120)));
 
     let removeCapa = false;
-    const picker = R.media.picker($("#aCapa"), $("#aCapaPreview"), { onError: m => R.fieldError($("#aCapa"), m) });
+    const picker = R.media.picker($("#aCapa"), $("#aCapaPreview"), { aspect: 16 / 9, onError: m => R.fieldError($("#aCapa"), m) });
     $("#aCapaRemove")?.addEventListener("click", () => { removeCapa = true; picker.reset(); $("#aCapaPreview").textContent = "Sem capa"; });
 
     let intent = "rascunho";
@@ -113,7 +113,7 @@
         const file = picker.get();
         if (file) {
           R.formStatus(st, "Enviando a capa…");
-          const up = await R.media.upload("editorial", file, { max: 2000 });
+          const up = await R.media.upload("editorial", file, { max: 1600, maxBytes: 250 * 1024 });
           capa_url = up.url; capa_path = up.path;
         }
         const payload = {

@@ -16,14 +16,16 @@ O que mudou em relação à versão anterior está em [AUDITORIA.md](AUDITORIA.m
 index.html, feed.html, busca.html, brechos.html, brecho.html, peca.html,
 salvos.html, perfil.html, entrar.html, nova-senha.html, editorial.html,
 artigo.html, cadastro.html, contato.html, sobre.html, como-funciona.html,
-sustentabilidade.html, acessibilidade.html, termos.html, privacidade.html, 404.html
+sustentabilidade.html, acessibilidade.html, termos.html, privacidade.html,
+eventos.html, evento.html, 404.html
 dashboard/            painel (admin e dono) — rotas por hash (#pecas, #editorial…)
 assets/css/           base.css (tokens e componentes) · pages.css
 assets/js/            config, core (Supabase, sessão, SEO), layout (cabeçalho/rodapé),
-                      a11y, interactions (curtir/salvar), media (imagens), map (Leaflet),
+                      a11y, interactions (curtir/salvar), media (compressão e upload),
+                      cropper (recorte no navegador), map (Leaflet),
                       render, vocab, pages/*.js
 assets/vendor/        supabase-js 2.117.2 e Leaflet 1.9.4 servidos localmente
-supabase/             01_base_v4.sql · v5/ (6 partes) · tests/
+supabase/             01_base_v4.sql · v5/ (6 partes) · v6/ (3 partes) · tests/
 tests/e2e/            testes de navegador (Playwright + axe-core)
 ```
 
@@ -32,6 +34,9 @@ tests/e2e/            testes de navegador (Playwright + axe-core)
 1. No **SQL Editor**, rode `supabase/01_base_v4.sql` (só se o banco ainda não tiver a v4) e depois as seis partes de `supabase/v5/`, **em ordem e uma de cada vez**:
    `1_perfis.sql` → `2_brechos.sql` → `3_publicacoes_curtidas.sql` → `4_views_editorial_contato.sql` → `5_estatisticas.sql` → `6_storage.sql`.
    Para cada parte: abra uma consulta nova, cole o arquivo **inteiro** e clique em *Run*. Não divida um arquivo em pedaços: funções entre `$$ … $$` precisam ir completas, senão o Postgres acusa `syntax error at or near "$$"`. Todas as partes podem ser repetidas sem problema, inclusive depois de uma execução que falhou no meio. O começo da parte 1 lista exatamente o que a v5 altera.
+   Depois rode as três partes de `supabase/v6/`, também em ordem e inteiras:
+   `1_interacoes_pecas.sql` → `2_online_eventos.sql` → `3_views_resumo.sql`.
+   A v6 só **acrescenta**: funções de curtir/salvar, galeria de até 8 fotos e promoção nas peças, brechó online, tabelas `eventos` e `evento_parcerias` (com RLS) e novas colunas nas views. Nenhuma tabela ou dado é apagado; o topo de cada parte descreve o que muda.
 2. Em **Authentication → URL Configuration**:
    - *Site URL*: o endereço publicado (ex.: `https://seu-dominio`).
    - *Redirect URLs*: `https://seu-dominio/entrar.html*` e `https://seu-dominio/nova-senha.html` (inclua também `http://127.0.0.1:8090/*` para testes locais).
@@ -68,8 +73,8 @@ npm run test:e2e       # CHROMIUM_PATH opcional
 ## Roteiro de verificação manual (Supabase real)
 
 - **Pessoa usuária:** criar conta → confirmar e-mail → entrar → Meu perfil (nome, bio, foto) → curtir e salvar no feed → conferir em Salvos após recarregar → busca com filtros → sair.
-- **Dono:** cadastrar brechó → (admin aprova) → Painel → Perfil do brechó (logo, capa, endereço, "Localizar endereço no mapa") → Publicar peça → ver no feed e no mapa → editar, marcar vendida, excluir → Visão geral.
-- **Admin:** Solicitações → aprovar → Pessoas → Peças publicadas → Editorial (nova matéria, publicar, despublicar) → Mensagens.
+- **Dono:** cadastrar brechó → (admin aprova) → Painel → Perfil do brechó (logo, capa, endereço, "Localizar endereço no mapa") → Publicar peça com 2+ fotos (recortar, reordenar, descrever) → marcar promoção → ver no feed, na aba “promoções” e na galeria da peça → editar, marcar vendida, excluir → mudar para “Só online” e conferir que sai do mapa → Visão geral.
+- **Admin:** Solicitações → aprovar → Pessoas → Peças publicadas → Editorial (nova matéria, publicar, despublicar) → Eventos (criar, publicar, conferir em /eventos) → enviar interesse de parceria pela página do evento → Parcerias (mudar andamento) → Mensagens.
 
 ## Antes de lançar
 

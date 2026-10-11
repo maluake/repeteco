@@ -82,9 +82,9 @@
         ${!data.length ? R.render.state("empty", "Nenhuma peça ainda.", canPublish ? "Publique a primeira peça com uma boa foto vertical, em luz natural." : "Depois da aprovação você poderá publicar peças aqui.", canPublish ? '<button class="btn" type="button" data-new>Publicar peça</button>' : "") : `
         <div class="owner-pieces">${data.map(p => `
           <article class="owner-piece">
-            <div class="tile-media">${R.img(p.imagem_url, p.alt_text || p.titulo)}</div>
+            <div class="tile-media">${R.img(p.thumb_url || p.imagem_url, p.alt_text || p.titulo)}${(p.imagens || []).length > 1 ? `<span class="multi-flag">${R.icon("stack")}<span class="visually-hidden">${p.imagens.length} fotos</span></span>` : ""}</div>
             <h3>${R.esc(p.titulo)}</h3>
-            <div class="meta">${D.statusTag(p.status)}<span>${R.fmt.price(p.preco)}</span>${p.disponivel ? "" : "<span>Vendida</span>"}</div>
+            <div class="meta">${D.statusTag(p.status)}<span>${R.render.priceHtml(p)}</span>${p.disponivel ? "" : "<span>Vendida</span>"}</div>
             <div class="row">
               <button class="btn btn-outline btn-sm" type="button" data-edit="${p.id}">Editar<span class="visually-hidden"> ${R.esc(p.titulo)}</span></button>
               <button class="btn btn-ghost btn-sm" type="button" data-sold="${p.id}" data-value="${!p.disponivel}">${p.disponivel ? "Marcar vendida" : "Marcar disponível"}<span class="visually-hidden">: ${R.esc(p.titulo)}</span></button>
@@ -107,111 +107,7 @@
     }
   });
 
-  const options = (obj, current, empty = "Selecione") =>
-    `<option value="">${empty}</option>` + Object.entries(obj).map(([v, l]) => `<option value="${v}"${current === v ? " selected" : ""}>${l}</option>`).join("");
-
-  function openEditor(p) {
-    const isNew = !p;
-    p = p || { titulo: "", descricao: "", tipo: "", tamanho: "", preco: "", condicao: "", estilo: "", genero: "", disponivel: true, status: "publicado", alt_text: "" };
-    const d = document.createElement("dialog");
-    d.className = "sheet wide";
-    d.setAttribute("aria-labelledby", "pieceTitle");
-    d.innerHTML = `
-      <form method="dialog" id="pieceForm" novalidate>
-        <div class="sheet-head"><h2 id="pieceTitle">${isNew ? "Publicar peça" : "Editar peça"}</h2><button class="icon-btn" type="button" data-cancel aria-label="Fechar">${R.icon("close")}</button></div>
-        <div class="sheet-body editor">
-          <div class="image-slot">
-            <div class="image-preview" id="pcPreview">${p.imagem_url ? R.img(p.imagem_url, "Foto atual") : "Nenhuma foto escolhida"}</div>
-            <div class="field"><label for="pcFoto">${isNew ? "Foto da peça" : "Trocar foto"}</label><input class="input" id="pcFoto" type="file"><p class="hint">Vertical (3:4) fica melhor no feed. Reduzimos a imagem antes do envio.</p></div>
-          </div>
-          <div class="form-grid">
-            <div class="field full"><label for="pcTitulo">Nome da peça</label><input class="input" id="pcTitulo" maxlength="90" value="${R.esc(p.titulo)}" placeholder="Ex.: Jaqueta jeans anos 90"></div>
-            <div class="field full"><label for="pcAlt">Descrição da foto</label><input class="input" id="pcAlt" maxlength="240" value="${R.esc(p.alt_text || "")}" aria-describedby="pcAlt-dica"><p class="hint" id="pcAlt-dica">Para leitores de tela. Ex.: “Jaqueta jeans azul-clara com botões de metal, aberta sobre cabide”.</p></div>
-            <div class="field"><label for="pcPreco">Preço (R$)</label><input class="input" id="pcPreco" type="number" min="0" step="0.01" inputmode="decimal" value="${p.preco ?? ""}"></div>
-            <div class="field"><label for="pcTipo">Tipo</label><select class="select" id="pcTipo">${options(V.tipos, p.tipo)}</select></div>
-            <div class="field"><label for="pcTam">Tamanho</label><select class="select" id="pcTam"><option value="">Selecione</option>${V.tamanhos.map(t => `<option${p.tamanho === t ? " selected" : ""}>${t}</option>`).join("")}</select></div>
-            <div class="field"><label for="pcCond">Condição</label><select class="select" id="pcCond">${options(V.condicoes, p.condicao)}</select></div>
-            <div class="field"><label for="pcEstilo">Estilo</label><select class="select" id="pcEstilo">${options(V.estilos, p.estilo)}</select></div>
-            <div class="field"><label for="pcGenero">Gênero</label><select class="select" id="pcGenero">${options(V.generos, p.genero)}</select></div>
-            <div class="field full"><label for="pcDesc">Detalhes</label><textarea class="textarea" id="pcDesc" maxlength="1200" placeholder="Medidas, tecido, marca, detalhes de uso…">${R.esc(p.descricao || "")}</textarea></div>
-            <label class="check full"><input type="checkbox" id="pcDisp"${p.disponivel ? " checked" : ""}> Disponível para venda</label>
-          </div>
-        </div>
-        <p class="form-status" id="pcStatus" style="margin:0 1.25rem 1rem"></p>
-        <div class="editor-foot">
-          <div class="group">
-            <button class="btn" type="submit" data-intent="publicado">${isNew ? "Publicar" : p.status === "publicado" ? "Salvar" : "Salvar e publicar"}</button>
-            <button class="btn btn-outline" type="submit" data-intent="rascunho">${p.status === "publicado" && !isNew ? "Ocultar (rascunho)" : "Salvar rascunho"}</button>
-          </div>
-          ${isNew ? "" : '<button class="btn btn-danger" type="button" data-delete>Excluir peça</button>'}
-        </div>
-      </form>`;
-    document.body.appendChild(d);
-    const opener = document.activeElement;
-    const $ = s => d.querySelector(s);
-    const picker = R.media.picker($("#pcFoto"), $("#pcPreview"), { onError: m => R.fieldError($("#pcFoto"), m) });
-    let intent = "publicado";
-    d.querySelectorAll("[data-intent]").forEach(b => b.addEventListener("click", () => { intent = b.dataset.intent; }));
-    const close = () => { d.close(); };
-    d.addEventListener("close", () => { d.remove(); opener?.focus?.(); if (location.hash.includes("/")) history.replaceState(null, "", "#pecas"); });
-    $("[data-cancel]").addEventListener("click", close);
-
-    $("#pieceForm").addEventListener("submit", async e => {
-      e.preventDefault();
-      const titulo = $("#pcTitulo").value.trim();
-      const preco = $("#pcPreco").value === "" ? null : Number($("#pcPreco").value);
-      if (!R.validate([
-        [$("#pcFoto"), isNew && !picker.get() ? "Escolha uma foto da peça." : null],
-        [$("#pcTitulo"), titulo.length < 2 ? "Dê um nome à peça." : null],
-        [$("#pcPreco"), preco !== null && (isNaN(preco) || preco < 0) ? "Informe um preço válido." : null]
-      ])) return;
-      const st = $("#pcStatus");
-      d.querySelectorAll("button").forEach(b => { b.disabled = true; });
-      try {
-        const payload = {
-          titulo, preco, descricao: $("#pcDesc").value.trim() || null, alt_text: $("#pcAlt").value.trim() || null,
-          tipo: $("#pcTipo").value || null, tamanho: $("#pcTam").value || null, condicao: $("#pcCond").value || null,
-          estilo: $("#pcEstilo").value || null, genero: $("#pcGenero").value || null,
-          disponivel: $("#pcDisp").checked, status: intent
-        };
-        const file = picker.get();
-        if (file) {
-          R.formStatus(st, "Enviando a foto…");
-          const up = await R.media.upload("brechos", file, { max: 1600 });
-          payload.imagem_url = up.url;
-          payload.imagem_path = up.path;
-        }
-        R.formStatus(st, "Salvando…");
-        const res = isNew
-          ? await R.sb.from("publicacoes").insert({ ...payload, brecho_id: shop.id })
-          : await R.sb.from("publicacoes").update(payload).eq("id", p.id);
-        if (res.error) {
-          if (file && payload.imagem_path) R.media.remove("brechos", payload.imagem_path);
-          throw res.error;
-        }
-        if (!isNew && file && p.imagem_path) R.media.remove("brechos", p.imagem_path);
-        R.toast(intent === "publicado" ? "Peça publicada no feed." : "Peça salva como rascunho.");
-        close();
-        D.go();
-      } catch (err) {
-        console.error("[Repeteco] peça:", err);
-        R.formStatus(st, R.errorMessage(err, "Não foi possível salvar a peça."), true);
-        d.querySelectorAll("button").forEach(b => { b.disabled = false; });
-      }
-    });
-
-    $("[data-delete]")?.addEventListener("click", async () => {
-      if (!(await D.confirm(`Excluir “${p.titulo}”? A foto e as curtidas da peça serão removidas.`, { confirmLabel: "Excluir peça" }))) return;
-      const { error } = await R.sb.from("publicacoes").delete().eq("id", p.id);
-      if (error) return R.toast(R.errorMessage(error), "error");
-      if (p.imagem_path) R.media.remove("brechos", p.imagem_path);
-      R.toast("Peça excluída.");
-      close();
-      D.go();
-    });
-    d.showModal();
-    $("#pcFoto").focus();
-  }
+  const openEditor = p => D.openPieceEditor(p, shop, () => D.go());
 
   /* ---------- perfil do brechó ---------- */
   D.route("perfil", {
@@ -248,7 +144,14 @@
               ${f("sHorario", "Horário de funcionamento", b.horario, 'maxlength="120" placeholder="Ter a sáb, 11h às 19h"')}
             </div>
           </section>
-          <section class="panel-card" aria-labelledby="sLocal"><h2 id="sLocal" style="margin-bottom:1rem">Localização</h2>
+          <section class="panel-card" aria-labelledby="sLocal"><h2 id="sLocal" style="margin-bottom:1rem">Atendimento e localização</h2>
+            <fieldset style="border:0;padding:0;margin:0 0 1rem"><legend class="label">Como o brechó atende</legend>
+              <div class="pill-tabs" style="justify-content:flex-start">${Object.entries(V.modalidades).map(([v, l]) => `<label class="check"><input type="radio" name="sModo" value="${v}"${(b.modalidade || "fisica") === v ? " checked" : ""}> ${l}</label>`).join("")}</div>
+            </fieldset>
+            <div class="form-grid" id="sOnlineWrap">
+              ${f("sLoja", "Link da loja online", b.loja_online_url, 'type="url" placeholder="https://"', "Site de vendas, catálogo ou perfil onde as pessoas compram.").replace('class="field"', 'class="field full"')}
+            </div>
+            <div id="sAddrWrap">
             <div class="form-grid">
               ${f("sEndereco", "Endereço", b.endereco, 'autocomplete="street-address" placeholder="Rua, número"')}
               ${f("sBairro", "Bairro", b.bairro, "required")}
@@ -260,6 +163,8 @@
             </div>
             <div class="map-canvas location-map" id="sMap"></div>
             <p class="hint" style="margin-top:.5rem">O mapa é opcional para quem usa teclado: o endereço por escrito também aparece na página do brechó.</p>
+            </div>
+            <p class="hint" id="sOnlineNote" hidden>Brechós só online não aparecem no mapa; ficam na lista de brechós, na busca e no feed.</p>
           </section>
           <p class="form-status" id="sStatus"></p>
           <div><button class="btn" type="submit" id="sSave">Salvar alterações</button></div>
@@ -271,6 +176,17 @@
         </aside></div>`;
 
       const $ = s => el.querySelector(s);
+      const modo = () => el.querySelector('input[name="sModo"]:checked')?.value || "fisica";
+      let map = null;
+      const syncModo = () => {
+        const m = modo();
+        $("#sOnlineWrap").hidden = m === "fisica";
+        $("#sAddrWrap").hidden = m === "online";
+        $("#sOnlineNote").hidden = m !== "online";
+        $("#sBairro").required = m !== "online";
+        if (m !== "online") setTimeout(() => map?.invalidateSize(), 50);
+      };
+      el.querySelectorAll('input[name="sModo"]').forEach(r => r.addEventListener("change", syncModo));
       const preview = () => {
         const cover = $("#sCapaPrev img")?.getAttribute("src");
         const cat = R.$$('input[name="sCat"]:checked', el)[0]?.value;
@@ -285,12 +201,12 @@
       };
       el.addEventListener("input", R.debounce(preview, 120));
       el.addEventListener("change", () => setTimeout(preview, 50));
-      const logo = R.media.picker($("#sLogo"), $("#sLogoPrev"), { onError: m => R.fieldError($("#sLogo"), m) });
-      const capa = R.media.picker($("#sCapa"), $("#sCapaPrev"), { onError: m => R.fieldError($("#sCapa"), m) });
+      const logo = R.media.picker($("#sLogo"), $("#sLogoPrev"), { aspect: 1, onError: m => R.fieldError($("#sLogo"), m) });
+      const capa = R.media.picker($("#sCapa"), $("#sCapaPrev"), { aspect: 16 / 9, onError: m => R.fieldError($("#sCapa"), m) });
       let coords = R.map.hasCoords(b) ? { latitude: Number(b.latitude), longitude: Number(b.longitude), endereco_formatado: b.endereco_formatado } : null;
 
       preview();
-      const map = R.map.create($("#sMap"), { center: coords ? [coords.latitude, coords.longitude] : undefined, zoom: coords ? 16 : undefined });
+      map = R.map.create($("#sMap"), { center: coords ? [coords.latitude, coords.longitude] : undefined, zoom: coords ? 16 : undefined });
       let pin = null;
       const placePin = (lat, lng) => {
         const onMove = (la, ln) => { coords = { ...(coords || {}), latitude: la, longitude: ln }; $("#sGeoStatus").textContent = "Posição ajustada. Salve para confirmar."; };
@@ -298,6 +214,7 @@
         if (pin) { pin.setLatLng([lat, lng]); map.setView([lat, lng], 16); }
         else pin = R.map.editablePin(map, lat, lng, onMove);
       };
+      syncModo();
       if (coords) placePin(coords.latitude, coords.longitude);
       else map?.on("click", e => { placePin(e.latlng.lat, e.latlng.lng); coords = { latitude: e.latlng.lat, longitude: e.latlng.lng }; $("#sGeoStatus").textContent = "Posição marcada. Salve para confirmar."; });
 
@@ -319,11 +236,15 @@
       $("#shopForm").addEventListener("submit", async e => {
         e.preventDefault();
         const site = $("#sSite").value.trim();
+        const m = modo();
+        const lojaRaw = $("#sLoja").value.trim();
+        const loja = lojaRaw ? (lojaRaw.includes("://") ? lojaRaw : "https://" + lojaRaw) : "";
         const wa = $("#sWhats").value.replace(/\D/g, "");
         if (!R.validate([
           [$("#sNome"), $("#sNome").value.trim().length < 2 ? "Informe o nome do brechó." : null],
-          [$("#sBairro"), !$("#sBairro").value.trim() ? "Informe o bairro." : null],
-          [$("#sCidade"), !$("#sCidade").value.trim() ? "Informe a cidade." : null],
+          [$("#sBairro"), m !== "online" && !$("#sBairro").value.trim() ? "Informe o bairro." : null],
+          [$("#sLoja"), loja && !R.safeUrl(loja) ? "Informe um link válido." : m === "online" && !loja && !site && !$("#sInsta").value.trim() ? "Brechó online precisa de um link de loja, site ou Instagram." : null],
+          [$("#sCidade"), m !== "online" && !$("#sCidade").value.trim() ? "Informe a cidade." : null],
           [$("#sWhats"), wa && wa.length < 10 ? "Informe o WhatsApp com DDD." : null],
           [$("#sSite"), site && !R.safeUrl(site.includes("://") ? site : "https://" + site) ? "Informe um endereço de site válido." : null]
         ])) return;
@@ -338,11 +259,12 @@
             whatsapp: wa || null, instagram: $("#sInsta").value.trim().replace(/^@/, "") || null,
             site: site ? (site.includes("://") ? site : "https://" + site) : null,
             horario: $("#sHorario").value.trim() || null,
-            endereco: $("#sEndereco").value.trim() || null, bairro: $("#sBairro").value.trim(), cidade: $("#sCidade").value.trim()
+            modalidade: m, loja_online_url: m === "fisica" ? null : (loja || null),
+            endereco: $("#sEndereco").value.trim() || null, bairro: $("#sBairro").value.trim() || null, cidade: $("#sCidade").value.trim() || null
           };
-          if (coords) Object.assign(payload, { latitude: coords.latitude, longitude: coords.longitude, endereco_formatado: coords.endereco_formatado || null });
-          if (logo.get()) { const up = await R.media.upload("brechos", logo.get(), { max: 600 }); payload.logo_url = up.url; uploaded.push(up.path); }
-          if (capa.get()) { const up = await R.media.upload("brechos", capa.get(), { max: 2000 }); payload.foto_capa = up.url; uploaded.push(up.path); }
+          if (coords && m !== "online") Object.assign(payload, { latitude: coords.latitude, longitude: coords.longitude, endereco_formatado: coords.endereco_formatado || null });
+          if (logo.get()) { const up = await R.media.upload("brechos", logo.get(), { max: 400, maxBytes: 60 * 1024 }); payload.logo_url = up.url; uploaded.push(up.path); }
+          if (capa.get()) { const up = await R.media.upload("brechos", capa.get(), { max: 1600, maxBytes: 220 * 1024 }); payload.foto_capa = up.url; uploaded.push(up.path); }
           const { error } = await R.sb.from("brechos").update(payload).eq("id", b.id);
           if (error) throw error;
           if (payload.logo_url && b.logo_url) R.media.remove("brechos", b.logo_url);

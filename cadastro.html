@@ -24,6 +24,7 @@
   <script defer src="assets/js/interactions.js"></script>
   <script defer src="assets/js/render.js"></script>
   <script defer src="assets/js/media.js"></script>
+  <script defer src="assets/js/cropper.js"></script>
   <script defer src="assets/js/pages/cadastro.js"></script>
 </head>
 <body data-page="cadastro">
@@ -87,8 +88,17 @@
           <div id="catGroup" class="check-grid"></div>
         </fieldset>
         <fieldset style="border:0;padding:0;margin:0;min-width:0">
-          <legend><h2 style="font-size:1.3rem;margin-bottom:1rem">Localização</h2></legend>
-          <div class="form-grid">
+          <legend><h2 style="font-size:1.3rem;margin-bottom:1rem">Atendimento e localização</h2></legend>
+          <div role="radiogroup" aria-labelledby="modoLabel" style="margin-bottom:1rem"><p class="label" id="modoLabel">Como o espaço atende</p>
+            <div class="check-grid" id="modoGroup"></div></div>
+          <div class="form-grid" id="lojaOnlineWrap" hidden>
+            <div class="field full">
+      <label for="lojaOnline">Link da loja online</label>
+      <input class="input" id="lojaOnline" type="url" placeholder="https://" aria-describedby="lojaOnline-dica">
+      <p class="hint" id="lojaOnline-dica">Site de vendas, catálogo ou perfil onde as pessoas compram.</p>
+    </div>
+          </div>
+          <div class="form-grid" id="lojaEnderecoWrap">
             <div class="field">
       <label for="lojaCidade">Cidade</label>
       <input class="input" id="lojaCidade" value="São Paulo" autocomplete="address-level2" required>

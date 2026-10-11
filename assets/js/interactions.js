@@ -8,21 +8,32 @@
   const liked = new Set();
   const saved = new Set();
   const busy = new Set();
-  const col = kind => kind === "p" ? "publicacao_id" : "brecho_id";
+  let rows = [];
 
+  // Estado vem da função minhas_interacoes (só a própria conta).
   async function load(state) {
-    liked.clear(); saved.clear();
+    liked.clear(); saved.clear(); rows = [];
     if (state?.user && R.sb) {
-      const [l, s] = await Promise.all([
-        R.sb.from("curtidas").select("brecho_id, publicacao_id").eq("user_id", state.user.id),
-        R.sb.from("salvos").select("brecho_id, publicacao_id").eq("user_id", state.user.id)
-      ]);
-      const add = (set, rows) => (rows || []).forEach(r => set.add(r.publicacao_id ? `p:${r.publicacao_id}` : `b:${r.brecho_id}`));
-      if (!l.error) add(liked, l.data); else console.warn("[Repeteco] curtidas:", l.error.message);
-      if (!s.error) add(saved, s.data); else console.warn("[Repeteco] salvos:", s.error.message);
+      const { data, error } = await R.sb.rpc("minhas_interacoes");
+      if (error) console.warn("[Repeteco] curtidas/salvos:", error.message);
+      rows = data || [];
+      rows.forEach(r => {
+        const key = r.publicacao_id ? `p:${r.publicacao_id}` : `b:${r.brecho_id}`;
+        (r.tipo === "curtida" ? liked : saved).add(key);
+      });
     }
     sync();
     document.dispatchEvent(new CustomEvent("repeteco:interactions"));
+  }
+
+  // Ids das peças/brechós curtidos ou salvos pela conta (para listas).
+  async function mine(tipo, kind) {
+    await R.ready;
+    if (!R.auth.user) return null;
+    const { data, error } = await R.sb.rpc("minhas_interacoes");
+    if (error) throw error;
+    return (data || []).filter(r => r.tipo === tipo && (kind === "p" ? r.publicacao_id : !r.publicacao_id && r.brecho_id))
+      .map(r => kind === "p" ? r.publicacao_id : r.brecho_id);
   }
 
   function sync(root = document) {
@@ -59,7 +70,6 @@
       return;
     }
     const set = act === "like" ? liked : saved;
-    const table = act === "like" ? "curtidas" : "salvos";
     const wasOn = set.has(key);
     const twins = R.$$(`[data-act="${act}"][data-kind="${kind}"][data-id="${CSS.escape(id)}"]`);
 
@@ -67,20 +77,30 @@
     wasOn ? set.delete(key) : set.add(key);
     twins.forEach(b => { setPressed(b, !wasOn); if (act === "like") bumpCount(b, wasOn ? -1 : 1); });
 
-    const req = wasOn
-      ? R.sb.from(table).delete().eq("user_id", R.auth.user.id).eq(col(kind), id)
-      : R.sb.from(table).insert({ user_id: R.auth.user.id, [col(kind)]: id });
-    const { error } = await req;
+    const { data: nowOn, error } = await R.sb.rpc("alternar_interacao", {
+      p_tipo: act === "like" ? "curtida" : "salvo",
+      p_publicacao_id: kind === "p" ? id : null,
+      p_brecho_id: kind === "b" ? id : null
+    });
     busy.delete(act + key);
 
-    if (error && !/duplicate key/i.test(error.message)) {
+    if (error) {
       wasOn ? set.add(key) : set.delete(key);
       twins.forEach(b => { setPressed(b, wasOn); if (act === "like") bumpCount(b, wasOn ? 1 : -1); });
-      R.toast(R.errorMessage(error, "Não foi possível salvar sua escolha."), "error");
+      console.error("[Repeteco] curtir/salvar falhou:", error.code, error.message, error.details || "", error.hint || "");
+      const fallback = "Não foi possível salvar sua escolha.";
+      // PGRST202: a função ainda não existe no banco (falta rodar supabase/v6/1_interacoes_pecas.sql).
+      const base = error.code === "PGRST202" ? `${fallback} O banco ainda não tem a função alternar_interacao.` : R.errorMessage(error, fallback);
+      R.toast(base === fallback ? `${base} (${error.code || "erro"}: ${error.message})` : base, "error");
       return;
     }
-    R.toast(act === "like" ? (wasOn ? "Curtida removida." : "Curtido.") : (wasOn ? "Removido dos salvos." : "Salvo. Veja em Salvos."));
-    document.dispatchEvent(new CustomEvent("repeteco:toggled", { detail: { act, kind, id, on: !wasOn } }));
+    // O banco é a fonte da verdade: corrige a tela se divergiu.
+    if (nowOn === wasOn) {
+      nowOn ? set.add(key) : set.delete(key);
+      twins.forEach(b => { setPressed(b, nowOn); if (act === "like") bumpCount(b, nowOn ? 1 : -1); });
+    }
+    R.toast(act === "like" ? (nowOn ? "Curtido." : "Curtida removida.") : (nowOn ? "Salvo. Veja em Salvos." : "Removido dos salvos."));
+    document.dispatchEvent(new CustomEvent("repeteco:toggled", { detail: { act, kind, id, on: nowOn } }));
   }
 
   document.addEventListener("click", e => {
@@ -105,6 +125,6 @@
   };
   R.actionButtons = (kind, id, opts = {}) => R.likeButton(kind, id, opts) + R.saveButton(kind, id, opts);
 
-  R.interactions = { liked, saved, sync, reload: () => load(R.auth) };
+  R.interactions = { liked, saved, sync, mine, reload: () => load(R.auth) };
   R.onAuth(load);
 })();

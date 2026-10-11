@@ -22,13 +22,17 @@
         ${D.head("Visão geral", "Números calculados no banco a partir dos dados reais da plataforma.")}
         ${D.stats([
           { label: "Pessoas cadastradas", value: s.usuarios, note: `${R.fmt.count(Number(s.donos), "dono", "donos")} · ${R.fmt.count(Number(s.admins), "admin", "admins")}`, href: "#usuarios" },
-          { label: "Brechós aprovados", value: s.brechos_aprovados, href: "#brechos" },
+          { label: "Brechós aprovados", value: s.brechos_aprovados, note: s.brechos_online !== undefined ? `${s.brechos_online} com venda online` : "", href: "#brechos" },
           { label: "Aguardando análise", value: s.brechos_pendentes, href: "#solicitacoes" },
-          { label: "Peças publicadas", value: s.publicacoes, href: "#publicacoes" },
+          { label: "Peças publicadas", value: s.publicacoes, note: s.promocoes !== undefined ? `${s.promocoes} em promoção` : "", href: "#publicacoes" },
           { label: "Matérias publicadas", value: s.artigos_publicados, note: `${s.artigos_rascunho} em rascunho`, href: "#editorial" },
           { label: "Curtidas e salvos", value: Number(s.curtidas) + Number(s.salvos), note: `${s.curtidas} curtidas · ${s.salvos} salvos` },
           { label: "Visitas a brechós", value: s.visitas_30d, note: "últimos 30 dias" },
-          { label: "Mensagens não lidas", value: s.mensagens_nao_lidas, href: "#mensagens" }
+          { label: "Mensagens não lidas", value: s.mensagens_nao_lidas, href: "#mensagens" },
+          ...(s.eventos_proximos !== undefined ? [
+            { label: "Próximos eventos", value: s.eventos_proximos, href: "#eventos" },
+            { label: "Parcerias novas", value: s.parcerias_novas, note: "pedidos aguardando resposta", href: "#parcerias" }
+          ] : [])
         ])}
         <h2 style="font-size:1.4rem;margin-bottom:1.25rem">Crescimento nas últimas 12 semanas</h2>
         <div class="charts quad">

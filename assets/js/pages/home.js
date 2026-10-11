@@ -58,16 +58,22 @@
   async function run() {
     if (!R.sb) { R.$("#homeLatest").innerHTML = R.render.state("error", "Não foi possível conectar ao Repeteco."); return; }
     R.$("#homeLatest").innerHTML = '<div class="news-card skeleton"></div>'.repeat(3);
-    const [feed, shops, stories] = await Promise.all([
+    const [feed, shops, stories, events] = await Promise.all([
       R.sb.from("feed_publicacoes").select("*").order("created_at", { ascending: false }).limit(3),
       R.sb.from("brechos_publicos").select("id, slug, nome, bairro, cidade, foto_capa, logo_url, total_publicacoes, created_at").order("created_at", { ascending: false }).limit(500),
-      R.sb.from("artigos").select("slug, titulo, subtitulo, capa_url, categoria, autor_nome, publicado_em").eq("status", "publicado").order("publicado_em", { ascending: false }).limit(3)
+      R.sb.from("artigos").select("slug, titulo, subtitulo, capa_url, categoria, autor_nome, publicado_em").eq("status", "publicado").order("publicado_em", { ascending: false }).limit(3),
+      R.sb.from("eventos").select("*").eq("status", "publicado").gte("data_inicio", new Date(Date.now() - 86400000).toISOString()).order("data_inicio", { ascending: true }).limit(2)
     ]);
     renderLatest(feed);
     const list = shops.error ? [] : shops.data;
     renderDestaques(list);
     renderHoods(list);
     renderCtaVisual(list);
+    // Sem a tabela de eventos (v6 ainda não aplicada) a seção só fica oculta.
+    if (!events.error && events.data.length) {
+      R.$("#homeEvents").innerHTML = events.data.map(e => R.render.eventCard(e, { heading: "h3" })).join("");
+      R.$("#eventsSection").hidden = false;
+    }
     if (!stories.error && stories.data.length) {
       R.$("#homeStories").innerHTML = stories.data.map(a => R.render.articleCard(a)).join("");
       R.$("#storiesSection").hidden = false;

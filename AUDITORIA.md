@@ -62,9 +62,21 @@ Identidade visual do projeto (layouts de referência do site e do painel): palet
   - painel de acessibilidade e teclado;
   - fluxos completos: login, cadastro, curtir/salvar, busca, perfil com foto, contato, publicação de peça, geocodificação, aprovação e editorial.
 
+## 6.1 v6 — correções e novidades pedidas depois da v5
+
+- **Mapa por cima do menu:** o Leaflet cria camadas com `z-index` alto; o contêiner do mapa agora isola o próprio empilhamento (`isolation: isolate`), e um teste confere com `elementFromPoint` que o cabeçalho fica por cima.
+- **Curtir e salvar não gravavam:** no banco real, `curtidas/salvos.brecho_id` é `uuid` (legado), o que quebrava as políticas antigas. Curtir/salvar passou a usar a função `alternar_interacao` (security definer, valida `auth.uid()`, tipo de alvo e visibilidade) e `minhas_interacoes`; o resultado do banco é a fonte da verdade e o erro real aparece na tela.
+- **Várias fotos por peça, com recorte no site:** até 8 fotos, recorte (3:4, 4:5, 1:1, 16:9 ou original), zoom, girar, reordenar e texto alternativo por foto. Galeria na página da peça com miniaturas, setas, teclado e gesto.
+- **Imagens leves no Storage:** compressão adaptativa no navegador (WebP, ou JPEG quando não houver suporte): foto principal até 1440 px (~200 KB) e miniatura de 480 px (~35 KB) usada no feed e nas listas; logos 400 px, capas 1600 px. Arquivos substituídos ou de peças excluídas são apagados; bucket `brechos` limitado a 2 MB por arquivo.
+- **Promoções:** preço anterior (`preco_original` maior que o preço) gera o selo de desconto e a aba “promoções” no feed e o filtro na busca.
+- **Calçados e numeração:** tipos agrupados (roupas, calçados, acessórios, casa, cultura); calçados usam numeração 33–46 no cadastro e na busca.
+- **Estilo livre:** o brechó escolhe uma sugestão ou escreve o próprio estilo; a busca lista os estilos que existem no banco.
+- **Brechó online:** modalidade física, online ou ambos, com link da loja. Brechós só online não pedem endereço, não entram no mapa e têm aba própria em “mapa”.
+- **Eventos e parcerias:** aba “eventos” no menu, agenda (próximos/passados), página do evento e formulário de interesse em parceria. Só a equipe cria eventos e lê os pedidos (RLS); o painel tem as seções “Eventos” e “Parcerias”.
+
 ## 7. Limitações e pendências
 
-- **Não testado contra o Supabase real:** o ambiente desta revisão não tinha acesso de rede ao projeto. É preciso rodar a migration v5 e fazer o roteiro manual do README.
+- **Não testado contra o Supabase real:** o ambiente desta revisão não tinha acesso de rede ao projeto. É preciso rodar as migrations v5 e v6 e fazer o roteiro manual do README.
 - **Exclusão de conta** é feita a pedido (formulário de contato), pois apagar `auth.users` exige uma Edge Function com chave de serviço.
 - **`sitemap.xml`** depende do domínio definitivo.
 - **Textos legais** (termos e privacidade) descrevem o funcionamento real, mas devem ser revisados juridicamente antes do lançamento.

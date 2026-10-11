@@ -14,15 +14,16 @@
   const chips = R.$("#activeFilters");
   const moreWrap = R.$("#resultsMore");
   const moreBtn = R.$("#resultsMoreBtn");
-  const MULTI = ["bairro", "cidade", "tipo", "tam", "condicao", "estilo", "genero"];
-  const PIECE_KEYS = ["tipo", "tam", "preco_max", "condicao", "estilo", "genero", "disp"];
+  const MULTI = ["bairro", "cidade", "tipo", "tam", "num", "condicao", "estilo", "genero"];
+  const PIECE_KEYS = ["tipo", "tam", "num", "preco_max", "condicao", "estilo", "genero", "disp", "promo"];
+  const SHOE_TYPES = Object.keys(V.tipoGrupos.find(g => g.medida === "calcado").tipos);
   let offset = 0;
   let runId = 0;
 
   // ---------- estado <-> URL ----------
   function readState() {
     const p = R.params();
-    const s = { q: p.get("q") || "", modo: p.get("tipo_busca") === "brechos" ? "brechos" : "pecas", ordem: p.get("ordem") || "", preco_max: p.get("preco_max") || "", disp: p.get("disp") === "1", cat: p.get("cat") || "" };
+    const s = { q: p.get("q") || "", modo: p.get("tipo_busca") === "brechos" ? "brechos" : "pecas", ordem: p.get("ordem") || "", preco_max: p.get("preco_max") || "", disp: p.get("disp") === "1", promo: p.get("promo") === "1", atend: p.get("atend") || "", cat: p.get("cat") || "" };
     MULTI.forEach(k => { s[k] = p.getAll(k).filter(Boolean); });
     return s;
   }
@@ -33,13 +34,15 @@
     MULTI.forEach(k => s[k].forEach(v => p.append(k, v)));
     if (s.preco_max) p.set("preco_max", s.preco_max);
     if (s.disp) p.set("disp", "1");
+    if (s.promo) p.set("promo", "1");
+    if (s.atend) p.set("atend", s.atend);
     if (s.cat) p.set("cat", s.cat);
     if (s.ordem) p.set("ordem", s.ordem);
     history.replaceState(null, "", `${location.pathname}${p.toString() ? "?" + p : ""}`);
   }
   function formToState() {
     const fd = new FormData(form);
-    const s = { q: qInput.value.trim(), modo: R.$('input[name="tipo_busca"]:checked')?.value || "pecas", ordem: R.$("#ordem").value, preco_max: fd.get("preco_max") || "", disp: fd.get("disp") === "1", cat: fd.get("cat") || "" };
+    const s = { q: qInput.value.trim(), modo: R.$('input[name="tipo_busca"]:checked')?.value || "pecas", ordem: R.$("#ordem").value, preco_max: fd.get("preco_max") || "", disp: fd.get("disp") === "1", promo: fd.get("promo") === "1", atend: fd.get("atend") || "", cat: fd.get("cat") || "" };
     MULTI.forEach(k => { s[k] = fd.getAll(k); });
     return s;
   }
@@ -49,8 +52,9 @@
     R.$("#ordem").value = s.ordem;
     R.$$("input", form).forEach(i => {
       if (MULTI.includes(i.name)) i.checked = s[i.name].includes(i.value);
-      if (i.name === "preco_max" || i.name === "cat") i.checked = (s[i.name] || "") === i.value;
+      if (i.name === "preco_max" || i.name === "cat" || i.name === "atend") i.checked = (s[i.name] || "") === i.value;
       if (i.name === "disp") i.checked = s.disp;
+      if (i.name === "promo") i.checked = s.promo;
     });
     syncModeUI(s.modo);
     // Grupos recolhidos abrem sozinhos quando têm filtro ativo.
@@ -72,11 +76,16 @@
     R.$("#fBairro").innerHTML = bairros.length ? checks("bairro", bairros.map(v => ({ value: v, label: v }))) : '<p class="small muted">Nenhum bairro cadastrado ainda.</p>';
     R.$("#fCidade").innerHTML = checks("cidade", cidades.map(v => ({ value: v, label: v })));
     R.$("#fCat").innerHTML = radios("cat", V.categoriasBrecho.map(v => ({ value: v, label: v[0].toUpperCase() + v.slice(1) })), "Todas");
-    R.$("#fTipo").innerHTML = checks("tipo", R.vocab.list(V.tipos));
+    R.$("#fTipo").innerHTML = V.tipoGrupos.map(g => `<p class="filter-sub">${g.label}</p>` + checks("tipo", R.vocab.list(g.tipos))).join("");
+    R.$("#fNum").innerHTML = `<div class="size-grid">${V.numeracoes.map(t => `<label><input type="checkbox" name="num" value="${t}"><span>${t}</span></label>`).join("")}</div>`;
+    R.$("#fModo").innerHTML = radios("atend", [{ value: "fisica", label: "Com loja física" }, { value: "online", label: "Vende online" }], "Todos");
     R.$("#fTam").innerHTML = `<div class="size-grid">${V.tamanhos.map(t => `<label><input type="checkbox" name="tam" value="${t}"><span>${t}</span></label>`).join("")}</div>`;
     R.$("#fPreco").innerHTML = radios("preco_max", V.precos, "Qualquer preço");
     R.$("#fCondicao").innerHTML = checks("condicao", R.vocab.list(V.condicoes));
-    R.$("#fEstilo").innerHTML = checks("estilo", R.vocab.list(V.estilos));
+    // Estilos: os que os brechós realmente usaram (texto livre) + os escolhidos na URL.
+    const est = await R.sb.from("feed_publicacoes").select("estilo").not("estilo", "is", null).limit(3000);
+    const estilos = [...new Set([...(est.data || []).map(r => r.estilo), ...s.estilo])].sort((a, b) => R.labelEstilo(a).localeCompare(R.labelEstilo(b), "pt-BR"));
+    R.$("#fEstilo").innerHTML = estilos.length ? checks("estilo", estilos.map(v => ({ value: v, label: R.labelEstilo(v) }))) : '<p class="small muted">Nenhum estilo cadastrado ainda.</p>';
     R.$("#fGenero").innerHTML = checks("genero", R.vocab.list(V.generos));
   }
 
@@ -87,15 +96,23 @@
     const s = R.params().get("ordem") || "";
     if ([...R.$("#ordem").options].some(o => o.value === s)) R.$("#ordem").value = s;
     R.$("#pieceFiltersNote").hidden = modo !== "brechos";
+    R.$("#fModoWrap").hidden = modo !== "brechos";
   }
 
   // ---------- consultas ----------
   const clean = q => q.replace(/[,()*%:"\\]/g, " ").replace(/\s+/g, " ").trim();
   const hasPieceFilters = s => PIECE_KEYS.some(k => Array.isArray(s[k]) ? s[k].length : !!s[k]);
 
+  // Numeração vale só para calçados; tamanho de roupa e numeração
+  // escolhidos juntos somam resultados (um OU outro).
+  const list = arr => `(${arr.map(v => `"${String(v).replace(/"/g, "")}"`).join(",")})`;
   function applyPieceFilters(q, s) {
     if (s.tipo.length) q = q.in("tipo", s.tipo);
-    if (s.tam.length) q = q.in("tamanho", s.tam);
+    const shoe = `and(tipo.in.${list(SHOE_TYPES)},tamanho.in.${list(s.num)})`;
+    if (s.num.length && s.tam.length) q = q.or(`${shoe},tamanho.in.${list(s.tam)}`);
+    else if (s.num.length) q = q.in("tipo", SHOE_TYPES).in("tamanho", s.num);
+    else if (s.tam.length) q = q.in("tamanho", s.tam);
+    if (s.promo) q = q.eq("em_promocao", true);
     if (s.condicao.length) q = q.in("condicao", s.condicao);
     if (s.estilo.length) q = q.in("estilo", s.estilo);
     if (s.genero.length) q = q.in("genero", s.genero);
@@ -131,6 +148,8 @@
     if (s.bairro.length) q = q.in("bairro", s.bairro);
     if (s.cidade.length) q = q.in("cidade", s.cidade);
     if (s.cat) q = q.filter("categorias", "cs", JSON.stringify([s.cat]));
+    if (s.atend === "online") q = q.in("modalidade", ["online", "ambos"]);
+    if (s.atend === "fisica") q = q.in("modalidade", ["fisica", "ambos"]);
     if (hasPieceFilters(s)) {
       // Brechós que têm ao menos uma peça publicada com os atributos escolhidos.
       const sub = await applyPieceFilters(R.sb.from("feed_publicacoes").select("brecho_id"), s).limit(5000);
@@ -151,9 +170,12 @@
     if (s.cat) out.push(["cat", s.cat, `Categoria: ${s.cat}`]);
     s.tipo.forEach(v => out.push(["tipo", v, R.label("tipos", v)]));
     s.tam.forEach(v => out.push(["tam", v, `Tam. ${v}`]));
+    s.num.forEach(v => out.push(["num", v, `Calçado nº ${v}`]));
+    if (s.promo) out.push(["promo", "1", "Em promoção"]);
+    if (s.atend) out.push(["atend", s.atend, s.atend === "online" ? "Brechós online" : "Lojas físicas"]);
     if (s.preco_max) out.push(["preco_max", s.preco_max, `Até ${R.fmt.price(s.preco_max)}`]);
     s.condicao.forEach(v => out.push(["condicao", v, R.label("condicoes", v)]));
-    s.estilo.forEach(v => out.push(["estilo", v, R.label("estilos", v)]));
+    s.estilo.forEach(v => out.push(["estilo", v, R.labelEstilo(v)]));
     s.genero.forEach(v => out.push(["genero", v, R.label("generos", v)]));
     if (s.disp) out.push(["disp", "1", "Disponíveis"]);
     return out;

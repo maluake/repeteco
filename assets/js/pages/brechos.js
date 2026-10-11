@@ -10,13 +10,15 @@
   let termo = params.get("q") || "";
   let map = null;
   let plotted = { markers: new Map(), layer: null };
+  const ONLINE = "online";
+  const isOnlineOnly = b => b.modalidade === "online";
 
   async function loadTabs() {
     const { data } = await R.sb.from("brechos_publicos").select("bairro").limit(2000);
     const hoods = [...new Set((data || []).map(b => b.bairro?.trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, "pt-BR"));
-    if (bairro && !hoods.includes(bairro)) hoods.unshift(bairro);
+    if (bairro && bairro !== ONLINE && !hoods.includes(bairro)) hoods.unshift(bairro);
     const li = (v, label) => `<li><button type="button" class="filter-tab" data-bairro="${R.esc(v)}" aria-pressed="${v === bairro}">${R.esc(label)}</button></li>`;
-    tabs.innerHTML = li("", "todos os bairros") + hoods.map(h => li(h, h)).join("");
+    tabs.innerHTML = li("", "todos os bairros") + li(ONLINE, "brechós online") + hoods.map(h => li(h, h)).join("");
   }
 
   function syncUrl() {
@@ -24,14 +26,15 @@
     bairro ? url.searchParams.set("bairro", bairro) : url.searchParams.delete("bairro");
     termo ? url.searchParams.set("q", termo) : url.searchParams.delete("q");
     history.replaceState(null, "", url);
-    R.seo({ title: bairro ? `Brechós em ${bairro}` : "Mapa de brechós" });
+    R.seo({ title: bairro === ONLINE ? "Brechós online" : bairro ? `Brechós em ${bairro}` : "Mapa de brechós" });
   }
 
   async function load() {
     listEl.setAttribute("aria-busy", "true");
     listEl.innerHTML = `<div class="shop-list">${R.render.skeletonTiles(4)}</div>`;
     let q = R.sb.from("brechos_publicos").select("*").order("nome", { ascending: true }).limit(1000);
-    if (bairro) q = q.eq("bairro", bairro);
+    if (bairro === ONLINE) q = q.in("modalidade", ["online", "ambos"]);
+    else if (bairro) q = q.eq("bairro", bairro);
     const t = termo.replace(/[,()*%:"\\]/g, " ").trim();
     if (t) q = q.or(`nome.ilike.*${t}*,bairro.ilike.*${t}*,descricao.ilike.*${t}*`);
     const { data, error } = await q;
@@ -41,29 +44,33 @@
       return;
     }
     if (!data.length) {
-      listEl.innerHTML = R.render.state("empty", t ? `Nenhum brechó encontrado para “${t}”.` : bairro ? `Nenhum brechó em ${bairro} ainda.` : "Nenhum brechó aprovado ainda.",
+      listEl.innerHTML = R.render.state("empty", t ? `Nenhum brechó encontrado para “${t}”.` : bairro === ONLINE ? "Nenhum brechó online ainda." : bairro ? `Nenhum brechó em ${bairro} ainda.` : "Nenhum brechó aprovado ainda.",
         "Conhece um brechó que deveria estar aqui? Indique para o dono se cadastrar.", `<a class="btn btn-outline" href="${R.url("cadastro.html")}">cadastrar um brechó</a>`);
     } else {
       listEl.innerHTML = `<div class="shop-list">${data.map(b => R.render.brechoRow(b)).join("")}</div>`;
       R.$$(".shop-card", listEl).forEach(card => {
         const b = data.find(x => String(x.id) === card.dataset.brecho);
         const foot = card.querySelector(".shop-card-foot span");
-        foot.innerHTML = R.map.hasCoords(b)
+        foot.innerHTML = isOnlineOnly(b)
+          ? '<span class="small muted">vende pela internet</span>'
+          : R.map.hasCoords(b)
           ? `<button type="button" class="btn btn-ghost btn-sm" data-locate="${R.esc(b.id)}">${R.icon("pin")} ver no mapa</button>`
           : '<span class="small muted">sem posição no mapa</span>';
       });
       R.interactions.sync(listEl);
     }
-    const withCoords = data.filter(R.map.hasCoords).length;
-    status.textContent = `${R.fmt.count(data.length, "brechó", "brechós")}${bairro ? ` em ${bairro}` : ""}. ${withCoords} no mapa.`;
-    const missing = data.length - withCoords;
+    const fisicos = data.filter(b => !isOnlineOnly(b));
+    const withCoords = fisicos.filter(R.map.hasCoords).length;
+    const onlineCount = data.length - fisicos.length;
+    status.textContent = `${R.fmt.count(data.length, "brechó", "brechós")}${bairro === ONLINE ? " com venda online" : bairro ? ` em ${bairro}` : ""}. ${withCoords} no mapa${onlineCount ? `, ${onlineCount} só online` : ""}.`;
+    const missing = fisicos.length - withCoords;
     R.$("#mapNote").textContent = data.length && missing
       ? `${missing} ${missing === 1 ? "brechó ainda não informou o endereço exato e aparece" : "brechós ainda não informaram o endereço exato e aparecem"} só na lista abaixo.`
       : "";
 
     if (map) {
       plotted.layer?.remove();
-      plotted = R.map.plotBrechos(map, data, {
+      plotted = R.map.plotBrechos(map, fisicos, {
         onSelect: b => {
           R.track(b.id, "map_click");
           R.$$(".shop-card.is-highlight").forEach(x => x.classList.remove("is-highlight"));

@@ -47,14 +47,34 @@ function test(row, col, op, raw) {
   }
 }
 
-function applyFilter(row, key, value) {
-  if (key === "or") {
-    const inner = decodeURIComponent(value).replace(/^\(|\)$/g, "");
-    return inner.split(",").some(part => {
-      const [col, op, ...rest] = part.split(".");
-      return test(row, col, op, rest.join("."));
-    });
+// Divide "a,b(c,d),e" nas vírgulas de primeiro nível.
+function splitTop(str) {
+  const out = []; let depth = 0, cur = "";
+  for (const ch of str) {
+    if (ch === "(") depth++;
+    if (ch === ")") depth--;
+    if (ch === "," && depth === 0) { out.push(cur); cur = ""; } else cur += ch;
   }
+  if (cur) out.push(cur);
+  return out;
+}
+
+// Avalia uma expressão lógica do PostgREST: col.op.val, and(...), or(...).
+function evalLogic(row, expr) {
+  const m = expr.match(/^(not\.)?(and|or)\((.*)\)$/);
+  if (m) {
+    const parts = splitTop(m[3]);
+    const r = m[2] === "and" ? parts.every(x => evalLogic(row, x)) : parts.some(x => evalLogic(row, x));
+    return m[1] ? !r : r;
+  }
+  const [col, ...rest] = expr.split(".");
+  let [op, ...val] = rest;
+  if (op === "not") { [op, ...val] = val; return !test(row, col, op, val.join(".")); }
+  return test(row, col, op, val.join("."));
+}
+
+function applyFilter(row, key, value) {
+  if (key === "or" || key === "and") return evalLogic(row, `${key}${decodeURIComponent(value)}`);
   let [op, ...rest] = value.split(".");
   let negate = false;
   if (op === "not") { negate = true; [op, ...rest] = rest; }
@@ -135,7 +155,12 @@ async function install(context, { session = null, log = [] } = {}) {
       const fn = path.split("/").pop();
       const result = fixtures.rpc[fn];
       if (!result) return route.fulfill({ status: 404, json: { message: `function ${fn} not found` } });
-      return route.fulfill({ json: typeof result === "function" ? result(session) : result });
+      const body = JSON.parse(req.postData() || "{}");
+      try {
+        return route.fulfill({ json: typeof result === "function" ? result(session, body) : result });
+      } catch (e) {
+        return route.fulfill({ status: 400, json: { code: "P0001", message: e.message } });
+      }
     }
 
     if (path.startsWith("/rest/v1/")) {

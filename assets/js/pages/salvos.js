@@ -20,13 +20,13 @@
     panel.setAttribute("aria-busy", "true");
     panel.innerHTML = '<p class="muted">Carregando…</p>';
 
-    const col = tab.kind === "p" ? "publicacao_id" : "brecho_id";
-    const refs = await R.sb.from(tab.table).select(`${col}, created_at`).eq("user_id", R.auth.user.id).not(col, "is", null).order("created_at", { ascending: false });
-    if (refs.error) {
-      panel.innerHTML = R.render.state("error", "Não conseguimos carregar sua lista.", R.errorMessage(refs.error));
+    let ids;
+    try {
+      ids = await R.interactions.mine(tab.table === "curtidas" ? "curtida" : "salvo", tab.kind);
+    } catch (err) {
+      panel.innerHTML = R.render.state("error", "Não conseguimos carregar sua lista.", R.errorMessage(err));
       return;
     }
-    const ids = refs.data.map(r => r[col]);
     let items = [];
     if (ids.length) {
       const res = tab.kind === "p"

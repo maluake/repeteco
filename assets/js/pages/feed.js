@@ -10,7 +10,7 @@
   const status = R.$("#feedStatus");
   const params = R.params();
   let tipo = params.get("tipo") || "";
-  let lista = ["salvos", "curtidos"].includes(params.get("lista")) ? params.get("lista") : "";
+  let lista = ["promocoes", "salvos", "curtidos"].includes(params.get("lista")) ? params.get("lista") : "";
   let offset = 0;
 
   async function loadTabs() {
@@ -20,6 +20,7 @@
     const li = (attrs, label, on) => `<li><button type="button" class="filter-tab" ${attrs} aria-pressed="${on}">${R.esc(label)}</button></li>`;
     tabs.innerHTML =
       li('data-lista=""', "todos", !lista && !tipo) +
+      li('data-lista="promocoes"', "promoções", lista === "promocoes") +
       li('data-lista="salvos"', "salvos", lista === "salvos") +
       li('data-lista="curtidos"', "curtidos", lista === "curtidos") +
       tipos.map(t => li(`data-tipo="${R.esc(t)}"`, R.label("tipos", t).toLowerCase(), t === tipo)).join("");
@@ -27,12 +28,7 @@
 
   // Salvos/curtidos vêm da conta (tabelas salvos/curtidas) e filtram a consulta.
   async function idsDaLista() {
-    await R.ready;
-    if (!R.auth.user) return null;
-    const table = lista === "salvos" ? "salvos" : "curtidas";
-    const { data, error } = await R.sb.from(table).select("publicacao_id").eq("user_id", R.auth.user.id).not("publicacao_id", "is", null);
-    if (error) throw error;
-    return data.map(r => r.publicacao_id);
+    return R.interactions.mine(lista === "salvos" ? "salvo" : "curtida", "p");
   }
 
   async function load(reset) {
@@ -49,7 +45,8 @@
     try {
       let q = R.sb.from("feed_publicacoes").select("*").order("created_at", { ascending: false }).range(offset, offset + PAGE - 1);
       if (tipo) q = q.eq("tipo", tipo);
-      if (lista) {
+      if (lista === "promocoes") q = q.eq("em_promocao", true);
+      else if (lista) {
         const ids = await idsDaLista();
         if (ids === null) {
           grid.setAttribute("aria-busy", "false");
@@ -72,10 +69,11 @@
     }
     const data = res.data;
     if (reset && !data.length) {
-      const msg = lista === "salvos" ? ["Você ainda não salvou nenhuma peça.", "Use o marcador nas fotos para guardar as peças que gostar."]
+      const msg = lista === "promocoes" ? ["Nenhuma peça em promoção agora.", "Quando os brechós marcarem peças em promoção, elas aparecem aqui."]
+        : lista === "salvos" ? ["Você ainda não salvou nenhuma peça.", "Use o marcador nas fotos para guardar as peças que gostar."]
         : lista === "curtidos" ? ["Você ainda não curtiu nenhuma peça.", "Toque no coração das fotos para curtir."]
         : [tipo ? `Ainda não há ${R.label("tipos", tipo).toLowerCase()} publicados.` : "Nenhuma peça publicada ainda.", "Os brechós aprovados publicam peças pelo painel. Enquanto isso, conheça os brechós no mapa."];
-      grid.innerHTML = `<div style="grid-column:1/-1">${R.render.state("empty", msg[0], msg[1], `<a class="btn" href="${R.url(lista ? "feed.html" : "brechos.html")}">${lista ? "ver o feed" : "ver o mapa"}</a>`)}</div>`;
+      grid.innerHTML = `<div style="grid-column:1/-1">${R.render.state("empty", msg[0], msg[1], `<a class="btn" href="${R.url(lista ? "feed.html" : "brechos.html")}">${lista ? "ver todo o feed" : "ver o mapa"}</a>`)}</div>`;
       status.textContent = msg[0];
       return;
     }
@@ -92,7 +90,7 @@
     tipo ? url.searchParams.set("tipo", tipo) : url.searchParams.delete("tipo");
     lista ? url.searchParams.set("lista", lista) : url.searchParams.delete("lista");
     history.replaceState(null, "", url);
-    R.seo({ title: lista ? `Meus ${lista}` : tipo ? `${R.label("tipos", tipo)} no feed` : "Feed de peças dos brechós de SP" });
+    R.seo({ title: lista === "promocoes" ? "Promoções nos brechós" : lista ? `Meus ${lista}` : tipo ? `${R.label("tipos", tipo)} no feed` : "Feed de peças dos brechós de SP" });
   }
 
   tabs.addEventListener("click", e => {

@@ -18,7 +18,8 @@ for cenario in v4 legado-uuid; do
   [ "$cenario" = "legado-uuid" ] && run_file tests/05_legado_uuid.sql
   run_as_editor 01_base_v4.sql
   for round in 1 2; do
-    for f in v5/*.sql; do run_as_editor "$f"; done
+    for f in v5/*.sql v6/*.sql; do run_as_editor "$f"; done
   done
   run_file tests/10_rls_test.sql
+  run_file tests/20_v6_test.sql
 done

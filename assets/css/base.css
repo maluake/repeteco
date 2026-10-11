@@ -539,6 +539,7 @@ a.tag:hover { background: var(--teal); }
 
 /* ---------- diálogo ---------- */
 dialog.sheet {
+  margin: auto; /* o reset global zera a margem que centraliza o <dialog> */
   border: 0;
   border-radius: var(--r-lg);
   padding: 0;
@@ -548,6 +549,7 @@ dialog.sheet {
   color: var(--plum);
   box-shadow: 0 20px 60px rgba(52, 12, 61, .3);
 }
+dialog.sheet.wide { width: min(60rem, calc(100vw - 1rem)); }
 dialog.sheet::backdrop { background: rgba(52, 12, 61, .55); }
 .sheet-head {
   display: flex;
@@ -658,3 +660,16 @@ html.a11y-no-motion *, html.a11y-no-motion *::before, html.a11y-no-motion *::aft
 }
 
 noscript .noscript { display: block; padding: 1rem var(--gutter); background: var(--teal); color: var(--plum); font-weight: 500; }
+
+/* ---------- recorte de imagem ---------- */
+.cropper .sheet-body { display: grid; gap: 1rem; }
+.crop-stage { position: relative; height: min(58vh, 30rem); border-radius: var(--r); overflow: hidden; background: #1c0820; touch-action: none; cursor: grab; }
+.crop-stage:active { cursor: grabbing; }
+.crop-stage canvas { display: block; }
+.crop-controls { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem 1rem; }
+.crop-controls .pill-tabs { justify-content: flex-start; }
+.crop-zoom { display: inline-flex; align-items: center; gap: .6rem; font-size: .9rem; font-weight: 700; }
+.crop-zoom input { width: 10rem; accent-color: var(--plum); }
+.file-btn { position: relative; overflow: hidden; }
+.file-btn input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.file-btn:focus-within { outline: 3px solid var(--plum); outline-offset: 2px; box-shadow: 0 0 0 6px var(--teal); }

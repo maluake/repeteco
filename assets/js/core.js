@@ -34,6 +34,14 @@
     date: v => v ? new Date(v).toLocaleDateString("pt-BR", { day: "numeric", month: "long", year: "numeric" }) : "",
     shortDate: v => v ? new Date(v).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "numeric" }) : "—",
     place: (...parts) => parts.filter(Boolean).join(", "),
+    // "sáb, 18 de outubro, 11h" — horário de São Paulo
+    when: v => {
+      if (!v) return "";
+      const d = new Date(v);
+      const dia = d.toLocaleDateString("pt-BR", { weekday: "short", day: "numeric", month: "long", timeZone: "America/Sao_Paulo" });
+      const h = d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" }).replace(":00", "h").replace(":", "h");
+      return `${dia}, ${h}`;
+    },
     count: (n, one, many) => `${n} ${n === 1 ? one : many}`
   };
 
@@ -66,7 +74,7 @@
     [/duplicate key/i, "Esse registro já existe."],
     [/payload too large|exceeded the maximum allowed size/i, "A imagem é grande demais. Use um arquivo menor."],
     [/failed to fetch|networkerror|load failed/i, "Não foi possível conectar. Verifique sua internet e tente de novo."],
-    [/relation .* does not exist|could not find the (table|function)|schema cache/i, "O banco ainda não foi atualizado para esta versão do Repeteco (rode a migration v5)."]
+    [/relation .* does not exist|column .* does not exist|could not find the .*(table|function|column)|schema cache/i, "O banco ainda não foi atualizado para esta versão do Repeteco (rode os arquivos das pastas supabase/v5 e supabase/v6)."]
   ];
   R.errorMessage = (err, fallback = "Algo deu errado. Tente novamente.") => {
     const raw = typeof err === "string" ? err : (err?.message || err?.error_description || "");
@@ -171,7 +179,13 @@
     map: '<path d="M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6z"/><path d="M9 4v14M15 6v14"/>',
     plus: '<path d="M12 5v14M5 12h14"/>',
     image: '<rect x="3.5" y="4.5" width="17" height="15"/><circle cx="9" cy="10" r="1.8"/><path d="m20.5 16-5-5-8.5 8.5"/>',
-    external: '<path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/>'
+    external: '<path d="M14 4h6v6M20 4l-9 9M18 14v6H4V6h6"/>',
+    stack: '<rect x="7.5" y="3.5" width="13" height="13" rx="1.5"/><path d="M16.5 20.5h-12a1 1 0 0 1-1-1v-12"/>',
+    tag: '<path d="M3.5 12.2V4.5a1 1 0 0 1 1-1h7.7l8.3 8.3a1.5 1.5 0 0 1 0 2.1l-6.1 6.1a1.5 1.5 0 0 1-2.1 0z"/><circle cx="8" cy="8" r="1.4"/>',
+    globe: '<circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c2.4 2.4 3.5 5.2 3.5 8.5s-1.1 6.1-3.5 8.5c-2.4-2.4-3.5-5.2-3.5-8.5s1.1-6.1 3.5-8.5z"/>',
+    calendar: '<rect x="3.5" y="5" width="17" height="15.5" rx="1.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+    chevronLeft: '<path d="m15 5-7 7 7 7"/>',
+    chevronRight: '<path d="m9 5 7 7-7 7"/>'
   };
   R.icon = (name, label) => {
     const a11y = label ? `role="img" aria-label="${R.esc(label)}"` : 'aria-hidden="true"';

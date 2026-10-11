@@ -11,11 +11,30 @@
   const artigoHref = a => u(`artigo.html?slug=${encodeURIComponent(a.slug)}`);
   R.links = { peca: pecaHref, brecho: brechoHref, artigo: artigoHref };
 
+  const fotos = p => Array.isArray(p.imagens) && p.imagens.length ? p.imagens : (p.imagem_url ? [{ url: p.imagem_url, alt: p.alt_text }] : []);
+  const altDe = p => p.alt_text || `${p.titulo}${p.brecho_nome ? `, peça do ${p.brecho_nome}` : ""}`;
+  const desconto = p => p.em_promocao || (p.preco_original && p.preco && Number(p.preco_original) > Number(p.preco))
+    ? Math.round((1 - Number(p.preco) / Number(p.preco_original)) * 100) : 0;
+
+  // Preço com promoção: "de R$ 80 por R$ 56 (−30%)".
+  function priceHtml(p) {
+    const off = desconto(p);
+    if (!off) return R.esc(R.fmt.price(p.preco));
+    return `<s><span class="visually-hidden">de </span>${R.esc(R.fmt.price(p.preco_original))}</s> <strong class="price-promo"><span class="visually-hidden">por </span>${R.esc(R.fmt.price(p.preco))}</strong> <span class="off-badge">−${off}%</span>`;
+  }
+  // Selos sobre a foto: várias fotos, promoção, vendida.
+  function badges(p) {
+    const n = fotos(p).length;
+    return `${n > 1 ? `<span class="multi-flag" title="${n} fotos">${R.icon("stack")}<span class="visually-hidden">${n} fotos</span></span>` : ""}
+      ${desconto(p) ? `<span class="promo-flag">promo −${desconto(p)}%</span>` : ""}
+      ${p.disponivel === false ? '<span class="sold-flag">vendida</span>' : ""}`;
+  }
+
   // Cartão de peça (cabeçalho com o brechó, imagem, texto e ações),
   // no padrão dos cartões "mais recente no nosso feed".
   function tile(p, { eager = false } = {}) {
-    const alt = p.alt_text || `${p.titulo}${p.brecho_nome ? `, peça do ${p.brecho_nome}` : ""}`;
-    const meta = [R.fmt.price(p.preco), p.tamanho ? `tam. ${p.tamanho}` : ""].filter(Boolean).join(" · ");
+    const size = p.tamanho ? (R.medidaDoTipo(p.tipo) === "calcado" ? `nº ${p.tamanho}` : `tam. ${p.tamanho}`) : "";
+    const price = p.preco !== null && p.preco !== undefined ? priceHtml(p) : "";
     return `
       <article class="piece-card${p.disponivel === false ? " is-sold" : ""}">
         <header class="piece-card-head">
@@ -23,12 +42,12 @@
           ${R.saveButton("p", p.id, { title: p.titulo, variant: "act-icon" })}
         </header>
         <a class="piece-card-media" href="${pecaHref(p.id)}">
-          ${R.img(p.imagem_url, alt, { eager })}
-          ${p.disponivel === false ? '<span class="sold-flag">vendida</span>' : ""}
+          ${R.img(p.thumb_url || p.imagem_url, altDe(p), { eager })}
+          ${badges(p)}
         </a>
         <div class="piece-card-body">
           <h3><a href="${pecaHref(p.id)}">${R.esc(p.titulo)}</a></h3>
-          ${meta ? `<p>${R.esc(meta)}</p>` : ""}
+          ${price || size ? `<p>${price}${price && size ? " · " : ""}${R.esc(size)}</p>` : ""}
         </div>
         <footer class="piece-card-foot">
           ${R.likeButton("p", p.id, { title: p.titulo, count: p.total_curtidas ?? null, variant: "act-icon" })}
@@ -37,16 +56,20 @@
       </article>`;
   }
 
-  // Bloco do mosaico do feed: a imagem é a protagonista.
+  // Bloco do mosaico do feed: a imagem é a protagonista. Blocos grandes
+  // usam a foto principal; os pequenos, a miniatura (mais leve).
   const MOSAIC = ["m-big", "", "", "m-wide", "", "m-tall", "", "", "m-wide", "", "m-big", "", "m-tall", "", ""];
   function mosaic(p, i, { eager = false } = {}) {
-    const alt = p.alt_text || `${p.titulo}${p.brecho_nome ? `, peça do ${p.brecho_nome}` : ""}`;
+    const shape = MOSAIC[i % MOSAIC.length];
+    const src = shape ? p.imagem_url : (p.thumb_url || p.imagem_url);
+    const price = p.preco !== null && p.preco !== undefined ? (desconto(p) ? `${R.fmt.price(p.preco)} (−${desconto(p)}%)` : R.fmt.price(p.preco)) : "";
     return `
-      <article class="mosaic-item ${MOSAIC[i % MOSAIC.length]}${p.disponivel === false ? " is-sold" : ""}">
+      <article class="mosaic-item ${shape}${p.disponivel === false ? " is-sold" : ""}">
         <a class="mosaic-link" href="${pecaHref(p.id)}">
-          ${R.img(p.imagem_url, alt, { eager })}
-          <span class="mosaic-caption"><strong>${R.esc(p.titulo)}</strong>${R.esc([p.brecho_nome, R.fmt.price(p.preco)].filter(Boolean).join(" · "))}</span>
+          ${R.img(src, altDe(p), { eager })}
+          <span class="mosaic-caption"><strong>${R.esc(p.titulo)}</strong>${R.esc([p.brecho_nome, price].filter(Boolean).join(" · "))}</span>
         </a>
+        <div class="mosaic-badges">${badges(p)}</div>
         <div class="mosaic-actions">${R.actionButtons("p", p.id, { title: p.titulo, variant: "on-image" })}</div>
       </article>`;
   }
@@ -63,7 +86,7 @@
         </header>
         <a class="piece-card-media" href="${brechoHref(b)}" tabindex="-1" aria-hidden="true">${R.img(cover, "")}</a>
         <div class="piece-card-body">
-          <p class="shop-card-place">${R.esc(R.fmt.place(b.bairro, b.cidade) || "São Paulo")}</p>
+          <p class="shop-card-place">${b.modalidade === "online" ? `<span class="online-tag">${R.icon("globe")} só online</span>` : `${R.esc(R.fmt.place(b.bairro, b.cidade) || "São Paulo")}${b.modalidade === "ambos" ? ` <span class="online-tag">${R.icon("globe")} também online</span>` : ""}`}</p>
           ${b.descricao ? `<p class="shop-card-desc">${R.esc(b.descricao)}</p>` : ""}
           ${cats.length ? `<div class="tag-row">${cats.map(c => `<a class="tag" href="${u(`busca.html?tipo_busca=brechos&cat=${encodeURIComponent(c)}`)}">${R.esc(c)}</a>`).join("")}</div>` : ""}
         </div>
@@ -71,6 +94,26 @@
           <span class="small muted">${b.total_publicacoes ? R.esc(R.fmt.count(b.total_publicacoes, "peça", "peças")) : ""}</span>
           <a class="link-arrow" href="${brechoHref(b)}">ver brechó <span aria-hidden="true">→</span></a>
         </footer>
+      </article>`;
+  }
+
+  const eventoHref = e => u(`evento.html?e=${encodeURIComponent(e.slug || e.id)}`);
+  // Cartão de evento: data em destaque, capa, título, formato e local.
+  function eventCard(e, { heading = "h2" } = {}) {
+    const d = new Date(e.data_inicio);
+    const tz = { timeZone: "America/Sao_Paulo" };
+    const past = new Date(e.data_fim || e.data_inicio) < new Date();
+    const lugar = e.formato === "online" ? "Online" : R.fmt.place(e.local_nome, e.bairro) || "Local a confirmar";
+    return `
+      <article class="event-card${past ? " is-past" : ""}">
+        <p class="event-date" aria-hidden="true"><strong>${d.toLocaleDateString("pt-BR", { day: "numeric", ...tz })}</strong><span>${d.toLocaleDateString("pt-BR", { month: "short", ...tz }).replace(".", "")}</span></p>
+        <a class="event-cover" href="${eventoHref(e)}" tabindex="-1" aria-hidden="true">${R.img(e.capa_url, "")}</a>
+        <div>
+          <${heading}><a href="${eventoHref(e)}">${R.esc(e.titulo)}</a></${heading}>
+          <p class="event-meta"><span>${R.icon("calendar")} <time datetime="${R.esc(e.data_inicio)}">${R.esc(R.fmt.when(e.data_inicio))}</time></span><span>${R.icon(e.formato === "online" ? "globe" : "pin")} ${R.esc(lugar)}</span>${e.formato === "hibrido" ? "<span>presencial e online</span>" : ""}</p>
+          ${e.resumo ? `<p style="margin-top:.4rem">${R.esc(e.resumo)}</p>` : ""}
+          ${e.aceita_parcerias && !past ? '<p class="small" style="margin-top:.4rem"><span class="tag">aceita parcerias</span></p>' : ""}
+        </div>
       </article>`;
   }
 
@@ -122,5 +165,5 @@
     }).join("\n");
   }
 
-  R.render = { tile, mosaic, brechoRow, articleCard, state, skeletonTiles, skeletonMosaic, articleHtml };
+  R.render = { fotos, priceHtml, desconto, tile, mosaic, brechoRow, eventCard, eventoHref, articleCard, state, skeletonTiles, skeletonMosaic, articleHtml };
 })();

@@ -9,6 +9,56 @@
     root.innerHTML = `<div class="wrap">${R.render.state("empty", "Esta peça não está mais disponível.", "Ela pode ter sido removida pelo brechó.", `<a class="btn" href="${R.url("feed.html")}">Voltar aos achados</a>`)}</div>`;
   }
 
+  // Galeria: foto principal + miniaturas; setas e teclado trocam a foto.
+  function galleryHtml(p, alt) {
+    const imgs = R.render.fotos(p);
+    if (imgs.length <= 1) return `<figure class="piece-media">${R.img(p.imagem_url, alt, { eager: true })}</figure>`;
+    return `
+      <section class="gallery piece-media" aria-roledescription="galeria" aria-label="Fotos de ${R.esc(p.titulo)}">
+        <div class="gallery-main" tabindex="0" aria-live="polite">
+          ${imgs.map((im, i) => `<figure ${i ? "hidden" : ""} data-slide="${i}">${R.img(im.url, im.alt || `${alt} — foto ${i + 1} de ${imgs.length}`, { eager: i === 0 })}</figure>`).join("")}
+          <button class="gallery-nav prev" type="button" data-step="-1" aria-label="Foto anterior">${R.icon("chevronLeft")}</button>
+          <button class="gallery-nav next" type="button" data-step="1" aria-label="Próxima foto">${R.icon("chevronRight")}</button>
+          <span class="gallery-count" aria-hidden="true">1 / ${imgs.length}</span>
+        </div>
+        <div class="gallery-thumbs" role="group" aria-label="Escolher foto">
+          ${imgs.map((im, i) => `<button type="button" data-go="${i}" aria-label="Ver foto ${i + 1} de ${imgs.length}" aria-pressed="${i === 0}">${R.img(im.thumb_url || im.url, "")}</button>`).join("")}
+        </div>
+      </section>`;
+  }
+
+  function bindGallery(g) {
+    if (!g) return;
+    const slides = R.$$("[data-slide]", g);
+    const thumbs = R.$$("[data-go]", g);
+    let cur = 0;
+    const show = i => {
+      cur = (i + slides.length) % slides.length;
+      slides.forEach((s, k) => { s.hidden = k !== cur; });
+      thumbs.forEach((t, k) => t.setAttribute("aria-pressed", String(k === cur)));
+      R.$(".gallery-count", g).textContent = `${cur + 1} / ${slides.length}`;
+    };
+    g.addEventListener("click", e => {
+      const step = e.target.closest("[data-step]");
+      const go = e.target.closest("[data-go]");
+      if (step) show(cur + Number(step.dataset.step));
+      if (go) show(Number(go.dataset.go));
+    });
+    R.$(".gallery-main", g).addEventListener("keydown", e => {
+      if (e.key === "ArrowRight") { e.preventDefault(); show(cur + 1); }
+      if (e.key === "ArrowLeft") { e.preventDefault(); show(cur - 1); }
+    });
+    // deslizar no celular
+    let x0 = null;
+    g.addEventListener("touchstart", e => { x0 = e.touches[0].clientX; }, { passive: true });
+    g.addEventListener("touchend", e => {
+      if (x0 === null) return;
+      const dx = e.changedTouches[0].clientX - x0;
+      if (Math.abs(dx) > 40) show(cur + (dx < 0 ? 1 : -1));
+      x0 = null;
+    });
+  }
+
   async function run() {
     if (!/^[0-9a-f-]{36}$/i.test(id)) return notFound();
     const { data: p, error } = await R.sb.from("feed_publicacoes").select("*").eq("id", id).maybeSingle();
@@ -21,8 +71,8 @@
     const alt = p.alt_text || `${p.titulo}, peça do ${p.brecho_nome}`;
     R.seo({ title: `${p.titulo} — ${p.brecho_nome}`, description: p.descricao || `${p.titulo} no ${p.brecho_nome}, ${R.fmt.place(p.bairro, p.cidade)}.`, image: p.imagem_url, type: "product" });
     const facts = [
-      ["Tipo", R.label("tipos", p.tipo)], ["Tamanho", p.tamanho], ["Condição", R.label("condicoes", p.condicao)],
-      ["Estilo", R.label("estilos", p.estilo)], ["Gênero", R.label("generos", p.genero)],
+      ["Tipo", R.label("tipos", p.tipo)], [R.medidaDoTipo(p.tipo) === "calcado" ? "Numeração" : "Tamanho", p.tamanho], ["Condição", R.label("condicoes", p.condicao)],
+      ["Estilo", R.labelEstilo(p.estilo)], ["Gênero", R.label("generos", p.genero)],
       ["Disponibilidade", p.disponivel === false ? "Vendida" : "Disponível no brechó"]
     ].filter(f => f[1]);
     const wa = R.whatsappUrl(p.brecho_whatsapp);
@@ -33,11 +83,11 @@
         <ol><li><a href="${R.url("feed.html")}">Achados</a></li>${p.tipo ? `<li><a href="${R.url(`feed.html?tipo=${encodeURIComponent(p.tipo)}`)}">${R.esc(R.label("tipos", p.tipo))}</a></li>` : ""}<li aria-current="page">${R.esc(p.titulo)}</li></ol>
       </nav>
       <article class="wrap piece">
-        <figure class="piece-media">${R.img(p.imagem_url, alt, { eager: true })}</figure>
+        ${galleryHtml(p, alt)}
         <div class="piece-info card card-pad">
           <a class="eyebrow" href="${R.links.brecho(p)}">${R.esc(p.brecho_nome)}</a>
           <h1>${R.esc(p.titulo)}</h1>
-          ${p.preco !== null && p.preco !== undefined ? `<p class="piece-price">${R.fmt.price(p.preco)}</p>` : ""}
+          ${p.preco !== null && p.preco !== undefined ? `<p class="piece-price">${R.render.priceHtml(p)}</p>` : ""}
           <div class="piece-actions">
             ${R.actionButtons("p", p.id, { title: p.titulo, count: p.total_curtidas })}
             ${waText && p.disponivel !== false ? `<a class="btn" href="${waText}" target="_blank" rel="noopener" data-contact>Perguntar ao brechó<span class="visually-hidden"> pelo WhatsApp (nova aba)</span></a>` : ""}
@@ -60,6 +110,7 @@
       </section>`;
     R.interactions.sync(root);
     root.addEventListener("click", e => { if (e.target.closest("[data-contact]")) R.track(p.brecho_id, "contact_click"); });
+    bindGallery(R.$(".gallery", root));
 
     const more = await R.sb.from("feed_publicacoes").select("*").eq("brecho_id", p.brecho_id).neq("id", p.id).order("created_at", { ascending: false }).limit(4);
     if (!more.error && more.data.length) {

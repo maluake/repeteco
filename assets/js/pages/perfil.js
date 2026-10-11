@@ -49,7 +49,7 @@
       const file = picker.get();
       if (file) {
         R.formStatus(status, "Enviando foto…");
-        avatar_url = (await R.media.upload("avatars", file, { max: 512, quality: 0.85 })).url;
+        avatar_url = (await R.media.upload("avatars", file, { max: 400, maxBytes: 60 * 1024 })).url;
       } else if (removeAvatar) {
         avatar_url = null;
       }
@@ -101,6 +101,7 @@
 
   R.requireAuth().then(() => {
     picker = R.media.picker(R.$("#avatarFile"), avatarBox, {
+      aspect: 1,
       onError: msg => { R.formStatus(status, msg, !!msg); if (!msg) { removeAvatar = false; R.$("#avatarRemove").hidden = false; } }
     });
     R.onAuth(s => s.user && fill(s));
