@@ -5,7 +5,7 @@
    Uso:  npm run serve   (em outro terminal)
          npm run test:e2e
    Variáveis: BASE_URL (padrão http://127.0.0.1:8090/),
-              CHROMIUM_PATH (opcional)
+              CHROMIUM_PATH (opcional), ONLY (filtra testes pelo nome)
    ===================================================== */
 const fs = require("fs");
 const path = require("path");
@@ -30,7 +30,9 @@ async function ctx({ email, width = 1366, height = 900, reducedMotion } = {}) {
   return { context, page, log, errors };
 }
 
+// ONLY="trecho" roda só os testes cujo nome contém o trecho.
 async function test(name, fn) {
+  if (process.env.ONLY && !name.includes(process.env.ONLY)) return;
   try {
     await fn();
     results.push({ name, ok: true });
@@ -550,7 +552,7 @@ async function settle(page) {
     await settle(page);
     const q = log.filter(l => l.path.endsWith("/feed_publicacoes")).pop().search;
     assert(q.includes("em_promocao=eq.true"), `consulta: ${q}`);
-    assert(await page.locator(".promo-flag").count() > 0 && await page.locator("s").count() > 0, "sem selo/preço riscado");
+    assert(await page.locator(".promo-flag").count() === 5, "deveria haver 5 peças com selo de promoção");
     await context.close();
   });
 
@@ -560,10 +562,14 @@ async function settle(page) {
     await settle(page);
     assert(await page.locator(".gallery-thumbs button").count() === 3, "deveria ter 3 miniaturas");
     await page.click(".gallery-thumbs button >> nth=2");
-    assert(/peca-1-3\.jpg/.test(await page.getAttribute(".gallery-main img", "src")), "não trocou para a 3ª foto");
+    const visible = () => page.getAttribute(".gallery-main figure:not([hidden]) img", "src");
+    assert(/peca-1-3\.jpg/.test(await visible()), "não trocou para a 3ª foto");
     assert(await page.getAttribute(".gallery-thumbs button >> nth=2", "aria-pressed") === "true", "miniatura não marcada");
     await page.click(".gallery-nav.next");
-    assert(/peca-1\.jpg/.test(await page.getAttribute(".gallery-main img", "src")), "próxima deveria voltar à 1ª");
+    assert(/peca-1\.jpg/.test(await visible()), "próxima deveria voltar à 1ª");
+    await page.focus(".gallery-main");
+    await page.keyboard.press("ArrowLeft");
+    assert(/peca-1-3\.jpg/.test(await visible()), "seta para a esquerda deveria ir à última");
     await context.close();
   });
 
@@ -572,7 +578,7 @@ async function settle(page) {
     await page.goto(BASE + "busca.html?num=38");
     await settle(page);
     const q = decodeURIComponent(log.filter(l => l.path.endsWith("/feed_publicacoes")).pop().search);
-    assert(/tamanho\.in\.\(.*38/.test(q) && q.includes("tipo.in.(") && q.includes("bota"), `consulta: ${q}`);
+    assert(/tamanho=in\.\(38\)/.test(q) && q.includes("tipo=in.(") && q.includes("bota"), `consulta: ${q}`);
     await context.close();
   });
 

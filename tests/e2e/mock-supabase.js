@@ -31,8 +31,8 @@ function test(row, col, op, raw) {
     case "neq": return String(val) !== String(parseValue(raw));
     case "lte": return val !== null && val !== undefined && Number(val) <= Number(raw);
     case "gte": return val !== null && val !== undefined && (isNaN(Number(raw)) ? String(val) >= raw : Number(val) >= Number(raw));
-    case "lt": return Number(val) < Number(raw);
-    case "gt": return Number(val) > Number(raw);
+    case "lt": return val !== null && val !== undefined && (isNaN(Number(raw)) ? String(val) < raw : Number(val) < Number(raw));
+    case "gt": return val !== null && val !== undefined && (isNaN(Number(raw)) ? String(val) > raw : Number(val) > Number(raw));
     case "ilike": return val !== null && val !== undefined && likeToRegex(decodeURIComponent(raw)).test(String(val));
     case "is": return raw === "null" ? val === null || val === undefined : val === parseValue(raw);
     case "in": {

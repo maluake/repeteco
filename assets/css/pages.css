@@ -571,7 +571,6 @@ html.a11y-contrast .act-like[aria-pressed="true"] { color: #000; border-color: #
   font-weight: 700;
 }
 .mosaic-badges { position: absolute; inset: 0; pointer-events: none; }
-.mosaic-badges .promo-flag { top: .5rem; bottom: auto; }
 .price-promo { color: var(--danger-ink); }
 .off-badge { display: inline-block; padding: 0 .45rem; border-radius: var(--pill); background: #fde8e6; color: var(--danger-ink); font-size: .78em; font-weight: 700; }
 .piece-price s { color: var(--muted); font-weight: 400; font-size: .8em; }

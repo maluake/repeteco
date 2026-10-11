@@ -198,6 +198,8 @@
 
       const st = $("#pcStatus");
       const novos = [];
+      // lido antes de travar o formulário (campos desabilitados durante o envio)
+      const tamanho = $("#pcTam").disabled ? null : ($("#pcTam").value || null);
       d.querySelectorAll("button, input, select, textarea").forEach(x => { x.disabled = true; });
       try {
         // envia só as fotos novas (principal + miniatura)
@@ -217,7 +219,7 @@
           titulo, preco, preco_original: original,
           descricao: $("#pcDesc").value.trim() || null,
           tipo: $("#pcTipo").value || null,
-          tamanho: $("#pcTam").disabled ? null : ($("#pcTam").value || null),
+          tamanho,
           condicao: $("#pcCond").value || null,
           estilo: R.normalizarEstilo($("#pcEstilo").value) || null,
           genero: $("#pcGenero").value || null,
