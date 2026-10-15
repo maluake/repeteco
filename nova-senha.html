@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Criar nova senha — Repeteco</title>
+  <meta name="description" content="Defina uma nova senha para sua conta no Repeteco.">
+  <meta name="robots" content="noindex">
+  <meta property="og:site_name" content="Repeteco">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Criar nova senha">
+  <meta property="og:description" content="Defina uma nova senha para sua conta no Repeteco.">
+  <meta property="og:image" content="assets/img/og-repeteco.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#340C3D">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/pages.css">
+  <script src="assets/js/a11y.js"></script>
+  <script defer src="assets/vendor/supabase-2.117.2.js"></script>
+  <script defer src="assets/js/config.js"></script>
+  <script defer src="assets/js/core.js"></script>
+  <script defer src="assets/js/vocab.js"></script>
+  <script defer src="assets/js/layout.js"></script>
+  <script defer src="assets/js/interactions.js"></script>
+  <script defer src="assets/js/render.js"></script>
+  <script defer src="assets/js/pages/nova-senha.js"></script>
+</head>
+<body data-page="entrar">
+  <header id="site-header"></header>
+  <main id="conteudo" tabindex="-1">
+    <div class="auth">
+      <div class="auth-card card">
+        <p class="logo logo-light" aria-hidden="true"><span class="re">Re</span>Peteco</p>
+        <h1>Nova senha</h1>
+        <div id="resetInvalid" hidden style="margin-top:1rem">
+          <p>Este link expirou ou já foi usado. Peça um novo link de recuperação.</p>
+          <p style="margin-top:1rem"><a class="btn" href="entrar.html?modo=recuperar">pedir novo link</a></p>
+        </div>
+        <form id="resetForm" hidden novalidate style="display:grid;gap:1rem;margin-top:1.5rem">
+          <div class="field">
+      <label for="rpPass">Nova senha</label>
+      <input class="input" id="rpPass" type="password" autocomplete="new-password">
+      <p class="hint" id="rpPass-dica">Mínimo de 8 caracteres.</p>
+    </div>
+          <div class="field">
+      <label for="rpPass2">Repita a nova senha</label>
+      <input class="input" id="rpPass2" type="password" autocomplete="new-password">
+      
+    </div>
+          <p class="form-status" id="resetStatus"></p>
+          <button class="btn btn-block" type="submit" id="resetBtn">Salvar nova senha</button>
+        </form>
+      </div>
+    </div>
+  </main>
+  <footer id="site-footer"></footer>
+  <noscript><p class="noscript">O Repeteco precisa de JavaScript para funcionar.</p></noscript>
+</body>
+</html>

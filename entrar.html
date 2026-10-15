@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Entrar ou criar conta — Repeteco</title>
+  <meta name="description" content="Entre no Repeteco para curtir e salvar peças e brechós, ou crie sua conta gratuitamente.">
+  <meta property="og:site_name" content="Repeteco">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Entrar ou criar conta">
+  <meta property="og:description" content="Entre no Repeteco para curtir e salvar peças e brechós, ou crie sua conta gratuitamente.">
+  <meta property="og:image" content="assets/img/og-repeteco.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#340C3D">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/base.css">
+  <link rel="stylesheet" href="assets/css/pages.css">
+  <script src="assets/js/a11y.js"></script>
+  <script defer src="assets/vendor/supabase-2.117.2.js"></script>
+  <script defer src="assets/js/config.js"></script>
+  <script defer src="assets/js/core.js"></script>
+  <script defer src="assets/js/vocab.js"></script>
+  <script defer src="assets/js/layout.js"></script>
+  <script defer src="assets/js/interactions.js"></script>
+  <script defer src="assets/js/render.js"></script>
+  <script defer src="assets/js/pages/entrar.js"></script>
+</head>
+<body data-page="entrar">
+  <header id="site-header"></header>
+  <main id="conteudo" tabindex="-1">
+    <div class="auth">
+      <div class="auth-card card">
+        <p class="logo logo-light" aria-hidden="true"><span class="re">Re</span>Peteco</p>
+        <p class="auth-sub">brechós de SP que você vai amar</p>
+        <h1 id="authTitle">Entrar</h1>
+        <div class="form-status" id="alreadyIn" hidden style="margin-top:1rem">Você já está conectada(o) como <strong id="alreadyName"></strong>. <a class="link" id="alreadyNext" href="index.html">Continuar</a></div>
+        <div class="auth-tabs" role="tablist" id="authTabs" aria-label="Acesso">
+          <button role="tab" id="tabLogin" data-view="entrar" aria-controls="viewLogin" aria-selected="true">entrar</button>
+          <button role="tab" id="tabSignup" data-view="criar" aria-controls="viewSignup" aria-selected="false" tabindex="-1">criar conta</button>
+        </div>
+    
+        <section id="viewLogin" role="tabpanel" aria-labelledby="tabLogin">
+          <form id="loginForm" novalidate>
+            <div class="field">
+      <label for="loginEmail">E-mail</label>
+      <input class="input" id="loginEmail" type="email" autocomplete="email" placeholder="seu@email.com" required>
+      
+    </div>
+            <div class="field">
+      <label for="loginPass">Senha</label>
+      <div class="password-wrap"><input class="input" id="loginPass" type="password" autocomplete="current-password"><button type="button" data-toggle-pass="loginPass" aria-pressed="false" aria-label="Mostrar senha">mostrar</button></div>
+      
+    </div>
+            <p class="form-status" id="loginStatus"></p>
+            <p id="resendWrap" hidden><button class="btn btn-ghost btn-sm" type="button" data-resend>reenviar e-mail de confirmação</button></p>
+            <button class="btn btn-block" type="submit" id="loginBtn">Entrar</button>
+            <div class="auth-links"><a class="link" href="entrar.html?modo=recuperar" data-goto="recuperar">Esqueci minha senha</a><a class="link" href="entrar.html?modo=cadastro" data-goto="criar">Criar conta</a></div>
+          </form>
+        </section>
+    
+        <section id="viewSignup" role="tabpanel" aria-labelledby="tabSignup" hidden>
+          <form id="signupForm" novalidate>
+            <div class="field">
+      <label for="suNome">Nome</label>
+      <input class="input" id="suNome" autocomplete="name" maxlength="80" placeholder="Seu nome" required>
+      
+    </div>
+            <div class="field">
+      <label for="suEmail">E-mail</label>
+      <input class="input" id="suEmail" type="email" autocomplete="email" placeholder="seu@email.com" required>
+      
+    </div>
+            <div class="field">
+      <label for="suPass">Senha</label>
+      <div class="password-wrap"><input class="input" id="suPass" type="password" autocomplete="new-password" aria-describedby="suPass-dica"><button type="button" data-toggle-pass="suPass" aria-pressed="false" aria-label="Mostrar senha">mostrar</button></div>
+      <p class="hint" id="suPass-dica">Mínimo de 8 caracteres.</p>
+    </div>
+            <label class="check" style="align-items:flex-start"><input type="checkbox" id="suTerms" style="margin-top:.2rem"> <span>Li e aceito os <a class="link" href="termos.html" target="_blank">termos de uso</a> e a <a class="link" href="privacidade.html" target="_blank">política de privacidade</a>.</span></label>
+            <p class="form-status" id="signupStatus"></p>
+            <button class="btn btn-block" type="submit" id="signupBtn">Criar conta gratuita</button>
+          </form>
+        </section>
+    
+        <section id="viewForgot" hidden aria-labelledby="authTitle">
+          <p class="muted" style="margin-block:1rem">Informe o e-mail da sua conta. Enviaremos um link para você criar uma nova senha.</p>
+          <form id="forgotForm" novalidate>
+            <div class="field">
+      <label for="fgEmail">E-mail</label>
+      <input class="input" id="fgEmail" type="email" autocomplete="email" required>
+      
+    </div>
+            <p class="form-status" id="forgotStatus"></p>
+            <button class="btn btn-block" type="submit" id="forgotBtn">Enviar link</button>
+            <a class="link" href="entrar.html" data-goto="entrar">Voltar para entrar</a>
+          </form>
+        </section>
+    
+        <section id="viewConfirm" hidden aria-labelledby="authTitle">
+          <p style="margin-top:1rem">Enviamos um link de confirmação para <strong id="confirmEmail"></strong>. Abra o e-mail e clique no link para ativar sua conta.</p>
+          <p class="muted small" style="margin-top:.75rem">Não chegou? Confira a caixa de spam ou peça um novo envio.</p>
+          <p style="margin-top:1.25rem;display:flex;gap:.75rem;flex-wrap:wrap"><button class="btn btn-outline" type="button" data-resend>reenviar e-mail</button><a class="btn btn-ghost" href="entrar.html" data-goto="entrar">ir para entrar</a></p>
+        </section>
+      </div>
+    </div>
+  </main>
+  <footer id="site-footer"></footer>
+  <noscript><p class="noscript">O Repeteco precisa de JavaScript para funcionar.</p></noscript>
+</body>
+</html>

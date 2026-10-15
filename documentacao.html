@@ -4,11 +4,10 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Repeteco — Documentação Completa</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet"/>
 <style>
 :root {
   --cream:   #FAFAE8;
-  --purple:  #2D1B4E;
+  --purple:  #340C3D;
   --teal:    #8ECFCA;
   --teal-lt: #D4F0EC;
   --yellow:  #F5E97A;
@@ -168,6 +167,7 @@ pre code{background:none;padding:0;color:var(--code-text)}
 </style>
 </head>
 <body>
+<div role="note" style="position:relative;z-index:200;background:#E8D44D;color:#1A1228;padding:12px 28px;margin-top:52px;font:500 14px Inter,sans-serif">Documento histórico da versão 4. A estrutura atual, a configuração do Supabase e os testes estão em <a href="README.md">README.md</a> e <a href="AUDITORIA.md">AUDITORIA.md</a>.</div>
 
 <!-- NAVBAR -->
 <nav class="doc-nav">
@@ -787,7 +787,7 @@ window.supabaseClient = window.supabase.createClient(
   <h3>Variáveis CSS (design tokens)</h3>
   <pre><code>:root {
   --cream:        #FAFAE8;  /* fundo geral */
-  --purple:       #2D1B4E;  /* cor principal */
+  --purple:       #340C3D;  /* cor principal */
   --teal:         #8ECFCA;  /* cor secundária */
   --teal-light:   #B2DDD9;  /* teal suave */
   --yellow-accent:#E8D44D;  /* destaques amarelos */
