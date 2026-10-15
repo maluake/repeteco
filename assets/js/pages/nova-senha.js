@@ -24,7 +24,7 @@
     e.preventDefault();
     const p1 = R.$("#rpPass"), p2 = R.$("#rpPass2"), st = R.$("#resetStatus"), btn = R.$("#resetBtn");
     if (!R.validate([
-      [p1, p1.value.length < 8 ? "A senha precisa ter pelo menos 8 caracteres." : null],
+      [p1, R.problemaSenha(p1.value, R.auth.user?.email)],
       [p2, p1.value !== p2.value ? "As senhas não coincidem." : null]
     ])) return;
     btn.disabled = true;

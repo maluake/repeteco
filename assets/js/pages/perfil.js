@@ -76,7 +76,7 @@
     const p1 = R.$("#newPass"), p2 = R.$("#newPass2");
     const st = R.$("#passStatus");
     const ok = R.validate([
-      [p1, p1.value.length < 8 ? "A senha precisa ter pelo menos 8 caracteres." : null],
+      [p1, R.problemaSenha(p1.value, R.auth.user?.email)],
       [p2, p2.value !== p1.value ? "As senhas não coincidem." : null]
     ]);
     if (!ok) return;

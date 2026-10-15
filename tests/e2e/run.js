@@ -284,6 +284,9 @@ async function settle(page) {
     await page.fill("#suPass", "12345678");
     await page.check("#suTerms");
     await page.click("#signupBtn");
+    assert(await page.getAttribute("#suPass", "aria-invalid") === "true", "senha só de números deveria ser recusada");
+    await page.fill("#suPass", "garimpo2026");
+    await page.click("#signupBtn");
     await page.waitForSelector("#viewConfirm:not([hidden])");
     const req = log.find(l => l.path.endsWith("/auth/v1/signup"));
     assert(req && JSON.parse(req.body).data.nome === "Nova Pessoa", "nome não enviado nos metadados (usado pelo trigger de perfil)");

@@ -45,6 +45,21 @@
     count: (n, one, many) => `${n} ${n === 1 ? one : many}`
   };
 
+  /* ---------- senha ----------
+     O site nunca guarda senhas: elas vão direto ao Supabase Auth, que
+     grava só o hash bcrypt. Aqui só barramos senhas fáceis de adivinhar. */
+  const SENHAS_COMUNS = ["12345678", "123456789", "1234567890", "password", "senha123", "senha1234", "qwerty123", "abc12345", "repeteco1", "11111111", "00000000", "brasil123", "iloveyou1"];
+  R.problemaSenha = (senha, email = "") => {
+    const s = String(senha || "");
+    if (s.length < 8) return "A senha precisa ter pelo menos 8 caracteres.";
+    if (s.length > 72) return "Use no máximo 72 caracteres.";
+    if (!/[A-Za-zÀ-ÿ]/.test(s) || !/\d/.test(s)) return "Use letras e números na senha.";
+    if (SENHAS_COMUNS.includes(s.toLowerCase())) return "Essa senha é muito comum. Escolha outra.";
+    const user = String(email).split("@")[0].toLowerCase();
+    if (user.length >= 4 && s.toLowerCase().includes(user)) return "A senha não pode conter o seu e-mail.";
+    return null;
+  };
+
   /* ---------- CEP (ViaCEP, gratuito e sem chave) ---------- */
   R.buscarCep = async cep => {
     const d = String(cep || "").replace(/\D/g, "");

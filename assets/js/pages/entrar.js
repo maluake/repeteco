@@ -52,7 +52,7 @@
     if (!R.validate([
       [nome, !nome.value.trim() ? "Informe seu nome." : null],
       [email, !email.validity.valid || !email.value ? "Informe um e-mail válido." : null],
-      [pass, pass.value.length < 8 ? "A senha precisa ter pelo menos 8 caracteres." : null],
+      [pass, R.problemaSenha(pass.value, email.value)],
       [terms, !terms.checked ? "Para criar a conta, aceite os termos e a política de privacidade." : null]
     ])) return;
     setBusy(btn, true, "Criando conta…");
