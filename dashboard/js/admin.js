@@ -160,6 +160,18 @@
   });
 
   /* ---------- usuários ---------- */
+  const ROLES = ["usuario", "dono", "admin"];
+  const ROLE_LABEL = { usuario: "Pessoa usuária", dono: "Dono de brechó", admin: "Administração" };
+  // Troca de função pela função do banco (v7); sem ela, tenta a tabela e
+  // confere se a linha mudou de fato (a RLS pode recusar sem dar erro).
+  async function definirFuncao(id, role) {
+    const rpc = await R.sb.rpc("admin_definir_funcao", { p_user_id: id, p_role: role });
+    if (!rpc.error) return;
+    if (rpc.error.code !== "PGRST202") throw rpc.error;
+    const { data, error } = await R.sb.from("profiles").update({ role }).eq("id", id).select("role");
+    if (error) throw error;
+    if (!data?.length || data[0].role !== role) throw new Error("O banco não aplicou a mudança. Rode supabase/v7/1_reparos.sql no SQL Editor.");
+  }
   D.route("usuarios", {
     label: "Pessoas",
     async render(el) {
@@ -178,7 +190,8 @@
             <td data-label="Pessoa"><strong>${R.esc(u.nome || "Sem nome")}</strong><small>${R.esc(u.email || "")}</small></td>
             <td data-label="Função"><label class="visually-hidden" for="role-${u.id}">Função de ${R.esc(u.nome || u.email)}</label>
               <select class="select" id="role-${u.id}" data-role="${u.id}" style="min-height:2.4rem;width:auto"${self ? ' disabled aria-describedby="selfRoleNote"' : ""}>
-                ${["usuario", "dono", "admin"].map(r => `<option value="${r}"${u.role === r ? " selected" : ""}>${{ usuario: "Pessoa usuária", dono: "Dono de brechó", admin: "Administração" }[r]}</option>`).join("")}
+                ${ROLES.includes(u.role) ? "" : `<option value="${R.esc(u.role || "")}" selected>Valor antigo: ${R.esc(u.role || "vazio")}</option>`}
+                ${ROLES.map(r => `<option value="${r}"${u.role === r ? " selected" : ""}>${ROLE_LABEL[r]}</option>`).join("")}
               </select></td>
             <td data-label="Cidade">${R.esc(u.cidade || "—")}</td>
             <td data-label="Cadastro">${R.fmt.shortDate(u.created_at)}</td>
@@ -193,10 +206,17 @@
         if (!sel) return;
         const u = data.find(x => x.id === sel.dataset.role);
         if (!(await D.confirm(`Alterar a função de ${u.nome || u.email} para “${sel.options[sel.selectedIndex].text}”?`, { confirmLabel: "Alterar", danger: sel.value === "admin" }))) { sel.value = u.role; return; }
-        const { error: err } = await R.sb.from("profiles").update({ role: sel.value }).eq("id", u.id);
-        if (err) { sel.value = u.role; return R.toast(R.errorMessage(err), "error"); }
-        u.role = sel.value;
-        R.toast("Função atualizada.");
+        sel.disabled = true;
+        try {
+          await definirFuncao(u.id, sel.value);
+          u.role = sel.value;
+          R.toast(`Função de ${u.nome || u.email} atualizada para “${ROLE_LABEL[u.role]}”.`);
+          paint();
+        } catch (err) {
+          console.error("[Repeteco] função:", err);
+          sel.value = u.role;
+          R.toast(R.errorDetail(err, "Não foi possível alterar a função."), "error");
+        } finally { sel.disabled = u.id === R.auth.user.id; }
       });
     }
   });

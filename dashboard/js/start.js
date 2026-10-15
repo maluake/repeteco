@@ -19,7 +19,7 @@
     R.$("#dashContext").textContent = admin ? "admin" : "painel da loja";
     const groups = [];
     if (shop) groups.push({ title: shop.nome, items: ["visao-dono", "pecas", "perfil"] });
-    if (admin) groups.push({ title: "Administração", items: ["visao-admin", "solicitacoes", "brechos", "usuarios", "publicacoes", "editorial", "eventos", "parcerias", "mensagens"] });
+    if (admin) groups.push({ title: "Administração", items: ["visao-admin", "solicitacoes", "brechos", "usuarios", "publicacoes", "editorial", "eventos", "parcerias", "mensagens", "armazenamento"] });
     // Admin sem brechó começa pela visão administrativa.
     if (admin && !shop) groups.reverse();
     D.buildNav(groups);

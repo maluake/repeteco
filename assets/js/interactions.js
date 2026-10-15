@@ -91,7 +91,7 @@
       const fallback = "Não foi possível salvar sua escolha.";
       // PGRST202: a função ainda não existe no banco (falta rodar supabase/v6/1_interacoes_pecas.sql).
       const base = error.code === "PGRST202" ? `${fallback} O banco ainda não tem a função alternar_interacao.` : R.errorMessage(error, fallback);
-      R.toast(base === fallback ? `${base} (${error.code || "erro"}: ${error.message})` : base, "error");
+      R.toast(base === fallback || error.code === "P0001" ? R.errorDetail(error, fallback) : base, "error");
       return;
     }
     // O banco é a fonte da verdade: corrige a tela se divergiu.

@@ -54,8 +54,10 @@
     R.$("#lojaOnlineWrap").hidden = modo() === "fisica";
     R.$("#lojaBairro").required = modo() !== "online";
     R.$("#lojaEndereco").closest(".field").hidden = modo() === "online";
+    R.$("#lojaCep").closest(".field").hidden = modo() === "online";
   };
   R.$("#modoGroup").addEventListener("change", syncModo);
+  const cep = R.cepField({ cep: R.$("#lojaCep"), endereco: R.$("#lojaEndereco"), bairro: R.$("#lojaBairro"), cidade: R.$("#lojaCidade"), status: R.$("#lojaCepStatus") });
 
   form.addEventListener("submit", async ev => {
     ev.preventDefault();
@@ -85,6 +87,7 @@
         nome: v("lojaNome"), descricao: v("lojaDesc") || null, categorias: cats,
         cidade: v("lojaCidade"), bairro: v("lojaBairro") || null, endereco: m === "online" ? null : (v("lojaEndereco") || null),
         modalidade: m, loja_online_url: m === "fisica" ? null : (loja || null),
+        ...(m !== "online" && cep.value().length === 8 ? { cep: cep.value() } : {}),
         nome_responsavel: v("respNome"), email_responsavel: v("respEmail"),
         whatsapp: wa, instagram: v("respInsta").replace(/^@/, "") || null
       }).select("id").single();
@@ -94,7 +97,7 @@
       if (file) {
         R.formStatus(st, "Cadastro criado. Enviando a foto…");
         try {
-          const up = await R.media.upload("brechos", file, { max: 1600, maxBytes: 220 * 1024 });
+          const up = await R.media.upload("brechos", file, { preset: "capa" });
           const upd = await R.sb.from("brechos").update({ foto_capa: up.url }).eq("id", data.id);
           if (upd.error) throw upd.error;
         } catch (imgErr) {

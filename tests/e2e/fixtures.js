@@ -130,6 +130,21 @@ const fixtures = {
       publicacoes: 30, brechos_online: 2, promocoes: 5, eventos_proximos: 2, parcerias_novas: 1, artigos_publicados: 2, artigos_rascunho: 1, curtidas: 12, salvos: 7, visitas_30d: 120, mensagens_nao_lidas: 1,
       semanas: Array.from({ length: 12 }, (_, i) => ({ semana: day((11 - i) * 7).slice(0, 10), usuarios: i % 3, brechos: i % 2, publicacoes: i, interacoes: i * 2 }))
     },
+    admin_definir_funcao: (session, body) => {
+      if (!session || USERS[session.user.email]?.role !== "admin") throw new Error("Somente administradores podem alterar a função de uma pessoa.");
+      if (!["usuario", "dono", "admin"].includes(body.p_role)) throw new Error("Função inválida.");
+      const u = fixtures.rpc.admin_listar_usuarios.find(x => x.id === body.p_user_id);
+      if (!u) throw new Error("Conta não encontrada.");
+      u.role = body.p_role;
+      return body.p_role;
+    },
+    admin_uso_armazenamento: [
+      { bucket: "brechos", caminho: "00000000-0000-0000-0000-00000000000b/antiga-grande.jpg", bytes: 2400000, criado_em: day(90), em_uso: true },
+      { bucket: "brechos", caminho: "00000000-0000-0000-0000-00000000000b/sobra.webp", bytes: 180000, criado_em: day(10), em_uso: false },
+      { bucket: "avatars", caminho: "00000000-0000-0000-0000-00000000000c/velha.webp", bytes: 40000, criado_em: day(5), em_uso: false },
+      { bucket: "brechos", caminho: "00000000-0000-0000-0000-00000000000b/enviando.webp", bytes: 120000, criado_em: new Date().toISOString(), em_uso: false },
+      { bucket: "editorial", caminho: "00000000-0000-0000-0000-00000000000a/capa.webp", bytes: 160000, criado_em: day(3), em_uso: true }
+    ],
     admin_listar_usuarios: Object.entries(USERS).map(([email, u]) => ({ id: u.id, nome: u.nome, email, role: u.role, cidade: "São Paulo", avatar_url: null, created_at: day(30), last_sign_in_at: day(1) }))
   }
 };

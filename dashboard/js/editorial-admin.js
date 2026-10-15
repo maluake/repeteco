@@ -113,7 +113,7 @@
         const file = picker.get();
         if (file) {
           R.formStatus(st, "Enviando a capa…");
-          const up = await R.media.upload("editorial", file, { max: 1600, maxBytes: 250 * 1024 });
+          const up = await R.media.upload("editorial", file, { preset: "capa" });
           capa_url = up.url; capa_path = up.path;
         }
         const payload = {

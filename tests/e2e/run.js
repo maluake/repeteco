@@ -60,7 +60,7 @@ const PRIVATE_PAGES = [
   ["dashboard/index.html#visao-dono", "dona@x.com"], ["dashboard/index.html#pecas", "dona@x.com"],
   ["dashboard/index.html#perfil", "dona@x.com"],
   ["dashboard/index.html#eventos", "admin@x.com"], ["dashboard/index.html#eventos/novo", "admin@x.com"],
-  ["dashboard/index.html#parcerias", "admin@x.com"]
+  ["dashboard/index.html#parcerias", "admin@x.com"], ["dashboard/index.html#armazenamento", "admin@x.com"]
 ];
 
 async function settle(page) {
@@ -652,6 +652,114 @@ async function settle(page) {
     await page.waitForTimeout(300);
     const patch = log.find(l => l.method === "PATCH" && l.path.endsWith("/evento_parcerias"));
     assert(patch && JSON.parse(patch.body).status === "em_conversa", "PATCH de andamento ausente");
+    await context.close();
+  });
+
+  /* ---------- v7: funções, CEP, armazenamento, compressão ---------- */
+  await test("admin muda a função de uma pessoa pela função do banco", async () => {
+    const { page, log, context } = await ctx({ email: "admin@x.com" });
+    await page.goto(BASE + "dashboard/index.html#usuarios");
+    await settle(page);
+    const id = fixtures.USERS["user@x.com"].id;
+    await page.selectOption(`#role-${id}`, "dono");
+    await page.click('dialog [value="yes"]');
+    await page.waitForTimeout(400);
+    const call = log.find(l => l.path.endsWith("/rpc/admin_definir_funcao"));
+    assert(call && JSON.parse(call.body).p_role === "dono" && JSON.parse(call.body).p_user_id === id, "função do banco não chamada");
+    assert(!log.some(l => l.method === "PATCH" && l.path.endsWith("/profiles")), "não deveria alterar a tabela direto");
+    assert(await page.inputValue(`#role-${id}`) === "dono", "seleção deveria ficar em dono");
+    assert(/atualizada/.test(await page.textContent("#toastRegion")), "sem confirmação");
+    await page.selectOption(`#role-${id}`, "usuario");
+    await page.click('dialog [value="yes"]');
+    await page.waitForTimeout(300);
+    await context.close();
+  });
+
+  await test("erro ao mudar função mostra o motivo e desfaz a seleção", async () => {
+    const { page, context } = await ctx({ email: "admin@x.com" });
+    await context.route("**/rest/v1/rpc/admin_definir_funcao", route => route.fulfill({ status: 400, json: { code: "23514", message: "new row violates check constraint \"profiles_role_antiga\"" } }));
+    await page.goto(BASE + "dashboard/index.html#usuarios");
+    await settle(page);
+    const id = fixtures.USERS["user@x.com"].id;
+    await page.selectOption(`#role-${id}`, "dono");
+    await page.click('dialog [value="yes"]');
+    await page.waitForTimeout(300);
+    assert(/profiles_role_antiga/.test(await page.textContent("#toastRegion")), "o motivo técnico deveria aparecer");
+    assert(await page.inputValue(`#role-${id}`) === "usuario", "seleção deveria voltar");
+    await context.close();
+  });
+
+  await test("dono digita o CEP: rua, bairro e cidade preenchidos, mapa localizado e CEP salvo", async () => {
+    const { page, log, context } = await ctx({ email: "dona@x.com" });
+    await page.goto(BASE + "dashboard/index.html#perfil");
+    await settle(page);
+    await page.fill("#sEndereco", "");
+    await page.fill("#sBairro", "");
+    await page.fill("#sCep", "99999999");
+    await page.waitForTimeout(300);
+    assert(await page.getAttribute("#sCep", "aria-invalid") === "true", "CEP inexistente deveria mostrar erro");
+    await page.fill("#sCep", "05422030");
+    await page.waitForFunction(() => /Encontrado/.test(document.querySelector("#sGeoStatus").textContent));
+    assert(await page.inputValue("#sCep") === "05422-030", "máscara do CEP");
+    assert(await page.inputValue("#sEndereco") === "Rua dos Pinheiros, " && await page.inputValue("#sBairro") === "Pinheiros" && await page.inputValue("#sCidade") === "São Paulo", "endereço não preenchido");
+    assert(await page.evaluate(() => document.activeElement.id) === "sEndereco", "foco deveria ir para o número");
+    await page.type("#sEndereco", "500");
+    await page.click("#sSave");
+    await page.waitForTimeout(400);
+    const body = JSON.parse(log.find(l => l.method === "PATCH" && l.path.endsWith("/brechos")).body);
+    assert(body.cep === "05422030" && body.endereco === "Rua dos Pinheiros, 500" && body.latitude, `PATCH: ${JSON.stringify(body)}`);
+    await context.close();
+  });
+
+  await test("cadastro de brechó preenche o endereço pelo CEP e envia o CEP", async () => {
+    const { page, log, context } = await ctx({ email: "user@x.com" });
+    await page.goto(BASE + "cadastro.html");
+    await settle(page);
+    await page.fill("#lojaCep", "05422-030");
+    await page.waitForFunction(() => document.querySelector("#lojaBairro").value === "Pinheiros");
+    await page.type("#lojaEndereco", "10");
+    await page.fill("#respWhats", "11999990000");
+    await page.fill("#lojaNome", "Brechó do CEP");
+    await page.check('input[name="categorias"] >> nth=0');
+    await page.click("#storeSubmit");
+    await page.waitForTimeout(400);
+    const ins = log.find(l => l.method === "POST" && l.path.endsWith("/brechos"));
+    const body = ins && JSON.parse(ins.body);
+    assert(body && body.cep === "05422030" && body.endereco === "Rua dos Pinheiros, 10" && body.cidade === "São Paulo", `POST: ${ins && ins.body}`);
+    await context.close();
+  });
+
+  await test("armazenamento: mostra o espaço e apaga só arquivos sem uso com mais de 1 dia", async () => {
+    const { page, log, context } = await ctx({ email: "admin@x.com" });
+    await page.goto(BASE + "dashboard/index.html#armazenamento");
+    await settle(page);
+    assert(/2,8 MB/.test(await page.textContent(".stats")), "total deveria somar 2,8 MB");
+    await page.click("#stClean");
+    await page.click('dialog [value="yes"]');
+    await page.waitForTimeout(500);
+    const dels = log.filter(l => l.method === "DELETE" && l.path.includes("/storage/v1/object/"));
+    const apagados = dels.flatMap(d => JSON.parse(d.body).prefixes);
+    assert(apagados.length === 2 && apagados.some(p => p.endsWith("sobra.webp")) && apagados.some(p => p.endsWith("velha.webp")), `apagou: ${apagados}`);
+    assert(!apagados.some(p => /enviando|antiga-grande|capa/.test(p)), "apagou arquivo em uso ou recente");
+    await context.close();
+  });
+
+  await test("compressão garante o teto de bytes mesmo em foto pesada", async () => {
+    const { page, context } = await ctx({ email: "dona@x.com" });
+    await page.goto(BASE + "index.html");
+    await settle(page);
+    await page.addScriptTag({ url: BASE + "assets/js/media.js" });
+    const r = await page.evaluate(async () => {
+      const c = document.createElement("canvas");
+      c.width = 3000; c.height = 4000;
+      const ctx = c.getContext("2d");
+      const img = ctx.createImageData(c.width, c.height);
+      for (let i = 0; i < img.data.length; i++) img.data[i] = Math.random() * 255; // ruído: pior caso
+      ctx.putImageData(img, 0, 0);
+      const out = await window.R.media.prepare(c, { thumb: true });
+      return { main: out.main.size, thumb: out.thumb.size, P: window.R.media.PRESETS };
+    });
+    assert(r.main <= r.P.peca.maxBytes && r.thumb <= r.P.thumb.maxBytes, `tamanhos: ${r.main} / ${r.thumb}`);
     await context.close();
   });
 

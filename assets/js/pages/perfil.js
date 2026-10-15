@@ -49,7 +49,7 @@
       const file = picker.get();
       if (file) {
         R.formStatus(status, "Enviando foto…");
-        avatar_url = (await R.media.upload("avatars", file, { max: 400, maxBytes: 60 * 1024 })).url;
+        avatar_url = (await R.media.upload("avatars", file, { preset: "avatar" })).url;
       } else if (removeAvatar) {
         avatar_url = null;
       }

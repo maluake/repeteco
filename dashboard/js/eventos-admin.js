@@ -127,7 +127,7 @@
         let capa_path = removeCapa ? null : e.capa_path;
         if (picker.get()) {
           R.formStatus(st, "Enviando a capa…");
-          const up = await R.media.upload("editorial", picker.get(), { max: 1600, maxBytes: 250 * 1024 });
+          const up = await R.media.upload("editorial", picker.get(), { preset: "capa" });
           capa_url = up.url; capa_path = novaCapa = up.path;
         }
         const online = formato === "online";

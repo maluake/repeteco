@@ -153,6 +153,8 @@
             </div>
             <div id="sAddrWrap">
             <div class="form-grid">
+              ${f("sCep", "CEP", b.cep || "", 'placeholder="00000-000" aria-describedby="sCep-dica sCepStatus"', "Digite o CEP e preenchemos rua, bairro e cidade.")}
+              <p class="small muted" id="sCepStatus" role="status" style="margin:0;align-self:center"></p>
               ${f("sEndereco", "Endereço", b.endereco, 'autocomplete="street-address" placeholder="Rua, número"')}
               ${f("sBairro", "Bairro", b.bairro, "required")}
               ${f("sCidade", "Cidade", b.cidade || "São Paulo", "required")}
@@ -218,6 +220,12 @@
       if (coords) placePin(coords.latitude, coords.longitude);
       else map?.on("click", e => { placePin(e.latlng.lat, e.latlng.lng); coords = { latitude: e.latlng.lat, longitude: e.latlng.lng }; $("#sGeoStatus").textContent = "Posição marcada. Salve para confirmar."; });
 
+      const cepField = R.cepField({
+        cep: $("#sCep"), endereco: $("#sEndereco"), bairro: $("#sBairro"), cidade: $("#sCidade"), status: $("#sCepStatus"),
+        // posição aproximada já pelo CEP; com o número digitado, "Localizar" refina
+        onFound: () => $("#sGeo").click()
+      });
+
       $("#sGeo").addEventListener("click", async () => {
         const btn = $("#sGeo");
         const q = [$("#sEndereco").value, $("#sBairro").value, $("#sCidade").value].filter(Boolean).join(", ");
@@ -260,11 +268,12 @@
             site: site ? (site.includes("://") ? site : "https://" + site) : null,
             horario: $("#sHorario").value.trim() || null,
             modalidade: m, loja_online_url: m === "fisica" ? null : (loja || null),
+            ...(cepField.value().length === 8 || b.cep ? { cep: m === "online" || cepField.value().length !== 8 ? null : cepField.value() } : {}),
             endereco: $("#sEndereco").value.trim() || null, bairro: $("#sBairro").value.trim() || null, cidade: $("#sCidade").value.trim() || null
           };
           if (coords && m !== "online") Object.assign(payload, { latitude: coords.latitude, longitude: coords.longitude, endereco_formatado: coords.endereco_formatado || null });
-          if (logo.get()) { const up = await R.media.upload("brechos", logo.get(), { max: 400, maxBytes: 60 * 1024 }); payload.logo_url = up.url; uploaded.push(up.path); }
-          if (capa.get()) { const up = await R.media.upload("brechos", capa.get(), { max: 1600, maxBytes: 220 * 1024 }); payload.foto_capa = up.url; uploaded.push(up.path); }
+          if (logo.get()) { const up = await R.media.upload("brechos", logo.get(), { preset: "logo" }); payload.logo_url = up.url; uploaded.push(up.path); }
+          if (capa.get()) { const up = await R.media.upload("brechos", capa.get(), { preset: "capa" }); payload.foto_capa = up.url; uploaded.push(up.path); }
           const { error } = await R.sb.from("brechos").update(payload).eq("id", b.id);
           if (error) throw error;
           if (payload.logo_url && b.logo_url) R.media.remove("brechos", b.logo_url);

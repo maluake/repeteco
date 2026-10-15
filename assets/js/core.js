@@ -45,6 +45,51 @@
     count: (n, one, many) => `${n} ${n === 1 ? one : many}`
   };
 
+  /* ---------- CEP (ViaCEP, gratuito e sem chave) ---------- */
+  R.buscarCep = async cep => {
+    const d = String(cep || "").replace(/\D/g, "");
+    if (d.length !== 8) throw new Error("O CEP tem 8 números.");
+    let res;
+    try { res = await fetch(`https://viacep.com.br/ws/${d}/json/`); }
+    catch { throw new Error("Não foi possível consultar o CEP agora. Preencha o endereço à mão."); }
+    const j = res.ok ? await res.json() : null;
+    if (!j || j.erro) throw new Error("CEP não encontrado. Confira os números ou preencha à mão.");
+    return { cep: d, logradouro: j.logradouro || "", bairro: j.bairro || "", cidade: j.localidade || "", uf: j.uf || "" };
+  };
+  // Liga um campo de CEP aos campos de endereço: ao completar 8 números,
+  // preenche rua, bairro e cidade e leva o foco ao endereço (para o número).
+  R.cepField = ({ cep, endereco, bairro, cidade, status, onFound }) => {
+    let last = "";
+    const fmt = v => { const d = v.replace(/\D/g, "").slice(0, 8); return d.length > 5 ? `${d.slice(0, 5)}-${d.slice(5)}` : d; };
+    cep.setAttribute("inputmode", "numeric");
+    cep.setAttribute("autocomplete", "postal-code");
+    cep.setAttribute("maxlength", "9");
+    cep.value = fmt(cep.value);
+    cep.addEventListener("input", async () => {
+      cep.value = fmt(cep.value);
+      const d = cep.value.replace(/\D/g, "");
+      if (d.length !== 8 || d === last) return;
+      last = d;
+      status.textContent = "Buscando o CEP…";
+      try {
+        const r = await R.buscarCep(d);
+        if (r.logradouro) endereco.value = `${r.logradouro}, `;
+        if (r.bairro) bairro.value = r.bairro;
+        if (r.cidade) cidade.value = r.cidade;
+        R.fieldError(cep, "");
+        status.textContent = `Endereço encontrado: ${[r.logradouro, r.bairro, `${r.cidade}/${r.uf}`].filter(Boolean).join(", ")}. Complete com o número.`;
+        endereco.focus();
+        endereco.setSelectionRange?.(endereco.value.length, endereco.value.length);
+        onFound?.(r);
+      } catch (e) {
+        last = "";
+        status.textContent = "";
+        R.fieldError(cep, e.message);
+      }
+    });
+    return { value: () => cep.value.replace(/\D/g, "") };
+  };
+
   // Apenas URLs http(s) entram em src/href vindos do banco.
   R.safeUrl = v => {
     if (!v) return "";
@@ -76,6 +121,13 @@
     [/failed to fetch|networkerror|load failed/i, "Não foi possível conectar. Verifique sua internet e tente de novo."],
     [/relation .* does not exist|column .* does not exist|could not find the .*(table|function|column)|schema cache/i, "O banco ainda não foi atualizado para esta versão do Repeteco (rode os arquivos das pastas supabase/v5 e supabase/v6)."]
   ];
+  // Mensagem amigável + o motivo técnico (código e texto do banco), para
+  // ações em que a pessoa precisa saber exatamente o que falhou.
+  R.errorDetail = (err, fallback) => {
+    const base = R.errorMessage(err, fallback);
+    const raw = String(err?.message || err || "").slice(0, 180);
+    return raw && raw !== base ? `${base} Detalhe: ${err?.code ? `${err.code} — ` : ""}${raw}` : base;
+  };
   R.errorMessage = (err, fallback = "Algo deu errado. Tente novamente.") => {
     const raw = typeof err === "string" ? err : (err?.message || err?.error_description || "");
     for (const [re, msg] of ERROS) if (re.test(raw)) return msg;

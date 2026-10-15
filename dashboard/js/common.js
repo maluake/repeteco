@@ -61,7 +61,7 @@
     `<div class="view-head"><div><h1>${R.esc(title)}</h1>${text ? `<p>${R.esc(text)}</p>` : ""}</div>${actions ? `<div style="display:flex;gap:.5rem;flex-wrap:wrap">${actions}</div>` : ""}</div>`;
 
   D.stats = items => `<dl class="stats">${items.map(s =>
-    `<div class="stat"><dt>${R.esc(s.label)}</dt><dd>${s.href ? `<a href="${s.href}">${fmtN(s.value)}</a>` : fmtN(s.value)}${s.note ? `<span class="note">${R.esc(s.note)}</span>` : ""}</dd></div>`).join("")}</dl>`;
+    `<div class="stat"><dt>${R.esc(s.label)}</dt><dd>${s.href ? `<a href="${s.href}">${s.text ?? fmtN(s.value)}</a>` : R.esc(s.text ?? fmtN(s.value))}${s.note ? `<span class="note">${R.esc(s.note)}</span>` : ""}</dd></div>`).join("")}</dl>`;
   const fmtN = v => (v === null || v === undefined) ? "—" : Number(v).toLocaleString("pt-BR");
 
   // Gráfico de barras de uma série, com dica no foco/hover e tabela de dados.

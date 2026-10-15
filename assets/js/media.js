@@ -3,16 +3,26 @@
    Caminho no bucket: <auth.uid()>/<timestamp>-<aleatório>[-t].<ext>
    (exigido pelas policies de storage)
 
-   Para economizar espaço, cada foto é reduzida no navegador:
-   - principal: até 1440 px no maior lado, ~200 KB no máximo;
-   - miniatura (opcional): 480 px, ~35 KB, usada nas grades.
+   Para economizar espaço no Storage, toda imagem é reduzida e
+   convertida para WebP no navegador antes do envio (tamanhos em
+   R.media.PRESETS). O limite de bytes é garantido: se baixar a
+   qualidade não bastar, a imagem é diminuída até caber.
    ===================================================== */
 (function () {
   const R = window.R;
   const ACCEPT = ["image/jpeg", "image/png", "image/webp"];
   const MAX_INPUT = 20 * 1024 * 1024;
-  const MAIN = { max: 1440, maxBytes: 200 * 1024 };
-  const THUMB = { max: 480, maxBytes: 35 * 1024 };
+  const KB = 1024;
+  // max = maior lado em px; maxBytes = teto do arquivo.
+  const PRESETS = {
+    peca: { max: 1280, maxBytes: 150 * KB },   // foto principal da peça
+    thumb: { max: 400, maxBytes: 24 * KB },    // miniatura das grades e do feed
+    avatar: { max: 320, maxBytes: 35 * KB },
+    logo: { max: 320, maxBytes: 35 * KB },
+    capa: { max: 1440, maxBytes: 180 * KB }    // capas de brechó, matéria e evento
+  };
+  const MAIN = PRESETS.peca;
+  const THUMB = PRESETS.thumb;
 
   function validate(file) {
     if (!file) throw new Error("Escolha uma imagem.");
@@ -51,21 +61,28 @@
 
   const toBlob = (canvas, type, q) => new Promise(res => canvas.toBlob(res, type, q));
 
-  // Reduz a qualidade em passos até ficar abaixo de maxBytes (WebP; JPEG se o navegador não gerar WebP).
+  // Reduz a qualidade em passos até ficar abaixo de maxBytes (WebP; JPEG se
+  // o navegador não gerar WebP). Se ainda passar, diminui as dimensões.
   async function encode(canvas, maxBytes) {
     let type = "image/webp";
-    let blob = await toBlob(canvas, type, 0.82);
-    if (!blob || blob.type !== "image/webp") { type = "image/jpeg"; blob = await toBlob(canvas, type, 0.82); }
-    for (const q of [0.74, 0.66, 0.58, 0.5]) {
+    let blob = await toBlob(canvas, type, 0.8);
+    if (!blob || blob.type !== "image/webp") { type = "image/jpeg"; blob = await toBlob(canvas, type, 0.8); }
+    let c = canvas;
+    for (let round = 0; round < 6; round++) {
+      for (const q of [0.72, 0.64, 0.56]) {
+        if (!blob || blob.size <= maxBytes) break;
+        blob = await toBlob(c, type, q);
+      }
       if (!blob || blob.size <= maxBytes) break;
-      blob = await toBlob(canvas, type, q);
+      c = resize(c, Math.round(Math.max(c.width, c.height) * 0.85));
+      blob = await toBlob(c, type, 0.72);
     }
     if (!blob) throw new Error("Não foi possível processar a imagem.");
     return blob;
   }
 
   // Aceita File/Blob (sem recorte) ou HTMLCanvasElement (já recortado).
-  async function prepare(source, { thumb = false, max = MAIN.max, maxBytes = MAIN.maxBytes } = {}) {
+  async function prepare(source, { preset, thumb = false, max = (PRESETS[preset] || MAIN).max, maxBytes = (PRESETS[preset] || MAIN).maxBytes } = {}) {
     let drawable = source;
     if (!(source instanceof HTMLCanvasElement)) {
       validate(source);
@@ -148,5 +165,5 @@
     return { get: () => current, reset: () => { current = null; input.value = ""; } };
   }
 
-  R.media = { prepare, upload, remove, picker, pathFromUrl, validate, decode, ACCEPT };
+  R.media = { prepare, upload, remove, picker, pathFromUrl, validate, decode, ACCEPT, PRESETS };
 })();

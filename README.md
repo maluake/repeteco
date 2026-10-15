@@ -25,7 +25,7 @@ assets/js/            config, core (Supabase, sessão, SEO), layout (cabeçalho/
                       cropper (recorte no navegador), map (Leaflet),
                       render, vocab, pages/*.js
 assets/vendor/        supabase-js 2.117.2 e Leaflet 1.9.4 servidos localmente
-supabase/             01_base_v4.sql · v5/ (6 partes) · v6/ (3 partes) · tests/
+supabase/             01_base_v4.sql · v5/ (6) · v6/ (3) · v7/ (2) · diagnostico.sql · tests/
 tests/e2e/            testes de navegador (Playwright + axe-core)
 ```
 
@@ -37,10 +37,13 @@ tests/e2e/            testes de navegador (Playwright + axe-core)
    Depois rode as três partes de `supabase/v6/`, também em ordem e inteiras:
    `1_interacoes_pecas.sql` → `2_online_eventos.sql` → `3_views_resumo.sql`.
    A v6 só **acrescenta**: funções de curtir/salvar, galeria de até 8 fotos e promoção nas peças, brechó online, tabelas `eventos` e `evento_parcerias` (com RLS) e novas colunas nas views. Nenhuma tabela ou dado é apagado; o topo de cada parte descreve o que muda.
+   Por fim, as duas partes de `supabase/v7/`: `1_reparos.sql` → `2_cep_armazenamento.sql`.
+   A v7 corrige bancos antigos em que curtir/salvar e a troca de função falhavam (colunas sem valor padrão, regras antigas em `profiles.role`, permissões), cria a função `admin_definir_funcao`, a coluna `brechos.cep` e o relatório de armazenamento do painel. Nenhuma linha de dados é apagada; as mensagens (NOTICE) dizem o que foi ajustado.
+   **Se algo ainda falhar**, rode `supabase/diagnostico.sql` (só leitura) e envie o resultado: ele mostra a estrutura de curtidas/salvos, as regras de `profiles` e o espaço usado, sem dados pessoais.
 2. Em **Authentication → URL Configuration**:
    - *Site URL*: o endereço publicado (ex.: `https://seu-dominio`).
    - *Redirect URLs*: `https://seu-dominio/entrar.html*` e `https://seu-dominio/nova-senha.html` (inclua também `http://127.0.0.1:8090/*` para testes locais).
-3. Em **Authentication → Providers → Email**, mantenha "Confirm email" ligado. O site já trata confirmação e reenvio.
+3. Em **Authentication → Providers → Email**, mantenha "Confirm email" ligado. O site já trata confirmação e reenvio. Em **Authentication → Policies/Password** (o nome varia), defina o mínimo de 8 caracteres e exija letras e números — a mesma regra que o site aplica. As senhas nunca passam pelas tabelas do site: o Supabase Auth guarda apenas o hash bcrypt (com sal) em `auth.users`, e o tráfego é sempre HTTPS.
 4. Os buckets `avatars`, `brechos` e `editorial` são criados pela migration (públicos para leitura, até 2–5 MB, JPG/PNG/WebP). A escrita só é permitida na pasta `<id-do-usuário>/`.
 5. Para criar a primeira conta administradora, cadastre-se pelo site e rode no SQL Editor:
    ```sql

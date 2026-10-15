@@ -74,6 +74,14 @@ Identidade visual do projeto (layouts de referência do site e do painel): palet
 - **Brechó online:** modalidade física, online ou ambos, com link da loja. Brechós só online não pedem endereço, não entram no mapa e têm aba própria em “mapa”.
 - **Eventos e parcerias:** aba “eventos” no menu, agenda (próximos/passados), página do evento e formulário de interesse em parceria. Só a equipe cria eventos e lê os pedidos (RLS); o painel tem as seções “Eventos” e “Parcerias”.
 
+## 6.2 v7 — reparos e novidades
+
+- **Curtir/salvar e troca de função ainda falhando no banco real:** a causa mais provável são tabelas antigas criadas à mão (id sem valor padrão, `created_at` obrigatório sem padrão) e regras antigas em `profiles.role`. Um cenário de teste reproduz esse banco; a v7 corrige essas colunas, remove regras de `role` incompatíveis (listando cada uma), devolve o motivo real das falhas e concede permissões explícitas — só depois de conferir que todas as tabelas têm RLS.
+- **Troca de função:** o painel usava `update` direto em `profiles`; quando a RLS recusava, nada mudava e nenhum erro aparecia. Agora usa `admin_definir_funcao` (confere `is_admin()` no banco, impede tirar o próprio acesso) e mostra o motivo técnico se falhar. Donos com brechó já aprovado que estavam como "usuario" passam a "dono".
+- **Senhas:** o site nunca grava senhas. O Supabase Auth guarda só o hash bcrypt com sal; o site passou a exigir 8+ caracteres com letras e números e recusa senhas muito comuns.
+- **CEP:** cadastro e perfil do brechó consultam o ViaCEP e preenchem rua, bairro e cidade; no painel, o mapa já se posiciona pelo CEP. O CEP não aparece na view pública.
+- **Imagens:** tamanhos centralizados (peça 1280 px/150 KB, miniatura 400 px/24 KB, perfil e logo 320 px/35 KB, capas 1440 px/180 KB), sempre WebP, com teto de bytes garantido (reduz dimensões se a qualidade não bastar). O painel ganhou "Armazenamento": espaço por bucket, maiores arquivos e limpeza de arquivos que nada usa. Limites dos buckets reduzidos (perfil 1 MB, demais 2 MB).
+
 ## 7. Limitações e pendências
 
 - **Não testado contra o Supabase real:** o ambiente desta revisão não tinha acesso de rede ao projeto. É preciso rodar as migrations v5 e v6 e fazer o roteiro manual do README.

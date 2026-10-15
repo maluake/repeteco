@@ -100,6 +100,12 @@
           </div>
           <div class="form-grid" id="lojaEnderecoWrap">
             <div class="field">
+      <label for="lojaCep">CEP</label>
+      <input class="input" id="lojaCep" placeholder="00000-000" aria-describedby="lojaCep-dica lojaCepStatus">
+      <p class="hint" id="lojaCep-dica">Digite o CEP e preenchemos rua, bairro e cidade.</p>
+    </div>
+            <p class="small muted full" id="lojaCepStatus" role="status" style="margin:0"></p>
+            <div class="field">
       <label for="lojaCidade">Cidade</label>
       <input class="input" id="lojaCidade" value="São Paulo" autocomplete="address-level2" required>
       
