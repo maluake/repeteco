@@ -9,6 +9,7 @@ select * from (
     ('função alternar_interacao (v6)', (to_regprocedure('public.alternar_interacao(text,uuid,uuid)') is not null)::text),
     ('tabela eventos (v6)', (to_regclass('public.eventos') is not null)::text),
     ('função admin_definir_funcao (v7)', (to_regprocedure('public.admin_definir_funcao(uuid,text)') is not null)::text),
+    ('trigger de colunas antigas (v8)', (to_regprocedure('public.sincronizar_coluna_pessoa()') is not null)::text),
     ('coluna brechos.cep (v7)', exists (select 1 from information_schema.columns where table_schema = 'public' and table_name = 'brechos' and column_name = 'cep')::text)
   ) as x(item, valor)
 

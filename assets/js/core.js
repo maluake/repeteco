@@ -132,6 +132,7 @@
     [/jwt expired|session.*(missing|expired)|auth session missing/i, "Sua sessão expirou. Entre novamente."],
     [/row-level security|permission denied|42501/i, "Você não tem permissão para fazer isso."],
     [/duplicate key/i, "Esse registro já existe."],
+    [/violates not-null constraint/i, "O banco tem uma coluna antiga obrigatória que o site não preenche. Rode supabase/v8/1_colunas_legadas.sql no SQL Editor."],
     [/payload too large|exceeded the maximum allowed size/i, "A imagem é grande demais. Use um arquivo menor."],
     [/failed to fetch|networkerror|load failed/i, "Não foi possível conectar. Verifique sua internet e tente de novo."],
     [/relation .* does not exist|column .* does not exist|could not find the .*(table|function|column)|schema cache/i, "O banco ainda não foi atualizado para esta versão do Repeteco (rode os arquivos das pastas supabase/v5 e supabase/v6)."]

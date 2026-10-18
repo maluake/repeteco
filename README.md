@@ -39,6 +39,7 @@ tests/e2e/            testes de navegador (Playwright + axe-core)
    A v6 só **acrescenta**: funções de curtir/salvar, galeria de até 8 fotos e promoção nas peças, brechó online, tabelas `eventos` e `evento_parcerias` (com RLS) e novas colunas nas views. Nenhuma tabela ou dado é apagado; o topo de cada parte descreve o que muda.
    Por fim, as duas partes de `supabase/v7/`: `1_reparos.sql` → `2_cep_armazenamento.sql`.
    A v7 corrige bancos antigos em que curtir/salvar e a troca de função falhavam (colunas sem valor padrão, regras antigas em `profiles.role`, permissões), cria a função `admin_definir_funcao`, a coluna `brechos.cep` e o relatório de armazenamento do painel. Nenhuma linha de dados é apagada; as mensagens (NOTICE) dizem o que foi ajustado.
+   Depois rode `supabase/v8/1_colunas_legadas.sql`: ela sincroniza colunas antigas de pessoa (como `salvos.usuario_id`) com `user_id`, o que resolve o erro `null value in column "usuario_id"` ao curtir ou salvar.
    **Se algo ainda falhar**, rode `supabase/diagnostico.sql` (só leitura) e envie o resultado: ele mostra a estrutura de curtidas/salvos, as regras de `profiles` e o espaço usado, sem dados pessoais.
 2. Em **Authentication → URL Configuration**:
    - *Site URL*: o endereço publicado (ex.: `https://seu-dominio`).
