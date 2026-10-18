@@ -28,7 +28,7 @@ const B3 = "10000000-0000-0000-0000-000000000003";
 
 const brechosPublicos = [
   { id: B1, slug: "garimpo-da-vila", nome: "Garimpo da Vila", descricao: "Brechó de bairro com curadoria de peças dos anos 70 a 90, alfaiataria e jeans.", cidade: "São Paulo", bairro: "Pinheiros", endereco: "Rua dos Pinheiros, 500", latitude: -23.5614, longitude: -46.6916, categorias: ["brechó", "moda vintage"], whatsapp: "11999990000", instagram: "garimpodavila", site: null, horario: "Ter a sáb, 11h às 19h", foto_capa: "https://img.test/capa-vila.jpg", logo_url: null, modalidade: "fisica", loja_online_url: null, created_at: day(40), total_publicacoes: 6, total_curtidas: 3 },
-  { id: B2, slug: "baú-da-avo", nome: "Baú da Avó", descricao: "Antiguidades, louças e roupas de festa.", cidade: "São Paulo", bairro: "Bela Vista", endereco: null, latitude: null, longitude: null, categorias: ["antiquário"], whatsapp: null, instagram: "baudaavo", site: "https://baudaavo.com.br", horario: null, foto_capa: null, logo_url: null, modalidade: "online", loja_online_url: "https://baudaavo.com.br/loja", created_at: day(20), total_publicacoes: 2, total_curtidas: 0 },
+  { id: B2, slug: "baú-da-avo", nome: "Baú da Avó", descricao: "Antiguidades, louças e roupas de festa.", cidade: "São Paulo", bairro: "Bela Vista", endereco: null, latitude: null, longitude: null, categorias: ["antiquário"], whatsapp: null, instagram: "baudaavo", site: "https://baudaavo.com.br", horario: null, foto_capa: null, logo_url: null, modalidade: "online", loja_online_url: "https://baudaavo.com.br/loja", origem: "curadoria", created_at: day(20), total_publicacoes: 2, total_curtidas: 0 },
   { id: B3, slug: "sebo-liberdade", nome: "Sebo Liberdade", descricao: "Livros, discos e revistas.", cidade: "São Paulo", bairro: "Liberdade", endereco: "Rua Galvão Bueno, 100", latitude: -23.5587, longitude: -46.6339, categorias: ["sebo", "vinil"], whatsapp: null, instagram: null, site: null, horario: null, foto_capa: "https://img.test/sebo.jpg", logo_url: null, modalidade: "ambos", loja_online_url: null, created_at: day(5), total_publicacoes: 0, total_curtidas: 1 }
 ];
 
@@ -88,6 +88,7 @@ const fixtures = {
     publicacoes: feed.slice(0, 6).map(p => ({ ...p, status: "publicado" })).concat([{ ...feed[6], id: "20000000-0000-0000-0000-0000000000ff", titulo: "Rascunho de casaco", status: "rascunho" }]),
     brechos: [
       { ...brechosPublicos[0], user_id: USERS["dona@x.com"].id, status: "approved", nome_responsavel: "Rita Lima", email_responsavel: "dona@x.com" },
+      { ...brechosPublicos[1], user_id: null, status: "approved", origem: "curadoria" },
       { id: "10000000-0000-0000-0000-000000000009", slug: "novo-brecho", nome: "Novo Brechó", descricao: "Cadastro aguardando análise.", cidade: "São Paulo", bairro: "Moema", categorias: ["brechó"], status: "pending", user_id: "99999999-0000-0000-0000-000000000000", nome_responsavel: "Ana", email_responsavel: "ana@x.com", whatsapp: "11988887777", created_at: day(1) }
     ],
     profiles,

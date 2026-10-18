@@ -12,17 +12,17 @@
   // Galeria: foto principal + miniaturas; setas e teclado trocam a foto.
   function galleryHtml(p, alt) {
     const imgs = R.render.fotos(p);
-    if (imgs.length <= 1) return `<figure class="piece-media">${R.img(p.imagem_url, alt, { eager: true })}</figure>`;
+    if (imgs.length <= 1) return `<figure class="piece-media">${R.img(p.imagem_url, alt, { eager: true, sizes: "(max-width: 900px) 100vw, 50vw" })}</figure>`;
     return `
       <section class="gallery piece-media" aria-roledescription="galeria" aria-label="Fotos de ${R.esc(p.titulo)}">
         <div class="gallery-main" tabindex="0" aria-live="polite">
-          ${imgs.map((im, i) => `<figure ${i ? "hidden" : ""} data-slide="${i}">${R.img(im.url, im.alt || `${alt} — foto ${i + 1} de ${imgs.length}`, { eager: i === 0 })}</figure>`).join("")}
+          ${imgs.map((im, i) => `<figure ${i ? "hidden" : ""} data-slide="${i}">${R.img(im.url, im.alt || `${alt} — foto ${i + 1} de ${imgs.length}`, { eager: i === 0, sizes: "(max-width: 900px) 100vw, 50vw" })}</figure>`).join("")}
           <button class="gallery-nav prev" type="button" data-step="-1" aria-label="Foto anterior">${R.icon("chevronLeft")}</button>
           <button class="gallery-nav next" type="button" data-step="1" aria-label="Próxima foto">${R.icon("chevronRight")}</button>
           <span class="gallery-count" aria-hidden="true">1 / ${imgs.length}</span>
         </div>
         <div class="gallery-thumbs" role="group" aria-label="Escolher foto">
-          ${imgs.map((im, i) => `<button type="button" data-go="${i}" aria-label="Ver foto ${i + 1} de ${imgs.length}" aria-pressed="${i === 0}">${R.img(im.thumb_url || im.url, "")}</button>`).join("")}
+          ${imgs.map((im, i) => `<button type="button" data-go="${i}" aria-label="Ver foto ${i + 1} de ${imgs.length}" aria-pressed="${i === 0}">${R.img(im.thumb_url || im.url, "", { sizes: "80px" })}</button>`).join("")}
         </div>
       </section>`;
   }
@@ -63,7 +63,7 @@
     if (!/^[0-9a-f-]{36}$/i.test(id)) return notFound();
     const { data: p, error } = await R.sb.from("feed_publicacoes").select("*").eq("id", id).maybeSingle();
     if (error) {
-      root.innerHTML = `<div class="wrap">${R.render.state("error", "Não conseguimos abrir esta peça.", R.errorMessage(error), '<button class="btn" type="button" onclick="location.reload()">Tentar de novo</button>')}</div>`;
+      root.innerHTML = `<div class="wrap">${R.render.state("error", "Não conseguimos abrir esta peça.", R.errorMessage(error), '<button class="btn" type="button" data-reload>Tentar de novo</button>')}</div>`;
       return;
     }
     if (!p) return notFound();

@@ -110,16 +110,27 @@
   const openEditor = p => D.openPieceEditor(p, shop, () => D.go());
 
   /* ---------- perfil do brechó ---------- */
-  D.route("perfil", {
-    label: "Perfil do brechó",
-    async render(el) {
-      await loadShop();
-      const b = shop;
+  // Mesmo editor para o dono (#perfil) e para a administração
+  // editar qualquer brechó, inclusive perfis da curadoria (#editar-brecho/<id>).
+  D.route("perfil", { label: "Perfil do brechó", render: (el) => renderPerfil(el, null) });
+  D.route("editar-brecho", { label: "Editar brechó", hidden: true, allow: () => R.isAdmin(), render: (el, id) => renderPerfil(el, id) });
+
+  async function renderPerfil(el, adminId) {
+    {
+      let b;
+      if (adminId) {
+        const { data, error } = await R.sb.from("brechos").select("*").eq("id", adminId).maybeSingle();
+        if (error) throw error;
+        if (!data) { el.innerHTML = R.render.state("empty", "Brechó não encontrado.", "", '<a class="btn" href="#brechos">Voltar</a>'); return; }
+        b = data;
+      } else {
+        b = await loadShop();
+      }
       const cats = Array.isArray(b.categorias) ? b.categorias : [];
       const f = (id, label, value, attrs = "", hint = "") => `<div class="field"><label for="${id}">${label}</label><input class="input" id="${id}" value="${R.esc(value || "")}" ${attrs}${hint ? ` aria-describedby="${id}-dica"` : ""}>${hint ? `<p class="hint" id="${id}-dica">${hint}</p>` : ""}</div>`;
       el.innerHTML = `
-        ${D.head("Perfil do brechó", "Estas informações aparecem na página pública, na busca e no mapa.", b.status === "approved" ? `<a class="btn btn-outline" href="${R.url(`brecho.html?b=${encodeURIComponent(b.slug || b.id)}`)}">Ver página pública</a>` : "")}
-        ${banner()}
+        ${D.head(adminId ? `Editar: ${R.esc(b.nome)}` : "Perfil do brechó", adminId ? "Edição pela administração. As mudanças aparecem na página pública, na busca e no mapa." : "Estas informações aparecem na página pública, na busca e no mapa.", `${adminId ? '<a class="btn btn-ghost" href="#brechos">Voltar à lista</a>' : ""}${b.status === "approved" ? `<a class="btn btn-outline" href="${R.url(`brecho.html?b=${encodeURIComponent(b.slug || b.id)}`)}">Ver página pública</a>` : ""}`)}
+        ${adminId ? responsavelHtml(b) : banner()}
         <div class="shop-editor"><form id="shopForm" novalidate style="display:grid;gap:1rem">
           <section class="panel-card" aria-labelledby="sIdent"><h2 id="sIdent" style="margin-bottom:1rem">Identidade</h2>
             <div class="form-grid">
@@ -288,6 +299,46 @@
           btn.disabled = false;
         }
       });
+    }
+  }
+
+  /* ---------- responsável (só na edição pela administração) ---------- */
+  function responsavelHtml(b) {
+    const origem = { curadoria: "Perfil da curadoria (informações públicas)", demonstracao: "Acervo de demonstração", cadastro: "Cadastrado pelo próprio brechó" }[b.origem || "cadastro"];
+    return `
+      <section class="panel-card" aria-labelledby="respTitle" style="margin-bottom:1rem">
+        <h2 id="respTitle" style="font-size:1.2rem">Responsável</h2>
+        <p class="muted" style="margin:.35rem 0 1rem">${R.esc(origem)}. ${b.user_id ? "Já está vinculado a uma conta." : "Ainda sem conta responsável."}</p>
+        <form id="linkForm" class="toolbar" novalidate style="align-items:flex-end">
+          <div class="field"><label for="linkEmail">Vincular à conta (e-mail cadastrado no site)</label><input class="input" id="linkEmail" type="email" placeholder="dono@brecho.com"></div>
+          <button class="btn btn-outline" type="submit">Vincular</button>
+        </form>
+        <p class="form-status" id="linkStatus"></p>
+      </section>`;
+  }
+  // Delegado no documento: o formulário só existe na edição pela administração.
+  document.addEventListener("submit", async e => {
+    if (e.target.id !== "linkForm") return;
+    e.preventDefault();
+    const id = decodeURIComponent(location.hash).split("/")[1];
+    const email = R.$("#linkEmail").value.trim().toLowerCase();
+    const st = R.$("#linkStatus");
+    if (!email) return R.fieldError(R.$("#linkEmail"), "Informe o e-mail da conta.");
+    R.formStatus(st, "Procurando a conta…");
+    try {
+      const { data: pessoas, error } = await R.sb.rpc("admin_listar_usuarios");
+      if (error) throw error;
+      const p = pessoas.find(x => (x.email || "").toLowerCase() === email);
+      if (!p) throw new Error("Nenhuma conta com esse e-mail. Peça para a pessoa criar a conta no site primeiro.");
+      if (!(await D.confirm(`Vincular este brechó à conta de ${p.nome || p.email}? A pessoa passa a editar o perfil e publicar peças.`, { confirmLabel: "Vincular" }))) return R.formStatus(st, "");
+      const upd = await R.sb.from("brechos").update({ user_id: p.id, origem: "cadastro" }).eq("id", id).select("id");
+      if (upd.error) throw upd.error;
+      if (!upd.data?.length) throw new Error("O banco não aplicou a mudança.");
+      if (p.role === "usuario") await R.sb.rpc("admin_definir_funcao", { p_user_id: p.id, p_role: "dono" });
+      R.toast(`Brechó vinculado a ${p.nome || p.email}.`);
+      D.go();
+    } catch (err) {
+      R.formStatus(st, R.errorDetail(err, "Não foi possível vincular."), true);
     }
   });
 })();

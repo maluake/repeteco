@@ -14,7 +14,7 @@
     if (!key) return notFound();
     const { data: b, error } = await R.sb.from("brechos_publicos").select("*").eq(isUuid ? "id" : "slug", key).maybeSingle();
     if (error) {
-      root.innerHTML = `<div class="wrap">${R.render.state("error", "Não conseguimos abrir este brechó.", R.errorMessage(error), '<button class="btn" type="button" onclick="location.reload()">Tentar de novo</button>')}</div>`;
+      root.innerHTML = `<div class="wrap">${R.render.state("error", "Não conseguimos abrir este brechó.", R.errorMessage(error), '<button class="btn" type="button" data-reload>Tentar de novo</button>')}</div>`;
       return;
     }
     if (!b) return notFound();
@@ -38,7 +38,7 @@
     root.innerHTML = `
       <div class="wrap shop-hero">
         <section class="shop-banner on-dark" aria-labelledby="shopName">
-          ${b.foto_capa ? `<div class="shop-cover">${R.img(b.foto_capa, `Fachada ou ambiente do ${b.nome}`, { eager: true })}</div>` : ""}
+          ${b.foto_capa ? `<div class="shop-cover">${R.img(b.foto_capa, `Fachada ou ambiente do ${b.nome}`, { eager: true, sizes: "100vw" })}</div>` : ""}
           <div class="shop-head">
             <div class="shop-logo">${R.img(b.logo_url || b.foto_capa, `Logo do ${b.nome}`)}</div>
             <div>
@@ -52,6 +52,8 @@
       <nav class="wrap breadcrumb" aria-label="Você está em">
         <ol><li><a href="${R.url("brechos.html")}">Brechós</a></li>${b.bairro && !online ? `<li><a href="${R.url(`brechos.html?bairro=${encodeURIComponent(b.bairro)}`)}">${R.esc(b.bairro)}</a></li>` : ""}<li aria-current="page">${R.esc(b.nome)}</li></ol>
       </nav>
+      ${b.origem === "curadoria" ? `<p class="wrap small muted" style="margin-bottom:1rem">Perfil montado pela curadoria do Repeteco com informações públicas do brechó. É responsável por este espaço? <a class="link" href="${R.url("contato.html?assunto=brecho")}">Fale com a gente</a> para assumir o perfil e publicar peças.</p>` : ""}
+      ${b.origem === "demonstracao" ? '<p class="wrap small muted" style="margin-bottom:1rem">Acervo de demonstração do Repeteco: as peças mostram como o site funciona e não estão à venda.</p>' : ""}
       <div class="wrap shop-info">
         <section class="card card-pad about" aria-labelledby="aboutTitle">
           <h2 id="aboutTitle">Sobre o espaço</h2>

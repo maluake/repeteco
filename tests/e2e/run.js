@@ -766,6 +766,50 @@ async function settle(page) {
     await context.close();
   });
 
+  await test("admin edita perfil da curadoria (sem dono), muda o mapa e vincula a uma conta", async () => {
+    const { page, log, context } = await ctx({ email: "admin@x.com" });
+    await page.goto(BASE + "dashboard/index.html#brechos");
+    await settle(page);
+    await page.click('a[href="#editar-brecho/10000000-0000-0000-0000-000000000002"]');
+    await settle(page);
+    assert(/Editar: Baú da Avó/.test(await page.textContent("h1")), "editor do brechó não abriu");
+    await page.check('input[name="sModo"][value="ambos"]');
+    await page.fill("#sCep", "05422030");
+    await page.waitForFunction(() => /Encontrado/.test(document.querySelector("#sGeoStatus").textContent));
+    await page.type("#sEndereco", "77");
+    await page.click("#sSave");
+    await page.waitForTimeout(400);
+    const patch = log.find(l => l.method === "PATCH" && l.path.endsWith("/brechos"));
+    const body = patch && JSON.parse(patch.body);
+    assert(patch.search.includes("10000000-0000-0000-0000-000000000002") && body.latitude && body.modalidade === "ambos" && !("user_id" in body), `PATCH: ${patch && patch.search} ${patch && patch.body}`);
+    await page.goto(BASE + "dashboard/index.html#editar-brecho/10000000-0000-0000-0000-000000000002");
+    await settle(page);
+    await page.fill("#linkEmail", "user@x.com");
+    await page.click('#linkForm button[type="submit"]');
+    await page.click('dialog [value="yes"]');
+    await page.waitForTimeout(400);
+    const link = log.filter(l => l.method === "PATCH" && l.path.endsWith("/brechos")).pop();
+    assert(JSON.parse(link.body).user_id === fixtures.USERS["user@x.com"].id, "vínculo não enviado");
+    assert(log.some(l => l.path.endsWith("/rpc/admin_definir_funcao") && JSON.parse(l.body).p_role === "dono"), "função dono não atribuída");
+    await context.close();
+  });
+
+  await test("dono comum não abre a edição de brechó alheio", async () => {
+    const { page, context } = await ctx({ email: "dona@x.com" });
+    await page.goto(BASE + "dashboard/index.html#editar-brecho/10000000-0000-0000-0000-000000000002");
+    await settle(page);
+    assert(!/Baú da Avó/.test(await page.textContent("h1")), "dono não deveria abrir outro brechó");
+    await context.close();
+  });
+
+  await test("perfil da curadoria avisa que as informações são públicas", async () => {
+    const { page, context } = await ctx();
+    await page.goto(BASE + "brecho.html?b=baú-da-avo");
+    await settle(page);
+    assert(/curadoria do Repeteco/.test(await page.textContent("main")), "aviso de curadoria ausente");
+    await context.close();
+  });
+
   /* ---------- resumo ---------- */
   await browser.close();
   const failed = results.filter(r => !r.ok);

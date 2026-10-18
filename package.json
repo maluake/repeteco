@@ -5,7 +5,9 @@
   "scripts": {
     "serve": "python3 -m http.server 8090 --bind 127.0.0.1",
     "test:e2e": "node tests/e2e/run.js",
-    "test:db": "./supabase/tests/run.sh"
+    "test:db": "./supabase/tests/run.sh",
+    "html": "node scripts/otimizar-html.js",
+    "test:html": "node scripts/otimizar-html.js --check"
   },
   "devDependencies": {
     "axe-core": "^4.10.0",

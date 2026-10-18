@@ -20,12 +20,13 @@ for cenario in v4 legado-uuid legado-manual; do
   [ "$cenario" = "legado-manual" ] && run_file tests/06_legado_manual.sql
   run_as_editor 01_base_v4.sql
   for round in 1 2; do
-    for f in v5/*.sql v6/*.sql v7/*.sql v8/*.sql; do run_as_editor "$f"; done
+    for f in v5/*.sql v6/*.sql v7/*.sql v8/*.sql v9/*.sql; do run_as_editor "$f"; done
   done
   run_file tests/10_rls_test.sql
   run_file tests/20_v6_test.sql
   run_file tests/30_v7_test.sql
   run_file tests/40_v8_test.sql
+  run_file tests/50_v9_test.sql
   # o diagnóstico é só leitura e precisa rodar sem erro
   psql -q -v ON_ERROR_STOP=1 -d "$DB" -c "$(cat diagnostico.sql)" >/dev/null && echo "== diagnostico.sql ok"
 done

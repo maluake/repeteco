@@ -60,6 +60,9 @@
     return null;
   };
 
+  // Botões "tentar de novo" das telas de erro (sem onclick embutido).
+  document.addEventListener("click", e => { if (e.target.closest("[data-reload]")) location.reload(); });
+
   /* ---------- CEP (ViaCEP, gratuito e sem chave) ---------- */
   R.buscarCep = async cep => {
     const d = String(cep || "").replace(/\D/g, "");
@@ -261,10 +264,28 @@
   };
 
   /* ---------- imagens com fallback ---------- */
+  // Fotos do Unsplash aceitam largura na URL: geramos srcset para o
+  // navegador baixar só o tamanho que a tela precisa (WebP/AVIF automático).
+  const UNSPLASH = /^https:\/\/images\.unsplash\.com\//;
+  const unsplashAt = (url, w) => {
+    const u = new URL(url);
+    u.searchParams.set("w", String(w));
+    u.searchParams.set("q", u.searchParams.get("q") || "75");
+    u.searchParams.set("auto", "format");
+    u.searchParams.set("fit", u.searchParams.get("fit") || "crop");
+    return u.href;
+  };
+  R.imgUrl = (src, w) => { const url = R.safeUrl(src); return url && UNSPLASH.test(url) ? unsplashAt(url, w) : url; };
   R.img = (src, alt, { cls = "", sizes = "", eager = false, ratio = "" } = {}) => {
     const url = R.safeUrl(src);
     if (!url) return `<div class="img-fallback ${cls}" role="img" aria-label="${R.esc(alt || "Imagem indisponível")}"><span>${R.esc(R.initials(alt))}</span></div>`;
-    return `<img class="${cls}" src="${R.esc(url)}" alt="${R.esc(alt || "")}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async"${sizes ? ` sizes="${sizes}"` : ""}${ratio ? ` style="aspect-ratio:${ratio}"` : ""} data-fallback>`;
+    let srcAttr = `src="${R.esc(url)}"`;
+    if (UNSPLASH.test(url)) {
+      const set = [400, 700, 1000, 1400, 2000].map(w => `${unsplashAt(url, w)} ${w}w`).join(", ");
+      srcAttr = `src="${R.esc(unsplashAt(url, 1000))}" srcset="${R.esc(set)}" sizes="${sizes || "(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 33vw"}"`;
+      sizes = "";
+    }
+    return `<img class="${cls}" ${srcAttr} alt="${R.esc(alt || "")}" ${eager ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async"${sizes ? ` sizes="${sizes}"` : ""}${ratio ? ` style="aspect-ratio:${ratio}"` : ""} data-fallback>`;
   };
   document.addEventListener("error", e => {
     const img = e.target;

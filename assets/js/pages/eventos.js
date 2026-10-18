@@ -13,7 +13,7 @@
     ]);
     up.setAttribute("aria-busy", "false");
     if (prox.error) {
-      up.innerHTML = R.render.state("error", "Não conseguimos carregar a agenda.", R.errorMessage(prox.error), '<button class="btn" type="button" onclick="location.reload()">tentar de novo</button>');
+      up.innerHTML = R.render.state("error", "Não conseguimos carregar a agenda.", R.errorMessage(prox.error), '<button class="btn" type="button" data-reload>tentar de novo</button>');
       return;
     }
     up.innerHTML = prox.data.length

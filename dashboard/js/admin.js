@@ -128,14 +128,15 @@
         const rows = data.filter(b => (!st || b.status === st) && (!q || [b.nome, b.bairro, b.cidade, b.email_responsavel].join(" ").toLowerCase().includes(q)));
         R.$("#bCount").textContent = R.fmt.count(rows.length, "brechó listado", "brechós listados");
         R.$("#bRows").innerHTML = rows.length ? rows.map(b => `<tr>
-          <td data-label="Brechó"><strong>${R.esc(b.nome)}</strong><small>${R.esc(b.email_responsavel || "")}</small></td>
+          <td data-label="Brechó"><strong>${R.esc(b.nome)}</strong><small>${b.origem === "curadoria" ? "Curadoria · sem conta responsável" : b.origem === "demonstracao" ? "Acervo de demonstração" : R.esc(b.email_responsavel || "")}</small></td>
           <td data-label="Local">${R.esc(fmtPlace(b))}</td>
           <td data-label="Status">${D.statusTag(b.status)}</td>
           <td data-label="Mapa">${b.latitude ? "Sim" : "Sem posição"}</td>
           <td data-label="Cadastro">${R.fmt.shortDate(b.created_at)}</td>
           <td class="no-label"><div class="actions">
             ${b.status === "approved" ? `<a class="btn btn-ghost btn-sm" href="${R.url(`brecho.html?b=${encodeURIComponent(b.slug || b.id)}`)}">Ver página</a>` : ""}
-            <a class="btn btn-outline btn-sm" href="#solicitacoes/${R.esc(b.id)}" data-review="${R.esc(b.status)}">Detalhes</a>
+            <a class="btn btn-outline btn-sm" href="#editar-brecho/${R.esc(b.id)}">Editar</a>
+            <a class="btn btn-ghost btn-sm" href="#solicitacoes/${R.esc(b.id)}" data-review="${R.esc(b.status)}">Detalhes</a>
             ${b.status === "approved" ? `<button class="btn btn-danger btn-sm" type="button" data-status="pending" data-id="${R.esc(b.id)}" data-nome="${R.esc(b.nome)}">Despublicar</button>` : ""}
             <button class="btn btn-danger btn-sm" type="button" data-delete="${R.esc(b.id)}" data-nome="${R.esc(b.nome)}">Excluir</button>
           </div></td></tr>`).join("") : `<tr><td colspan="6">${R.render.state("empty", "Nenhum brechó com esses filtros.")}</td></tr>`;

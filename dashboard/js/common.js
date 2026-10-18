@@ -30,8 +30,9 @@
 
   async function go() {
     const [id, arg] = decodeURIComponent(location.hash.slice(1)).split("/");
-    const allowed = D.groups.flatMap(g => g.items);
-    const target = allowed.includes(id) ? id : allowed[0];
+    // Rotas fora do menu (ex.: editar um brechó pelo admin) entram se allow() deixar.
+    const allowed = [...D.groups.flatMap(g => g.items), ...[...D.routes.values()].filter(r => r.hidden && r.allow?.()).map(r => r.id)];
+    const target = allowed.includes(id) ? id : D.groups.flatMap(g => g.items)[0];
     R.$$("[data-route]").forEach(a => {
       if (a.dataset.route === target) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current");
     });
@@ -46,7 +47,7 @@
       await route.render(el, arg);
     } catch (e) {
       console.error("[Repeteco] painel:", e);
-      el.innerHTML = R.render.state("error", "Esta seção não pôde ser carregada.", R.errorMessage(e), '<button class="btn" type="button" onclick="location.reload()">Recarregar</button>');
+      el.innerHTML = R.render.state("error", "Esta seção não pôde ser carregada.", R.errorMessage(e), '<button class="btn" type="button" data-reload>Recarregar</button>');
     }
     const h1 = el.querySelector("h1");
     if (D.started && h1) { h1.tabIndex = -1; h1.focus(); } // anuncia a nova seção ao leitor de tela
