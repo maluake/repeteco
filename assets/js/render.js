@@ -74,6 +74,11 @@
       </article>`;
   }
 
+  // Brechó sem foto: capa tipográfica com o nome, nas cores da marca.
+  function shopPlaceholder(b) {
+    return `<span class="shop-ph"><span class="shop-ph-name">${R.esc(b.nome)}</span>${b.bairro ? `<span class="shop-ph-place">${R.esc(b.bairro)}</span>` : ""}</span>`;
+  }
+
   // Cartão de brechó (diretório, busca, salvos, home).
   function brechoRow(b) {
     const cover = b.foto_capa || b.logo_url;
@@ -84,7 +89,7 @@
           <a href="${brechoHref(b)}">${R.esc(b.nome)}</a>
           ${R.saveButton("b", b.id, { title: b.nome, variant: "act-icon" })}
         </header>
-        <a class="piece-card-media" href="${brechoHref(b)}" tabindex="-1" aria-hidden="true">${R.img(cover, "")}</a>
+        <a class="piece-card-media" href="${brechoHref(b)}" tabindex="-1" aria-hidden="true">${cover ? R.img(cover, "") : shopPlaceholder(b)}</a>
         <div class="piece-card-body">
           <p class="shop-card-place">${b.modalidade === "online" ? `<span class="online-tag">${R.icon("globe")} só online</span>` : `${R.esc(R.fmt.place(b.bairro, b.cidade) || "São Paulo")}${b.modalidade === "ambos" ? ` <span class="online-tag">${R.icon("globe")} também online</span>` : ""}`}</p>
           ${b.descricao ? `<p class="shop-card-desc">${R.esc(b.descricao)}</p>` : ""}
@@ -165,5 +170,5 @@
     }).join("\n");
   }
 
-  R.render = { fotos, priceHtml, desconto, tile, mosaic, brechoRow, eventCard, eventoHref, articleCard, state, skeletonTiles, skeletonMosaic, articleHtml };
+  R.render = { shopPlaceholder, fotos, priceHtml, desconto, tile, mosaic, brechoRow, eventCard, eventoHref, articleCard, state, skeletonTiles, skeletonMosaic, articleHtml };
 })();

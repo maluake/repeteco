@@ -18,7 +18,7 @@
     }
     el.innerHTML = shops.slice(0, 8).map((b, i) => `
       <a class="carousel-card" href="${R.links.brecho(b)}">
-        ${R.img(b.foto_capa || b.logo_url, "", { eager: i === 0 })}
+        ${b.foto_capa || b.logo_url ? R.img(b.foto_capa || b.logo_url, "", { eager: i === 0 }) : R.render.shopPlaceholder(b)}
         <span class="card-label">${R.esc(b.nome)}<span>${R.esc(R.fmt.place(b.bairro, b.cidade))}</span></span>
       </a>`).join("");
   }
