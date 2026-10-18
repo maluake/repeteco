@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- desempenho -->
+  <link rel="preconnect" href="https://xhtjrmxkusuqmtpbebzv.supabase.co" crossorigin>
+  <link rel="preconnect" href="https://images.unsplash.com">
+  <link rel="preload" href="assets/fonts/dm-sans-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/lilita-one-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <!-- /desempenho -->
+  <title>Eventos — Repeteco</title>
+  <meta name="description" content="Feiras, bazares, oficinas e encontros de moda circular organizados pelo Repeteco em São Paulo. Veja a agenda e proponha parcerias.">
+  <meta property="og:site_name" content="Repeteco">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Eventos">
+  <meta property="og:description" content="Feiras, bazares, oficinas e encontros de moda circular organizados pelo Repeteco em São Paulo. Veja a agenda e proponha parcerias.">
+  <meta property="og:image" content="assets/img/og-repeteco.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="theme-color" content="#340C3D">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="assets/css/base.css?v=77e1d7b36e">
+  <link rel="stylesheet" href="assets/css/pages.css?v=5739b001cc">
+  <script src="assets/js/a11y.js?v=a8f667936f"></script>
+  <script defer src="assets/vendor/supabase-2.117.2.js?v=16aeff365b"></script>
+  <script defer src="assets/js/config.js?v=ceb13339af"></script>
+  <script defer src="assets/js/core.js?v=9262d9428b"></script>
+  <script defer src="assets/js/vocab.js?v=f23ec81498"></script>
+  <script defer src="assets/js/layout.js?v=5ec386271c"></script>
+  <script defer src="assets/js/interactions.js?v=966c819aa5"></script>
+  <script defer src="assets/js/render.js?v=4867c2d2a7"></script>
+  <script defer src="assets/js/pages/eventos.js?v=6335e19d5d"></script>
+</head>
+<body data-page="eventos">
+  <header id="site-header"></header>
+  <main id="conteudo" tabindex="-1">
+    <header class="page-head">
+      <h1>Eventos</h1>
+      <p>Feiras de brechós, bazares, oficinas de customização e conversas sobre consumo consciente, organizados pela equipe do Repeteco.</p>
+    </header>
+    <section class="wrap" aria-labelledby="upTitle" style="padding-bottom:2.5rem">
+      <h2 class="visually-hidden" id="upTitle">Próximos eventos</h2>
+      <div class="event-list" id="upcomingList" aria-busy="true"><p class="muted">Carregando agenda…</p></div>
+    </section>
+    <section class="wrap" aria-labelledby="pastTitle" id="pastSection" hidden style="padding-bottom:2.5rem">
+      <h2 class="section-title-center" id="pastTitle">eventos que já rolaram</h2>
+      <div class="event-list" id="pastList"></div>
+    </section>
+    <div class="cta-outer">
+      <section class="cta-banner on-dark" aria-labelledby="parceriaTitle" style="grid-template-columns:minmax(0,1fr)">
+        <div>
+          <h2 id="parceriaTitle">Quer fazer um evento com a gente?</h2>
+          <p>Brechós, espaços culturais, marcas e coletivos podem expor, apoiar, patrocinar ou divulgar. Cada evento aberto tem um formulário de parceria; para outras ideias, fale com a equipe.</p>
+          <div class="cta-btns"><a class="btn btn-teal" href="contato.html?assunto=parceria">propor parceria</a></div>
+        </div>
+      </section>
+    </div>
+  </main>
+  <footer id="site-footer"></footer>
+  <noscript><p class="noscript">O Repeteco precisa de JavaScript para funcionar.</p></noscript>
+</body>
+</html>
