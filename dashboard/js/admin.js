@@ -112,10 +112,17 @@
   D.route("brechos", {
     label: "Brechós",
     async render(el) {
-      const { data, error } = await R.sb.from("brechos").select("id, nome, slug, bairro, cidade, status, email_responsavel, created_at, latitude").order("created_at", { ascending: false });
+      const { data, error } = await R.sb.from("brechos").select("*").order("created_at", { ascending: false });
       if (error) throw error;
+      // Aprovados com endereço e sem posição no mapa (brechós só online não entram no mapa).
+      const semMapa = data.filter(b => b.status === "approved" && !R.map.hasCoords(b) && b.modalidade !== "online" && b.endereco);
       el.innerHTML = `
         ${D.head("Brechós", `${R.fmt.count(data.length, "cadastro", "cadastros")} na plataforma.`)}
+        ${semMapa.length ? `<section class="banner pending" aria-labelledby="geoTitle" style="flex-wrap:wrap">
+          <span id="geoTitle"><strong>${R.fmt.count(semMapa.length, "brechó aprovado ainda não aparece", "brechós aprovados ainda não aparecem")} no mapa.</strong> Localize pelo endereço (OpenStreetMap); depois confira cada um em “Editar”.</span>
+          <button class="btn btn-sm" type="button" id="geoAll">Posicionar no mapa</button>
+          <span class="small" id="geoStatus" role="status" style="flex-basis:100%"></span>
+        </section>` : ""}
         <div class="toolbar">
           <div class="field"><label for="bSearch">Buscar</label><input class="input" id="bSearch" type="search" placeholder="Nome, bairro ou e-mail"></div>
           <div class="field"><label for="bStatus">Status</label><select class="select" id="bStatus"><option value="">Todos</option><option value="approved">Aprovados</option><option value="pending">Em análise</option><option value="rejected">Recusados</option></select></div>
@@ -144,6 +151,32 @@
       paint();
       R.$("#bSearch").addEventListener("input", R.debounce(paint, 150));
       R.$("#bStatus").addEventListener("change", paint);
+      R.$("#geoAll", el)?.addEventListener("click", async () => {
+        const btn = R.$("#geoAll", el), st = R.$("#geoStatus", el);
+        btn.disabled = true;
+        const falhas = [];
+        let ok = 0;
+        for (const [i, b] of semMapa.entries()) {
+          st.textContent = `Localizando ${i + 1} de ${semMapa.length}: ${b.nome}…`;
+          // "(casa 8)", "loja 02"… atrapalham a busca: fica só rua e número.
+          const rua = String(b.endereco).replace(/\(.*?\)/g, "").replace(/\b(loja|sala|casa|conj\.?|apto?)\s*\S+/gi, "").replace(/[,\s]+$/, "");
+          try {
+            const g = await R.map.geocode([rua, b.bairro, b.cidade || "São Paulo"].filter(Boolean).join(", "));
+            const { error: err } = await R.sb.from("brechos").update({ latitude: g.latitude, longitude: g.longitude, endereco_formatado: g.endereco_formatado }).eq("id", b.id);
+            if (err) throw err;
+            ok += 1;
+          } catch (err) {
+            falhas.push(`${b.nome} (${err.message})`);
+          }
+          // O OpenStreetMap pede no máximo 1 consulta por segundo.
+          if (i < semMapa.length - 1) await new Promise(r => setTimeout(r, 1100));
+        }
+        R.toast(`${R.fmt.count(ok, "brechó posicionado", "brechós posicionados")} no mapa.`);
+        if (falhas.length) {
+          st.textContent = `Não encontrados: ${falhas.join("; ")}. Use “Editar” para marcar no mapa.`;
+          btn.disabled = false;
+        } else D.go();
+      });
       el.addEventListener("click", async e => {
         const rev = e.target.closest("[data-review]");
         if (rev) sessionStorage.setItem("rp-fila", rev.dataset.review === "rejected" ? "rejected" : "pending");

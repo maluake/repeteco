@@ -27,6 +27,11 @@ for cenario in v4 legado-uuid legado-manual; do
   run_file tests/30_v7_test.sql
   run_file tests/40_v8_test.sql
   run_file tests/50_v9_test.sql
+  # carga: roda duas vezes (não pode duplicar) e depois remove a demonstração
+  for round in 1 2; do run_as_editor carga/1_brechos_reais.sql; run_as_editor carga/2_acervo_demonstracao.sql; done
+  run_file tests/60_carga_test.sql
+  run_as_editor carga/3_remover_demonstracao.sql
+  psql -q -v ON_ERROR_STOP=1 -d "$DB" -tc "select count(*) from public.brechos where origem = 'demonstracao'" | grep -q '^ *0$' && echo "== remoção da demonstração ok"
   # o diagnóstico é só leitura e precisa rodar sem erro
   psql -q -v ON_ERROR_STOP=1 -d "$DB" -c "$(cat diagnostico.sql)" >/dev/null && echo "== diagnostico.sql ok"
 done

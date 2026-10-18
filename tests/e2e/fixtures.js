@@ -89,6 +89,7 @@ const fixtures = {
     brechos: [
       { ...brechosPublicos[0], user_id: USERS["dona@x.com"].id, status: "approved", nome_responsavel: "Rita Lima", email_responsavel: "dona@x.com" },
       { ...brechosPublicos[1], user_id: null, status: "approved", origem: "curadoria" },
+      { id: "10000000-0000-0000-0000-000000000004", slug: "fugaz-vintage", nome: "Fugaz Vintage", cidade: "São Paulo", bairro: "República", endereco: "Avenida São Luís, 187 (Galeria Metrópole, 2º piso, loja 06)", latitude: null, longitude: null, modalidade: "ambos", status: "approved", origem: "curadoria", user_id: null, categorias: ["brechó"], created_at: day(1) },
       { id: "10000000-0000-0000-0000-000000000009", slug: "novo-brecho", nome: "Novo Brechó", descricao: "Cadastro aguardando análise.", cidade: "São Paulo", bairro: "Moema", categorias: ["brechó"], status: "pending", user_id: "99999999-0000-0000-0000-000000000000", nome_responsavel: "Ana", email_responsavel: "ana@x.com", whatsapp: "11988887777", created_at: day(1) }
     ],
     profiles,

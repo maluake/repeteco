@@ -25,7 +25,8 @@ assets/js/            config, core (Supabase, sessão, SEO), layout (cabeçalho/
                       cropper (recorte no navegador), map (Leaflet),
                       render, vocab, pages/*.js
 assets/vendor/        supabase-js 2.117.2 e Leaflet 1.9.4 servidos localmente
-supabase/             01_base_v4.sql · v5/ (6) · v6/ (3) · v7/ (2) · diagnostico.sql · tests/
+supabase/             01_base_v4.sql · v5/ (6) · v6/ (3) · v7/ (2) · v8 · v9 · carga/ · diagnostico.sql · tests/
+scripts/otimizar-html.js  versão (?v=hash) nos CSS/JS + preload; rode após editar arquivos (npm run html)
 tests/e2e/            testes de navegador (Playwright + axe-core)
 ```
 
@@ -40,6 +41,8 @@ tests/e2e/            testes de navegador (Playwright + axe-core)
    Por fim, as duas partes de `supabase/v7/`: `1_reparos.sql` → `2_cep_armazenamento.sql`.
    A v7 corrige bancos antigos em que curtir/salvar e a troca de função falhavam (colunas sem valor padrão, regras antigas em `profiles.role`, permissões), cria a função `admin_definir_funcao`, a coluna `brechos.cep` e o relatório de armazenamento do painel. Nenhuma linha de dados é apagada; as mensagens (NOTICE) dizem o que foi ajustado.
    Depois rode `supabase/v8/1_colunas_legadas.sql`: ela sincroniza colunas antigas de pessoa (como `salvos.usuario_id`) com `user_id`, o que resolve o erro `null value in column "usuario_id"` ao curtir ou salvar.
+   Em seguida `supabase/v9/1_curadoria.sql` (origem do perfil: cadastro, curadoria ou demonstração; o admin edita qualquer brechó).
+   **Carga inicial (opcional, para apresentar o projeto):** `supabase/carga/1_brechos_reais.sql` cadastra 13 brechós reais de São Paulo com endereço conferido em guias e sites oficiais (como perfis da curadoria, sem dono); `supabase/carga/2_acervo_demonstracao.sql` cria a loja "Acervo Repeteco" com 46 peças fotografadas (fotos do Unsplash, que não ocupam o Storage). Depois, no painel → **Brechós** → **Posicionar no mapa**, o site localiza todos pelo endereço; ajuste qualquer um em **Editar**. Para tirar a demonstração: `supabase/carga/3_remover_demonstracao.sql`.
    **Se algo ainda falhar**, rode `supabase/diagnostico.sql` (só leitura) e envie o resultado: ele mostra a estrutura de curtidas/salvos, as regras de `profiles` e o espaço usado, sem dados pessoais.
 2. Em **Authentication → URL Configuration**:
    - *Site URL*: o endereço publicado (ex.: `https://seu-dominio`).

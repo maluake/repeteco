@@ -17,6 +17,7 @@ const CHECK = process.argv.includes("--check");
 const SUPABASE = /supabaseUrl:\s*"([^"]+)"/.exec(fs.readFileSync(path.join(ROOT, "assets/js/config.js"), "utf8"))[1];
 const FONTS = ["dm-sans-latin-400-normal.woff2", "lilita-one-latin-400-normal.woff2"];
 const MARK = "<!-- desempenho -->";
+const END = "<!-- /desempenho -->";
 
 const hashes = new Map();
 function hashOf(file) {
@@ -43,11 +44,13 @@ for (const file of htmlFiles) {
   const head = [
     MARK,
     `  <link rel="preconnect" href="${SUPABASE}" crossorigin>`,
-    ...FONTS.map(f => `  <link rel="preload" href="${pre}assets/fonts/${f}" as="font" type="font/woff2" crossorigin>`)
+    `  <link rel="preconnect" href="https://images.unsplash.com">`,
+    ...FONTS.map(f => `  <link rel="preload" href="${pre}assets/fonts/${f}" as="font" type="font/woff2" crossorigin>`),
+    `  ${END}`
   ].join("\n");
-  html = html.includes(MARK)
-    ? html.replace(new RegExp(`${MARK}[\\s\\S]*?crossorigin>\\n(?!  <link rel="preload")`), `${head}\n`)
-    : html.replace(/(<meta name="viewport"[^>]*>\n)/, `$1  ${head}\n`);
+  // remove o bloco anterior (com ou sem marcador de fim) e insere o atual
+  html = html.replace(new RegExp(`  ${MARK}\\n(?:  <link rel="(?:preconnect|preload)"[^>]*>\\n)*(?:  ${END}\\n)?`), "");
+  html = html.replace(/(<meta name="viewport"[^>]*>\n)/, `$1  ${head}\n`);
   if (html !== before) {
     stale.push(path.relative(ROOT, file));
     if (!CHECK) fs.writeFileSync(file, html);

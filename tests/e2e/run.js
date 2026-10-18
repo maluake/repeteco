@@ -810,6 +810,21 @@ async function settle(page) {
     await context.close();
   });
 
+  await test("admin posiciona no mapa, pelo endereço, os brechós aprovados sem coordenadas", async () => {
+    const { page, log, context } = await ctx({ email: "admin@x.com" });
+    const buscas = [];
+    await context.route(/nominatim\.openstreetmap\.org/, route => { buscas.push(new URL(route.request().url()).searchParams.get("q")); route.fulfill({ json: [{ lat: "-23.5455", lon: "-46.6413", display_name: "Avenida São Luís, 187, República, São Paulo" }] }); });
+    await page.goto(BASE + "dashboard/index.html#brechos");
+    await settle(page);
+    assert(/1 brechó aprovado ainda não aparece/.test(await page.textContent("#geoTitle")), "aviso de brechós sem mapa");
+    await page.click("#geoAll");
+    await page.waitForFunction(() => /posicionado/.test(document.querySelector("#toastRegion").textContent), null, { timeout: 8000 });
+    assert(buscas.length === 1 && buscas[0] === "Avenida São Luís, 187, República, São Paulo", `busca: ${buscas}`);
+    const patch = log.find(l => l.method === "PATCH" && l.path.endsWith("/brechos"));
+    assert(patch && patch.search.includes("10000000-0000-0000-0000-000000000004") && JSON.parse(patch.body).latitude === -23.5455, `PATCH: ${patch && patch.body}`);
+    await context.close();
+  });
+
   /* ---------- resumo ---------- */
   await browser.close();
   const failed = results.filter(r => !r.ok);
