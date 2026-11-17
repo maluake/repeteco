@@ -826,6 +826,19 @@ async function settle(page) {
     await context.close();
   });
 
+  await test("localizar endereço usa a função api/geocode quando ela existe (sem chamar o Nominatim direto)", async () => {
+    const { page, context } = await ctx({ email: "admin@x.com" });
+    const diretas = [], proxy = [];
+    await context.route(/nominatim\.openstreetmap\.org/, route => { diretas.push(route.request().url()); route.abort(); });
+    await context.route(/\/api\/geocode\?/, route => { proxy.push(new URL(route.request().url()).searchParams.get("q")); route.fulfill({ json: [{ lat: "-23.5455", lon: "-46.6413", display_name: "Avenida São Luís, 187" }] }); });
+    await page.goto(BASE + "dashboard/index.html#brechos");
+    await settle(page);
+    await page.click("#geoAll");
+    await page.waitForFunction(() => /posicionado/.test(document.querySelector("#toastRegion")?.textContent || ""), null, { timeout: 8000 });
+    assert(proxy.length === 1 && diretas.length === 0, `proxy: ${proxy.length}, direto: ${diretas.length}`);
+    await context.close();
+  });
+
   /* ---------- resumo ---------- */
   await browser.close();
   const failed = results.filter(r => !r.ok);

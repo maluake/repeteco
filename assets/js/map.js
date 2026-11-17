@@ -84,15 +84,32 @@
   }
 
   // Endereço → coordenadas usando o Nominatim (OpenStreetMap).
+  // Primeiro pela função api/geocode (cache na CDN e User-Agent próprio,
+  // como pede a política do OSM); se ela não existir ou falhar (ex.:
+  // servidor local), consulta o Nominatim direto, como sempre.
+  async function viaProxy(query) {
+    try {
+      const res = await fetch(R.url(`api/geocode?q=${encodeURIComponent(query)}`), { headers: { Accept: "application/json" } });
+      if (!res.ok || !/json/.test(res.headers.get("content-type") || "")) return null;
+      const data = await res.json();
+      return Array.isArray(data) ? data : null;
+    } catch {
+      return null;
+    }
+  }
+
   async function geocode(q) {
     const query = String(q || "").trim();
     if (query.length < 5) throw new Error("Informe rua, número, bairro e cidade para localizar.");
-    const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=br&accept-language=pt-BR&q=${encodeURIComponent(query)}`;
-    let res;
-    try { res = await fetch(url, { headers: { Accept: "application/json" } }); }
-    catch { throw new Error("Não foi possível consultar o serviço de endereços agora."); }
-    if (!res.ok) throw new Error("O serviço de endereços está indisponível. Tente em alguns minutos ou marque a posição no mapa.");
-    const data = await res.json();
+    let data = await viaProxy(query);
+    if (!data) {
+      const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&countrycodes=br&accept-language=pt-BR&q=${encodeURIComponent(query)}`;
+      let res;
+      try { res = await fetch(url, { headers: { Accept: "application/json" } }); }
+      catch { throw new Error("Não foi possível consultar o serviço de endereços agora."); }
+      if (!res.ok) throw new Error("O serviço de endereços está indisponível. Tente em alguns minutos ou marque a posição no mapa.");
+      data = await res.json();
+    }
     if (!data?.length) throw new Error("Endereço não encontrado. Confira os dados ou clique no mapa para marcar a posição.");
     return { latitude: Number(data[0].lat), longitude: Number(data[0].lon), endereco_formatado: data[0].display_name };
   }
