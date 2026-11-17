@@ -9,9 +9,10 @@
     "html": "node scripts/otimizar-html.js",
     "test:html": "node scripts/otimizar-html.js --check",
     "lint": "eslint . --max-warnings 0",
-    "test": "npm run lint && npm run test:html && npm run test:migracoes && npm run test:e2e",
+    "test": "npm run lint && npm run test:html && npm run test:migracoes && npm run test:api && npm run test:e2e",
     "migracoes": "node scripts/gerar-migracoes.js",
-    "test:migracoes": "node scripts/gerar-migracoes.js --check"
+    "test:migracoes": "node scripts/gerar-migracoes.js --check",
+    "test:api": "node --test tests/api/*.test.js"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",

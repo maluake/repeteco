@@ -28,6 +28,8 @@ jobs:
         run: npm run test:html
       - name: supabase/migrations em dia com os arquivos de versão
         run: npm run test:migracoes
+      - name: Funções da Vercel (api/)
+        run: npm run test:api
       - name: Navegador Chromium
         run: npx playwright install --with-deps chromium
       - name: Testes de navegador (Supabase simulado + axe)
