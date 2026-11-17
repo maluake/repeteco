@@ -26,6 +26,8 @@ jobs:
         run: npm run lint
       - name: Versão (?v=hash) dos CSS/JS em dia
         run: npm run test:html
+      - name: supabase/migrations em dia com os arquivos de versão
+        run: npm run test:migracoes
       - name: Navegador Chromium
         run: npx playwright install --with-deps chromium
       - name: Testes de navegador (Supabase simulado + axe)

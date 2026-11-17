@@ -57,6 +57,20 @@ tests/e2e/            testes de navegador (Playwright + axe-core)
 
 A URL e a chave **publishable** ficam em `assets/js/config.js`. Nunca coloque a `service_role` no frontend.
 
+### Alternativa: Supabase CLI
+
+A pasta `supabase/migrations/` tem as mesmas versões acima, já em ordem, no formato do [Supabase CLI](https://supabase.com/docs/guides/local-development). Ela é **gerada** a partir dos arquivos de versão por `npm run migracoes` (não edite à mão; o CI confere que está em dia). O fluxo manual pelo SQL Editor continua valendo.
+
+- **Banco novo:** `supabase link --project-ref <ref>` e `supabase db push`.
+- **Banco que já recebeu as versões à mão** (o caso do Repeteco hoje): antes do primeiro `db push`, avise o CLI de que elas já foram aplicadas, senão ele tenta rodá-las de novo:
+  ```bash
+  # as 15 primeiras migrações = v4 até v10, já aplicadas pelo SQL Editor
+  supabase migration repair --status applied $(ls supabase/migrations | cut -d_ -f1 | head -15)
+  ```
+  Marque só as versões que você realmente aplicou. As posteriores (ex.: `v11/`) ficam de fora do `repair` e são aplicadas pelo `db push`.
+- **Ambiente local:** `supabase start` sobe Postgres, Auth e Storage em Docker com todas as migrações.
+- Não use `supabase test db`: os testes de `supabase/tests/` são SQL puro, rodados por `npm run test:db`.
+
 ## Rodar localmente
 
 ```bash
@@ -68,12 +82,15 @@ Abrir os arquivos direto pelo `file://` não funciona com o login: use um servid
 ## Testes
 
 ```bash
-npm install
+npm ci
+npm test               # lint + HTML + migrations + navegador (servidor em 8090 rodando)
 npm run test:db        # requer PostgreSQL local (PGHOST/PGPORT/PGUSER)
 npm run serve &        # em outro terminal
 npm run test:e2e       # CHROMIUM_PATH opcional
 ```
 
+- O GitHub Actions (`.github/workflows/ci.yml`) roda tudo isso a cada push e pull request, inclusive o `test:db` num Postgres 16.
+- `npm run lint` procura erros prováveis no JavaScript (ESLint, sem impor estilo).
 - `test:db` aplica as migrations num banco descartável, com um stub do `auth`/`storage` do Supabase, e verifica 64 cenários de permissão: quem lê, edita, publica, aprova, curte e envia arquivos.
 - `test:e2e` usa um Supabase simulado que interpreta os filtros PostgREST e confere links, responsividade (375–1920px), axe-core WCAG 2.1 AA e os fluxos principais.
 
