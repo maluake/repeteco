@@ -99,7 +99,6 @@
       function output() {
         const r = ratio();
         const outW = r >= 1 ? OUT_MAX : Math.round(OUT_MAX * r);
-        const outH = Math.round(outW / r);
         const W = stage.clientWidth, H = stage.clientHeight;
         const f = frame(W, H);
         // Não amplia além da resolução real da foto.

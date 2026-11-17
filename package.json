@@ -7,10 +7,18 @@
     "test:e2e": "node tests/e2e/run.js",
     "test:db": "./supabase/tests/run.sh",
     "html": "node scripts/otimizar-html.js",
-    "test:html": "node scripts/otimizar-html.js --check"
+    "test:html": "node scripts/otimizar-html.js --check",
+    "lint": "eslint . --max-warnings 0",
+    "test": "npm run lint && npm run test:html && npm run test:e2e"
   },
   "devDependencies": {
+    "@eslint/js": "^9.39.5",
     "axe-core": "^4.10.0",
+    "eslint": "^9.39.5",
+    "globals": "^15.15.0",
     "playwright": "^1.56.0"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

@@ -615,7 +615,8 @@ async function settle(page) {
     const { page, log, context } = await ctx({ email: "dona@x.com" });
     await page.goto(BASE + "evento.html?e=feira-repeteco-primavera");
     await settle(page);
-    await page.click("#parBtn");
+    // O formulário vem preenchido com o brechó da conta; esvazia o nome para testar a validação.
+    await page.waitForFunction(() => document.querySelector("#parNome")?.value);
     await page.fill("#parNome", "");
     await page.click("#parBtn");
     assert(await page.getAttribute("#parNome", "aria-invalid") === "true", "deveria validar nome");
@@ -818,7 +819,7 @@ async function settle(page) {
     await settle(page);
     assert(/1 brechó aprovado ainda não aparece/.test(await page.textContent("#geoTitle")), "aviso de brechós sem mapa");
     await page.click("#geoAll");
-    await page.waitForFunction(() => /posicionado/.test(document.querySelector("#toastRegion").textContent), null, { timeout: 8000 });
+    await page.waitForFunction(() => /posicionado/.test(document.querySelector("#toastRegion")?.textContent || ""), null, { timeout: 8000 });
     assert(buscas.length === 1 && buscas[0] === "Avenida São Luís, 187, República, São Paulo", `busca: ${buscas}`);
     const patch = log.find(l => l.method === "PATCH" && l.path.endsWith("/brechos"));
     assert(patch && patch.search.includes("10000000-0000-0000-0000-000000000004") && JSON.parse(patch.body).latitude === -23.5455, `PATCH: ${patch && patch.body}`);
