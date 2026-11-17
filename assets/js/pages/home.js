@@ -16,12 +16,84 @@
       R.$("#destaqueSection").hidden = true;
       return;
     }
-    el.innerHTML = shops.slice(0, 8).map((b, i) => `
-      <a class="carousel-card" href="${R.links.brecho(b)}">
-        ${b.foto_capa || b.logo_url ? R.img(b.foto_capa || b.logo_url, "", { eager: i === 0 }) : R.render.shopPlaceholder(b)}
+    const list = shops.slice(0, 8);
+    el.innerHTML = list.map((b, i) => `
+      <a class="carousel-card" href="${R.links.brecho(b)}" data-index="${i}" aria-roledescription="slide">
+        ${b.foto_capa || b.logo_url ? R.img(b.foto_capa || b.logo_url, "", { eager: i < 3 || i === list.length - 1 }) : R.render.shopPlaceholder(b)}
         <span class="card-label">${R.esc(b.nome)}<span>${R.esc(R.fmt.place(b.bairro, b.cidade))}</span></span>
       </a>`).join("");
+    R.$("#destaquesDots").innerHTML = list.length > 1
+      ? list.map((b, i) => `<button type="button" data-dot="${i}" aria-label="Ver ${R.esc(b.nome)}"></button>`).join("")
+      : "";
+    stack.init(el, list);
   }
+
+  // Carrossel empilhado: o card ativo fica no centro e os vizinhos
+  // aparecem atrás dele, menores, dos dois lados (circular).
+  const stack = {
+    el: null, list: [], active: 0,
+    init(el, list) {
+      this.el = el; this.list = list; this.active = 0;
+      R.$("#destaqueSection").classList.toggle("single", list.length < 2);
+      this.update(false);
+    },
+    go(i) {
+      const n = this.list.length;
+      if (n < 2) return;
+      this.active = ((i % n) + n) % n;
+      this.update(true);
+    },
+    update(announce) {
+      const n = this.list.length;
+      R.$$("#destaques .carousel-card[data-index]").forEach((card, i) => {
+        let off = i - this.active;
+        if (off > n / 2) off -= n;
+        if (off < -n / 2) off += n;
+        card.style.setProperty("--off", off);
+        card.style.setProperty("--abs", Math.abs(off));
+        card.classList.toggle("is-active", off === 0);
+        card.classList.toggle("is-far", Math.abs(off) > 1);
+        card.classList.toggle("is-hidden", Math.abs(off) > 3);
+        card.tabIndex = off === 0 ? 0 : -1;
+        if (off === 0) card.removeAttribute("aria-hidden"); else card.setAttribute("aria-hidden", "true");
+      });
+      R.$$("#destaquesDots [data-dot]").forEach((d, i) => {
+        if (i === this.active) d.setAttribute("aria-current", "true"); else d.removeAttribute("aria-current");
+      });
+      if (announce) R.$("#destaquesStatus").textContent = `${this.list[this.active].nome}, ${this.active + 1} de ${n}`;
+    }
+  };
+
+  document.addEventListener("click", e => {
+    const arrow = e.target.closest("[data-stack]");
+    if (arrow) { stack.go(stack.active + Number(arrow.dataset.stack)); return; }
+    const dot = e.target.closest("[data-dot]");
+    if (dot) { stack.go(Number(dot.dataset.dot)); return; }
+    // Clicar num card lateral traz ele para o centro em vez de abrir.
+    const side = e.target.closest("#destaques .carousel-card[data-index]:not(.is-active)");
+    if (side) { e.preventDefault(); stack.go(Number(side.dataset.index)); }
+  });
+
+  // Setas do teclado e deslize (dedo ou mouse) trocam o card ativo.
+  (function () {
+    const el = R.$("#destaques");
+    el.addEventListener("keydown", e => {
+      if (e.key === "ArrowLeft") { e.preventDefault(); stack.go(stack.active - 1); }
+      if (e.key === "ArrowRight") { e.preventDefault(); stack.go(stack.active + 1); }
+    });
+    let x0 = null, y0 = 0, swiped = false;
+    el.addEventListener("pointerdown", e => { x0 = e.clientX; y0 = e.clientY; swiped = false; });
+    el.addEventListener("pointerup", e => {
+      if (x0 === null) return;
+      const dx = e.clientX - x0, dy = e.clientY - y0;
+      x0 = null;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) { swiped = true; stack.go(stack.active + (dx < 0 ? 1 : -1)); }
+    });
+    el.addEventListener("pointercancel", () => { x0 = null; });
+    // Um deslize não deve abrir o brechó.
+    el.addEventListener("click", e => { if (swiped) { e.preventDefault(); e.stopPropagation(); swiped = false; } }, true);
+    el.addEventListener("dragstart", e => e.preventDefault());
+  })();
 
   function renderHoods(shops) {
     const counts = {};

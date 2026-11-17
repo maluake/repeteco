@@ -20,7 +20,7 @@
   <meta name="theme-color" content="#340C3D">
   <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="assets/css/base.css?v=77e1d7b36e">
-  <link rel="stylesheet" href="assets/css/pages.css?v=5739b001cc">
+  <link rel="stylesheet" href="assets/css/pages.css?v=7db4c9393a">
   <script src="assets/js/a11y.js?v=a8f667936f"></script>
   <script defer src="assets/vendor/supabase-2.117.2.js?v=16aeff365b"></script>
   <script defer src="assets/js/config.js?v=ceb13339af"></script>
@@ -29,7 +29,7 @@
   <script defer src="assets/js/layout.js?v=5ec386271c"></script>
   <script defer src="assets/js/interactions.js?v=966c819aa5"></script>
   <script defer src="assets/js/render.js?v=4867c2d2a7"></script>
-  <script defer src="assets/js/pages/home.js?v=7928c71c86"></script>
+  <script defer src="assets/js/pages/home.js?v=59f5887ea9"></script>
 </head>
 <body data-page="home">
   <header id="site-header"></header>
@@ -50,12 +50,14 @@
     <section class="wrap carousel-section" aria-labelledby="destaqueTitle" id="destaqueSection">
       <h2 class="carousel-label" id="destaqueTitle">Brechós em destaque</h2>
       <div class="carousel-wrap">
-        <button class="carousel-btn prev" type="button" data-scroll="-1" aria-controls="destaques" aria-label="Brechós anteriores">‹</button>
-        <div class="carousel" id="destaques" tabindex="0" aria-label="Brechós em destaque (role para ver mais)">
-          <div class="carousel-card skeleton" aria-hidden="true"></div>
+        <button class="carousel-btn prev" type="button" data-stack="-1" aria-controls="destaques" aria-label="Brechó anterior">‹</button>
+        <div class="carousel carousel-stack" id="destaques" tabindex="0" role="region" aria-roledescription="carrossel" aria-label="Brechós em destaque (use as setas para navegar)">
+          <div class="carousel-card skeleton is-active" aria-hidden="true"></div>
         </div>
-        <button class="carousel-btn next" type="button" data-scroll="1" aria-controls="destaques" aria-label="Próximos brechós">›</button>
+        <button class="carousel-btn next" type="button" data-stack="1" aria-controls="destaques" aria-label="Próximo brechó">›</button>
       </div>
+      <div class="carousel-dots" id="destaquesDots" role="group" aria-label="Escolher brechó em destaque"></div>
+      <p class="visually-hidden" aria-live="polite" id="destaquesStatus"></p>
     </section>
 
     <section class="manifesto" aria-labelledby="manifestoTitle">
