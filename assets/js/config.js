@@ -7,5 +7,12 @@ window.REPETECO_CONFIG = Object.assign({
   siteName: "Repeteco",
   // Centro padrão do mapa (Praça da Sé) quando não há brechós com coordenadas.
   mapCenter: [-23.55052, -46.63331],
-  mapZoom: 12
+  mapZoom: 12,
+  // Métricas de visitas (opcional, desligado). Plausible ou Umami não usam
+  // cookies nem guardam dados pessoais, o que combina com a LGPD.
+  // Para ligar, preencha UM dos exemplos e libere o domínio do script em
+  // script-src e connect-src da CSP (vercel.json):
+  //   analytics: { provider: "plausible", src: "https://plausible.io/js/script.js", domain: "seu-dominio.com.br" }
+  //   analytics: { provider: "umami", src: "https://cloud.umami.is/script.js", websiteId: "<id do site no Umami>" }
+  analytics: null
 }, window.REPETECO_CONFIG || {});

@@ -36,3 +36,17 @@ delete from public.contatos where email like 'robo%@x.com';
 
 -- a regra também vale para parcerias de eventos
 select t_expect_rows($q$select 1 from pg_trigger where tgname = 'evento_parcerias_limitar_envios'$q$, 1, 'v11: trigger em evento_parcerias');
+
+-- v11 parte 2: horários
+set role authenticated;
+select set_config('request.jwt.claim.sub', '00000000-0000-0000-0000-00000000000b', false);
+select t_expect_affected($q$update public.brechos set horarios = '[null, {"abre":"10:00","fecha":"19:00"}, {"abre":"10:00","fecha":"19:00"}, null, null, {"abre":"18:00","fecha":"02:00"}, {"abre":"09:30","fecha":"14:00"}]' where id = '10000000-0000-0000-0000-000000000001'$q$, 1, 'v11: dono salva horários por dia');
+select t_expect_error($q$update public.brechos set horarios = '[{"abre":"25:00","fecha":"19:00"}, null, null, null, null, null, null]' where id = '10000000-0000-0000-0000-000000000001'$q$, 'v11: hora inválida é recusada');
+select t_expect_error($q$update public.brechos set horarios = '[null, null]' where id = '10000000-0000-0000-0000-000000000001'$q$, 'v11: lista precisa ter 7 dias');
+select t_expect_error($q$update public.brechos set horarios = '["10h", null, null, null, null, null, null]' where id = '10000000-0000-0000-0000-000000000001'$q$, 'v11: dia precisa ser objeto ou null');
+reset role;
+set role anon;
+select set_config('request.jwt.claim.sub', '', false);
+select t_expect_rows($q$select 1 from public.brechos_publicos where id = '10000000-0000-0000-0000-000000000001' and horarios->1->>'abre' = '10:00'$q$, 1, 'v11: view pública mostra os horários');
+reset role;
+update public.brechos set horarios = null where id = '10000000-0000-0000-0000-000000000001';

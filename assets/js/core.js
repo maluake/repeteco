@@ -12,6 +12,21 @@
   R.root = scriptSrc ? new URL("../../", scriptSrc).href : new URL("./", location.href).href;
   R.url = (path = "") => new URL(path, R.root).href;
 
+  /* ---------- métricas (opcional; ver analytics em config.js) ---------- */
+  (function analytics(a) {
+    if (!a || !a.src || !/^https:\/\//.test(a.src)) return;
+    // Painel e páginas pessoais ficam fora das métricas.
+    if (/\/dashboard\/|\/(perfil|salvos|entrar|nova-senha)\.html/.test(location.pathname)) return;
+    if (navigator.doNotTrack === "1" || window.globalPrivacyControl) return;
+    const s = document.createElement("script");
+    s.defer = true;
+    s.src = a.src;
+    if (a.provider === "plausible" && a.domain) s.dataset.domain = a.domain;
+    else if (a.provider === "umami" && a.websiteId) s.dataset.websiteId = a.websiteId;
+    else return;
+    document.head.appendChild(s);
+  })(cfg.analytics);
+
   /* ---------- Supabase ---------- */
   if (window.supabase && !R.sb) {
     R.sb = window.supabase.createClient(cfg.supabaseUrl, cfg.supabaseKey, {

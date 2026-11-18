@@ -519,6 +519,20 @@ html.a11y-contrast .act-like[aria-pressed="true"] { color: #000; border-color: #
 .facts > div:last-child { border-bottom: 0; }
 .facts dt { font-size: .82rem; font-weight: 700; color: var(--muted); }
 .facts dd { margin: 0; overflow-wrap: anywhere; }
+
+/* Horário por dia (v11) */
+.open-now { display: inline-flex; align-items: center; gap: .4rem; margin: 0 0 .4rem; font-weight: 700; }
+.open-now::before { content: ""; width: .55rem; height: .55rem; border-radius: 50%; background: currentColor; }
+.open-now.is-open { color: var(--success); }
+.open-now.is-closed { color: var(--danger-ink); }
+.hours-list { list-style: none; margin: 0 0 .3rem; padding: 0; display: grid; gap: .15rem; }
+.hours-list li { display: flex; justify-content: space-between; gap: 1rem; }
+.hours-editor { border: 0; padding: 0; margin: 0; }
+.hours-row { display: grid; grid-template-columns: 8.5rem 10rem auto 10rem; justify-content: start; align-items: center; gap: .6rem; padding-block: .3rem; }
+.hours-row .input { min-width: 0; }
+.hours-row .input:disabled { opacity: .45; }
+.hours-editor [data-copiar-horario] { margin-top: .5rem; }
+@media (max-width: 30rem) { .hours-row { grid-template-columns: 1fr 1fr; } .hours-row .check { grid-column: 1 / -1; } .hours-row > span { display: none; } }
 .contact-actions { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
 .shop-map { height: 16rem; margin-top: 1rem; border-radius: var(--r); overflow: hidden; }
 @media (max-width: 52rem) { .shop-info { grid-template-columns: 1fr; } }

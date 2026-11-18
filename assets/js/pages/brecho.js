@@ -10,6 +10,18 @@
     root.innerHTML = `<div class="wrap">${R.render.state("empty", "Brechó não encontrado.", "O endereço pode ter mudado ou o cadastro ainda está em análise.", `<a class="btn" href="${R.url("brechos.html")}">Ver todos os brechós</a>`)}</div>`;
   }
 
+  // Horário: tabela por dia + "Aberto agora" (v11) e/ou o texto livre antigo.
+  function horariosHtml(b) {
+    const H = R.horarios?.normalize(b.horarios);
+    if (!H) return b.horario ? `<div><dt>Horário</dt><dd>${R.esc(b.horario)}</dd></div>` : "";
+    const st = R.horarios.status(H);
+    return `<div><dt>Horário</dt><dd>
+      ${st ? `<p class="open-now ${st.aberto ? "is-open" : "is-closed"}">${R.esc(st.texto)}</p>` : ""}
+      <ul class="hours-list">${R.horarios.linhas(H).map(l => `<li><span>${R.esc(l.dias)}</span> <span>${R.esc(l.horario)}</span></li>`).join("")}</ul>
+      ${b.horario ? `<p class="small muted">${R.esc(b.horario)}</p>` : ""}
+    </dd></div>`;
+  }
+
   async function run() {
     if (!key) return notFound();
     const { data: b, error } = await R.sb.from("brechos_publicos").select("*").eq(isUuid ? "id" : "slug", key).maybeSingle();
@@ -66,7 +78,7 @@
             ${online ? `<div><dt>Atendimento</dt><dd>Só online${b.cidade ? `, a partir de ${R.esc(b.cidade)}` : ""}</dd></div>` : `
             <div><dt>Endereço</dt><dd>${R.esc(address || "Não informado")}</dd></div>
             <div><dt>Bairro</dt><dd>${R.esc(b.bairro || "—")}</dd></div>`}
-            ${b.horario ? `<div><dt>Horário</dt><dd>${R.esc(b.horario)}</dd></div>` : ""}
+            ${horariosHtml(b)}
             ${b.instagram ? `<div><dt>Instagram</dt><dd>@${R.esc(String(b.instagram).replace(/^@/, ""))}</dd></div>` : ""}
           </dl>
           <div class="contact-actions">

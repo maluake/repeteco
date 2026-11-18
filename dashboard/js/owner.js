@@ -34,7 +34,7 @@
       const checks = [
         ["Foto de capa", !!shop.foto_capa], ["Logo", !!shop.logo_url], ["Apresentação", (shop.descricao || "").length >= 40],
         ["Endereço no mapa", R.map.hasCoords(shop)], ["WhatsApp ou Instagram", !!(shop.whatsapp || shop.instagram)],
-        ["Horário de funcionamento", !!shop.horario], ["Primeira peça publicada", Number(s.publicacoes) > 0]
+        ["Horário de funcionamento", !!shop.horario || !!R.horarios?.normalize(shop.horarios)], ["Primeira peça publicada", Number(s.publicacoes) > 0]
       ];
       const done = checks.filter(c => c[1]).length;
       const days = (s.visitas_por_dia || []).map(d => ({ label: D.dayLabel(d.dia), value: Number(d.total) || 0 }));
@@ -127,6 +127,8 @@
         b = await loadShop();
       }
       const cats = Array.isArray(b.categorias) ? b.categorias : [];
+      // Horários por dia só aparecem depois da v11 (coluna brechos.horarios).
+      const temHorarios = "horarios" in b && !!R.horarios;
       const f = (id, label, value, attrs = "", hint = "") => `<div class="field"><label for="${id}">${label}</label><input class="input" id="${id}" value="${R.esc(value || "")}" ${attrs}${hint ? ` aria-describedby="${id}-dica"` : ""}>${hint ? `<p class="hint" id="${id}-dica">${hint}</p>` : ""}</div>`;
       el.innerHTML = `
         ${D.head(adminId ? `Editar: ${R.esc(b.nome)}` : "Perfil do brechó", adminId ? "Edição pela administração. As mudanças aparecem na página pública, na busca e no mapa." : "Estas informações aparecem na página pública, na busca e no mapa.", `${adminId ? '<a class="btn btn-ghost" href="#brechos">Voltar à lista</a>' : ""}${b.status === "approved" ? `<a class="btn btn-outline" href="${R.url(`brecho.html?b=${encodeURIComponent(b.slug || b.id)}`)}">Ver página pública</a>` : ""}`)}
@@ -152,8 +154,9 @@
               ${f("sWhats", "WhatsApp com DDD", b.whatsapp, 'type="tel" inputmode="tel"')}
               ${f("sInsta", "Instagram", b.instagram ? "@" + String(b.instagram).replace(/^@/, "") : "", 'placeholder="@seubrecho"')}
               ${f("sSite", "Site", b.site, 'type="url" placeholder="https://"')}
-              ${f("sHorario", "Horário de funcionamento", b.horario, 'maxlength="120" placeholder="Ter a sáb, 11h às 19h"')}
+              ${temHorarios ? f("sHorario", "Observações sobre o horário", b.horario, 'maxlength="120" placeholder="Fechado em feriados; só com agendamento…"') : f("sHorario", "Horário de funcionamento", b.horario, 'maxlength="120" placeholder="Ter a sáb, 11h às 19h"')}
             </div>
+            ${temHorarios ? `<div id="sHoras" style="margin-top:1rem">${R.horarios.editorHtml(b.horarios)}</div>` : ""}
           </section>
           <section class="panel-card" aria-labelledby="sLocal"><h2 id="sLocal" style="margin-bottom:1rem">Atendimento e localização</h2>
             <fieldset style="border:0;padding:0;margin:0 0 1rem"><legend class="label">Como o brechó atende</legend>
@@ -189,6 +192,7 @@
         </aside></div>`;
 
       const $ = s => el.querySelector(s);
+      if (temHorarios) R.horarios.bindEditor($("#sHoras"));
       const modo = () => el.querySelector('input[name="sModo"]:checked')?.value || "fisica";
       let map = null;
       const syncModo = () => {
@@ -267,6 +271,8 @@
           [$("#sWhats"), wa && wa.length < 10 ? "Informe o WhatsApp com DDD." : null],
           [$("#sSite"), site && !R.safeUrl(site.includes("://") ? site : "https://" + site) ? "Informe um endereço de site válido." : null]
         ])) return;
+        const horas = temHorarios ? R.horarios.readEditor($("#sHoras")) : null;
+        if (horas?.erro) { R.fieldError(horas.campo, horas.erro); horas.campo.focus(); return; }
         const btn = $("#sSave"), st = $("#sStatus");
         btn.disabled = true;
         R.formStatus(st, "Salvando…");
@@ -278,6 +284,7 @@
             whatsapp: wa || null, instagram: $("#sInsta").value.trim().replace(/^@/, "") || null,
             site: site ? (site.includes("://") ? site : "https://" + site) : null,
             horario: $("#sHorario").value.trim() || null,
+            ...(temHorarios ? { horarios: horas.valor } : {}),
             modalidade: m, loja_online_url: m === "fisica" ? null : (loja || null),
             ...(cepField.value().length === 8 || b.cep ? { cep: m === "online" || cepField.value().length !== 8 ? null : cepField.value() } : {}),
             endereco: $("#sEndereco").value.trim() || null, bairro: $("#sBairro").value.trim() || null, cidade: $("#sCidade").value.trim() || null

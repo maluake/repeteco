@@ -897,6 +897,94 @@ async function settle(page) {
     }
   });
 
+  await test("horários: banco sem a v11 — painel não mostra a tabela e não envia a coluna nova", async () => {
+    const { page, log, context } = await ctx({ email: "dona@x.com" });
+    await page.goto(BASE + "dashboard/index.html#perfil");
+    await settle(page);
+    assert(await page.locator("#sHoras").count() === 0, "editor de horários não deveria aparecer sem a coluna");
+    assert(/Horário de funcionamento/.test(await page.textContent('label[for="sHorario"]')), "campo de texto antigo continua");
+    await page.click("#sSave");
+    await page.waitForTimeout(400);
+    const patch = log.find(l => l.method === "PATCH" && l.path.endsWith("/brechos"));
+    assert(patch && !("horarios" in JSON.parse(patch.body)), `não deveria enviar horarios: ${patch && patch.body}`);
+    await context.close();
+  });
+
+  await test("horários: dono marca os dias no painel e o PATCH envia a lista de 7 dias", async () => {
+    const shop = fixtures.tables.brechos[0];
+    shop.horarios = null;
+    try {
+      const { page, log, context } = await ctx({ email: "dona@x.com" });
+      await page.goto(BASE + "dashboard/index.html#perfil");
+      await settle(page);
+      assert(/Observações/.test(await page.textContent('label[for="sHorario"]')), "texto livre vira observação");
+      assert(await page.isDisabled("#hAbre1"), "dia desmarcado fica desabilitado");
+      for (const d of [1, 2, 3, 4, 5]) await page.check(`.hours-row[data-dia="${d}"] [data-aberto]`);
+      await page.fill("#hAbre1", "10:00");
+      await page.fill("#hFecha1", "18:30");
+      await page.click("[data-copiar-horario]");
+      await page.check('.hours-row[data-dia="6"] [data-aberto]');
+      await page.fill("#hAbre6", "09:00");
+      await page.fill("#hFecha6", "14:00");
+      await page.click("#sSave");
+      await page.waitForTimeout(400);
+      const patch = log.find(l => l.method === "PATCH" && l.path.endsWith("/brechos"));
+      const h = patch && JSON.parse(patch.body).horarios;
+      const seg = { abre: "10:00", fecha: "18:30" };
+      assert(JSON.stringify(h) === JSON.stringify([null, seg, seg, seg, seg, seg, { abre: "09:00", fecha: "14:00" }]), `horarios: ${JSON.stringify(h)}`);
+      await context.close();
+    } finally {
+      delete shop.horarios;
+    }
+  });
+
+  await test("horários: página do brechó mostra 'Aberto agora' no fuso de São Paulo", async () => {
+    const pub = fixtures.tables.brechos_publicos[0];
+    pub.horarios = [null, { abre: "10:00", fecha: "19:00" }, { abre: "10:00", fecha: "19:00" }, { abre: "10:00", fecha: "19:00" }, { abre: "10:00", fecha: "19:00" }, { abre: "18:00", fecha: "02:00" }, { abre: "09:30", fecha: "14:00" }];
+    try {
+      const { page, context } = await ctx();
+      // Quarta-feira, 15h em São Paulo (18h UTC), com o aparelho em outro fuso.
+      await page.clock.setFixedTime(new Date("2030-05-15T18:00:00Z"));
+      await page.goto(BASE + `brecho.html?b=${pub.slug}`);
+      await settle(page);
+      assert(/Aberto agora · fecha às 19h/.test(await page.textContent(".open-now")), await page.textContent(".open-now"));
+      const linhas = await page.$$eval(".hours-list li", els => els.map(e => e.textContent.replace(/\s+/g, " ").trim()));
+      assert(JSON.stringify(linhas) === JSON.stringify(["Seg a qui 10h às 19h", "Sex 18h às 2h", "Sáb 9h30 às 14h", "Dom fechado"]), JSON.stringify(linhas));
+      // Casos de borda calculados direto pela função.
+      const casos = await page.evaluate(h => [
+        "2030-05-18T04:30:00Z", // sábado 1h30 SP: ainda no horário de sexta (vira a noite)
+        "2030-05-18T05:30:00Z", // sábado 2h30 SP: fechado, abre hoje 9h30
+        "2030-05-19T15:00:00Z", // domingo 12h SP: fechado, abre amanhã
+        "2030-05-15T23:00:00Z"  // quarta 20h SP: fechado, abre amanhã
+      ].map(t => window.R.horarios.status(h, new Date(t)).texto), pub.horarios);
+      assert(JSON.stringify(casos) === JSON.stringify(["Aberto agora · fecha às 2h", "Fechado agora · abre hoje às 9h30", "Fechado agora · abre amanhã às 10h", "Fechado agora · abre amanhã às 10h"]), JSON.stringify(casos));
+      await context.close();
+    } finally {
+      delete pub.horarios;
+    }
+  });
+
+  await test("métricas: desligadas por padrão; com config, carregam no site público e nunca no painel", async () => {
+    const off = await ctx();
+    await off.page.goto(BASE + "index.html");
+    await settle(off.page);
+    assert(await off.page.locator("script[data-domain], script[data-website-id]").count() === 0, "métricas não deveriam carregar sem configuração");
+    await off.context.close();
+
+    const on = await ctx({ email: "dona@x.com" });
+    const pedidos = [];
+    await on.context.route(/plausible\.example/, route => { pedidos.push(route.request().url()); route.fulfill({ contentType: "text/javascript", body: "" }); });
+    await on.context.addInitScript(() => { window.REPETECO_CONFIG = { analytics: { provider: "plausible", src: "https://plausible.example/js/script.js", domain: "repeteco.test" } }; });
+    await on.page.goto(BASE + "index.html");
+    await settle(on.page);
+    assert(await on.page.getAttribute("script[data-domain]", "data-domain") === "repeteco.test", "script do Plausible com data-domain");
+    await on.page.goto(BASE + "dashboard/index.html");
+    await settle(on.page);
+    assert(await on.page.locator("script[data-domain]").count() === 0, "painel não deveria ter métricas");
+    assert(pedidos.length === 1, `script carregado ${pedidos.length}x`);
+    await on.context.close();
+  });
+
   /* ---------- resumo ---------- */
   await browser.close();
   const failed = results.filter(r => !r.ok);

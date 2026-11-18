@@ -42,7 +42,7 @@ tests/e2e/            testes de navegador (Playwright + axe-core)
    A v7 corrige bancos antigos em que curtir/salvar e a troca de função falhavam (colunas sem valor padrão, regras antigas em `profiles.role`, permissões), cria a função `admin_definir_funcao`, a coluna `brechos.cep` e o relatório de armazenamento do painel. Nenhuma linha de dados é apagada; as mensagens (NOTICE) dizem o que foi ajustado.
    Depois rode `supabase/v8/1_colunas_legadas.sql`: ela sincroniza colunas antigas de pessoa (como `salvos.usuario_id`) com `user_id`, o que resolve o erro `null value in column "usuario_id"` ao curtir ou salvar.
    Em seguida `supabase/v9/1_curadoria.sql` e `supabase/v10/1_regra_de_funcao.sql` (refaz a regra antiga `profiles_role_check`, que não aceitava "dono" e impedia trocar a função ou aprovar brechós) (origem do perfil: cadastro, curadoria ou demonstração; o admin edita qualquer brechó).
-   Por último `supabase/v11/1_antispam.sql`: limita o formulário de contato e o de parcerias a 3 envios do mesmo e-mail a cada 10 minutos e 30 envios por minuto no total (administração sem limite). Só acrescenta triggers e índices.
+   Por último as duas partes de `supabase/v11/`: `1_antispam.sql` limita o formulário de contato e o de parcerias a 3 envios do mesmo e-mail a cada 10 minutos e 30 envios por minuto no total (administração sem limite); `2_horarios.sql` cria `brechos.horarios` (horário por dia da semana, usado no "Aberto agora") e acrescenta essa coluna no fim da view `brechos_publicos`. Só acrescentam. Enquanto a v11 não for aplicada, o site continua funcionando como antes (o painel mostra o campo de horário em texto, sem a tabela por dia).
    **Carga inicial (opcional, para apresentar o projeto):** `supabase/carga/1_brechos_reais.sql` cadastra 13 brechós reais de São Paulo com endereço conferido em guias e sites oficiais (como perfis da curadoria, sem dono); `supabase/carga/2_acervo_demonstracao.sql` cria a loja "Acervo Repeteco" com 46 peças fotografadas (fotos do Unsplash, que não ocupam o Storage). Depois, no painel → **Brechós** → **Posicionar no mapa**, o site localiza todos pelo endereço; ajuste qualquer um em **Editar**. Para tirar a demonstração: `supabase/carga/3_remover_demonstracao.sql`.
    **Se algo ainda falhar**, rode `supabase/diagnostico.sql` (só leitura) e envie o resultado: ele mostra a estrutura de curtidas/salvos, as regras de `profiles` e o espaço usado, sem dados pessoais.
 2. Em **Authentication → URL Configuration**:
@@ -71,6 +71,18 @@ A pasta `supabase/migrations/` tem as mesmas versões acima, já em ordem, no fo
   Marque só as versões que você realmente aplicou. As posteriores (ex.: `v11/`) ficam de fora do `repair` e são aplicadas pelo `db push`.
 - **Ambiente local:** `supabase start` sobe Postgres, Auth e Storage em Docker com todas as migrações.
 - Não use `supabase test db`: os testes de `supabase/tests/` são SQL puro, rodados por `npm run test:db`.
+
+## Funções na Vercel (`api/`)
+
+Não precisam de configuração: a Vercel publica automaticamente cada arquivo de `api/` (os que começam com `_` são só utilitários). Elas leem a URL e a chave publishable de `assets/js/config.js`; para usar outras, defina `SUPABASE_URL` e `SUPABASE_PUBLISHABLE_KEY` nas variáveis de ambiente do projeto.
+
+- `api/preview.js` — prévia de link no WhatsApp, Instagram/Facebook, X, LinkedIn, Telegram etc. O `vercel.json` manda para ela **só** os robôs dessas redes (pelo User-Agent) quando acessam `brecho.html`, `peca.html`, `artigo.html` ou `evento.html`; pessoas recebem as páginas de sempre. Para conferir depois do deploy: cole um link de brechó no [depurador do Facebook](https://developers.facebook.com/tools/debug/) ou envie para você mesma no WhatsApp.
+- `api/geocode.js` — endereço → coordenadas pelo OpenStreetMap, com cache de 30 dias na CDN e 1 consulta por segundo, como pede a política do Nominatim. Se a função falhar, o site consulta o Nominatim direto, como antes.
+- `api/csp-report.js` — recebe os avisos da Content-Security-Policy, que está em modo **Report-Only** (não bloqueia nada). Veja em Vercel → Logs filtrando por `csp-violation`. Depois de alguns dias sem avisos de uso real (VLibras, mapa, uploads, login), troque no `vercel.json` o nome do cabeçalho `Content-Security-Policy-Report-Only` por `Content-Security-Policy`. Se algum domínio legítimo aparecer nos avisos, acrescente-o à diretiva indicada antes da troca.
+
+## Métricas de visitas (opcional)
+
+Desligadas por padrão. Para ligar Plausible ou Umami (sem cookies, compatíveis com a LGPD), preencha `analytics` em `assets/js/config.js` (há exemplos no arquivo) e acrescente o domínio do script em `script-src` e `connect-src` da CSP no `vercel.json`. O painel e as páginas pessoais (perfil, salvos, login) nunca são medidos, e quem ativa "Do Not Track"/GPC no navegador também não.
 
 ## Rodar localmente
 
