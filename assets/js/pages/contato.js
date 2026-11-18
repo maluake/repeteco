@@ -21,6 +21,8 @@
       [email, !email.value || !email.validity.valid ? "Informe um e-mail válido para a resposta." : null],
       [msg, msg.value.trim().length < 10 ? "Escreva a mensagem (mínimo de 10 caracteres)." : null]
     ])) return;
+    // Campo-armadilha: só robôs o preenchem. Finge sucesso sem gravar.
+    if (R.$("#ctSite").value) { msg.value = ""; return R.formStatus(st, "Mensagem enviada. Respondemos pelo e-mail informado em até 5 dias úteis."); }
     btn.disabled = true;
     btn.textContent = "Enviando…";
     const { error } = await R.sb.from("contatos").insert({

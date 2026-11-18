@@ -20,13 +20,14 @@ for cenario in v4 legado-uuid legado-manual; do
   [ "$cenario" = "legado-manual" ] && run_file tests/06_legado_manual.sql
   run_as_editor 01_base_v4.sql
   for round in 1 2; do
-    for f in v5/*.sql v6/*.sql v7/*.sql v8/*.sql v9/*.sql v10/*.sql; do run_as_editor "$f"; done
+    for f in v5/*.sql v6/*.sql v7/*.sql v8/*.sql v9/*.sql v10/*.sql v11/*.sql; do run_as_editor "$f"; done
   done
   run_file tests/10_rls_test.sql
   run_file tests/20_v6_test.sql
   run_file tests/30_v7_test.sql
   run_file tests/40_v8_test.sql
   run_file tests/50_v9_test.sql
+  run_file tests/70_v11_test.sql
   # carga: roda duas vezes (não pode duplicar) e depois remove a demonstração
   for round in 1 2; do run_as_editor carga/1_brechos_reais.sql; run_as_editor carga/2_acervo_demonstracao.sql; done
   run_file tests/60_carga_test.sql
@@ -42,5 +43,5 @@ echo; echo "### Cenário: supabase-cli (migrations/)"
 psql -q -d postgres -c "drop database if exists $DB" -c "create database $DB"
 run_file tests/00_supabase_stub.sql
 for f in migrations/*.sql; do run_as_editor "$f"; done
-for t in tests/[1-5]*_test.sql; do run_file "$t"; done  # 60 depende da carga
+for t in tests/[1-57]*_test.sql; do run_file "$t"; done  # 60 depende da carga
 echo "== migrations/ ok"

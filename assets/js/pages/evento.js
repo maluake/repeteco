@@ -29,6 +29,7 @@
           </div>
           <p class="small muted" id="parBrecho" hidden></p>
           <p class="small muted">Usamos esses dados só para conversar sobre este evento. Veja a <a class="link" href="${R.url("privacidade.html")}">política de privacidade</a>.</p>
+          <div class="hp-field" aria-hidden="true"><label for="parSite">Deixe este campo em branco</label><input id="parSite" name="site" type="text" tabindex="-1" autocomplete="off"></div>
           <p class="form-status" id="parStatus" tabindex="-1"></p>
           <div><button class="btn" type="submit" id="parBtn">enviar interesse</button></div>
         </form>
@@ -56,6 +57,8 @@
         [R.$("#parEmail"), !email || !R.$("#parEmail").validity.valid ? "Informe um e-mail válido." : null]
       ])) return;
       const btn = R.$("#parBtn"), st = R.$("#parStatus");
+      // Campo-armadilha: só robôs o preenchem. Finge sucesso sem gravar.
+      if (R.$("#parSite").value) { form.reset(); fill(R.auth); R.formStatus(st, "Recebemos seu interesse. A equipe vai responder pelo e-mail informado."); return; }
       btn.disabled = true;
       R.formStatus(st, "Enviando…");
       const s = R.auth;

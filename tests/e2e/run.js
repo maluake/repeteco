@@ -69,7 +69,9 @@ async function settle(page) {
 }
 
 (async () => {
-  browser = await chromium.launch({ executablePath: process.env.CHROMIUM_PATH || "/opt/pw-browsers/chromium" });
+  // CHROMIUM_PATH > Chromium do ambiente (se existir) > o do próprio Playwright (CI).
+  const exe = process.env.CHROMIUM_PATH || (fs.existsSync("/opt/pw-browsers/chromium") ? "/opt/pw-browsers/chromium" : undefined);
+  browser = await chromium.launch({ executablePath: exe });
 
   /* ---------- 1. links e navegação ---------- */
   console.log("\nNavegação e links");
@@ -416,6 +418,35 @@ async function settle(page) {
     assert(up && up.path.includes(`/avatars/${fixtures.USERS["user@x.com"].id}/`), `upload fora da pasta do usuário: ${up && up.path}`);
     const patch = log.find(l => l.method === "PATCH" && l.path.endsWith("/profiles"));
     assert(patch && JSON.parse(patch.body).avatar_url.includes("/avatars/"), "avatar_url não salvo");
+    await context.close();
+  });
+
+  await test("contato: campo-armadilha preenchido (robô) não grava nada", async () => {
+    const { page, log, context } = await ctx();
+    await page.goto(BASE + "contato.html");
+    await settle(page);
+    assert(await page.getAttribute("#ctSite", "tabindex") === "-1", "armadilha não pode receber foco pelo teclado");
+    await page.fill("#ctNome", "Robô");
+    await page.fill("#ctEmail", "robo@x.com");
+    await page.fill("#ctMensagem", "Compre seguidores baratos agora mesmo.");
+    await page.evaluate(() => { document.querySelector("#ctSite").value = "http://spam.example"; });
+    await page.click("#contactBtn");
+    await page.waitForSelector("#contactStatus:not(:empty)");
+    assert(!log.some(l => l.method === "POST" && l.path.endsWith("/contatos")), "não deveria gravar mensagem de robô");
+    await context.close();
+  });
+
+  await test("contato: limite de envios do banco aparece como mensagem no formulário", async () => {
+    const { page, context } = await ctx();
+    await context.route(/\/rest\/v1\/contatos/, route => route.fulfill({ status: 400, json: { code: "P0001", message: "Você já enviou várias mensagens agora há pouco. Aguarde alguns minutos e tente de novo." } }));
+    await page.goto(BASE + "contato.html");
+    await settle(page);
+    await page.fill("#ctNome", "Ana");
+    await page.fill("#ctEmail", "ana@x.com");
+    await page.fill("#ctMensagem", "Mais uma mensagem seguida.");
+    await page.click("#contactBtn");
+    await page.waitForSelector("#contactStatus:not(:empty)");
+    assert(/Aguarde alguns minutos/.test(await page.textContent("#contactStatus")), `status: ${await page.textContent("#contactStatus")}`);
     await context.close();
   });
 
@@ -837,6 +868,33 @@ async function settle(page) {
     await page.waitForFunction(() => /posicionado/.test(document.querySelector("#toastRegion")?.textContent || ""), null, { timeout: 8000 });
     assert(proxy.length === 1 && diretas.length === 0, `proxy: ${proxy.length}, direto: ${diretas.length}`);
     await context.close();
+  });
+
+  await test("XSS: textos maliciosos vindos do banco aparecem como texto e não executam", async () => {
+    const P = '"><img src=x onerror="window.__xss=1"><script>window.__xss=1</script>';
+    const T = fixtures.tables;
+    const backup = JSON.stringify({ b: T.brechos_publicos, f: T.feed_publicacoes, a: T.artigos, e: T.eventos, br: T.brechos });
+    const poison = r => Object.assign(r, { nome: (r.nome || "") + P, titulo: (r.titulo || "") + P, brecho_nome: (r.brecho_nome || "") + P, bairro: (r.bairro || "") + P, descricao: P, resumo: P, subtitulo: P, tamanho: r.tamanho ? r.tamanho + P : r.tamanho, alt_text: r.alt_text ? P : r.alt_text });
+    [T.brechos_publicos, T.feed_publicacoes, T.artigos, T.eventos, T.brechos].forEach(list => list.forEach(poison));
+    try {
+      for (const email of [null, "admin@x.com"]) {
+        const { page, context } = await ctx({ email });
+        const pages = email
+          ? ["dashboard/index.html#brechos", "dashboard/index.html#pecas", "dashboard/index.html#editorial", "dashboard/index.html#eventos", "dashboard/index.html#solicitacoes"]
+          : ["index.html", "feed.html", "busca.html?q=a", "brechos.html", `brecho.html?b=${T.brechos_publicos[0].slug}`, `peca.html?id=${T.feed_publicacoes[0].id}`, "editorial.html", `artigo.html?slug=${T.artigos[0].slug}`, "eventos.html", `evento.html?e=${T.eventos[0].slug}`, "salvos.html"];
+        for (const pg of pages) {
+          await page.goto(BASE + pg);
+          await settle(page);
+          await page.waitForTimeout(150);
+          assert(!(await page.evaluate(() => window.__xss)), `código injetado executou em ${pg}`);
+        }
+        await context.close();
+      }
+    } finally {
+      const o = JSON.parse(backup);
+      T.brechos_publicos.splice(0, Infinity, ...o.b); T.feed_publicacoes.splice(0, Infinity, ...o.f);
+      T.artigos.splice(0, Infinity, ...o.a); T.eventos.splice(0, Infinity, ...o.e); T.brechos.splice(0, Infinity, ...o.br);
+    }
   });
 
   /* ---------- resumo ---------- */
