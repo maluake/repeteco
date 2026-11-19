@@ -1,0 +1,15 @@
+# Configuração do Supabase CLI (opcional). Só é lida por quem usa o CLI
+# (`supabase start`, `supabase db push`); o site e o fluxo manual pelo
+# SQL Editor não dependem deste arquivo. Os demais valores usam o padrão do CLI.
+project_id = "repeteco"
+
+[auth]
+site_url = "http://127.0.0.1:8090"
+additional_redirect_urls = ["http://127.0.0.1:8090/entrar.html", "http://127.0.0.1:8090/nova-senha.html"]
+
+[auth.email]
+enable_confirmations = true
+
+[db.seed]
+# A carga de demonstração (supabase/carga/) é opcional e roda à mão.
+enabled = false

@@ -1,0 +1,62 @@
+# Verificações automáticas a cada push e pull request.
+# Não publica nada: o deploy continua sendo feito pela Vercel como hoje.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  site:
+    name: Lint, HTML e testes de navegador
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Lint (erros prováveis no JS)
+        run: npm run lint
+      - name: Versão (?v=hash) dos CSS/JS em dia
+        run: npm run test:html
+      - name: supabase/migrations em dia com os arquivos de versão
+        run: npm run test:migracoes
+      - name: Funções da Vercel (api/)
+        run: npm run test:api
+      - name: Navegador Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Testes de navegador (Supabase simulado + axe)
+        run: |
+          python3 -m http.server 8090 --bind 127.0.0.1 >/dev/null 2>&1 &
+          for i in $(seq 1 20); do curl -fs http://127.0.0.1:8090/ >/dev/null && break; sleep 0.5; done
+          npm run test:e2e
+
+  banco:
+    name: Migrações e regras de acesso (Postgres)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: 127.0.0.1
+      PGPORT: 5432
+      PGUSER: postgres
+    steps:
+      - uses: actions/checkout@v4
+      - run: ./supabase/tests/run.sh
