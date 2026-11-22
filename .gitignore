@@ -1,3 +1,9 @@
 node_modules
 .DS_Store
 test-results/
+
+# Variáveis de ambiente locais (nunca versionar)
+.env
+.env.*
+!.env.example
+.vercel/
