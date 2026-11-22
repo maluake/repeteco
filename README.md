@@ -91,4 +91,4 @@ O Repeteco é o **Trabalho de Conclusão de Curso (TCC)** do curso Técnico em I
 
 **A criação e o desenvolvimento do site foram feitos por mim, individualmente.**
 
-Para desenvolver o site, usei o **Claude (IA da Anthropic)** como ferramenta de programação. Isso aparece no histórico do Git, onde a maior parte dos commits tem o Claude como autor ou coautor. Eu conduzi o desenvolvimento: defini o que o site precisava fazer, revisei e testei as mudanças e decidi o que entrava no projeto.
+Para desenvolver o site, usei o **Claude (IA da Anthropic)** como ferramenta de programação. Isso aparece no histórico do Git, onde a maior parte dos commits tem o Claude como autor ou coautor.
