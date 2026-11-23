@@ -209,15 +209,52 @@ html.a11y-contrast .act-like[aria-pressed="true"] { color: #000; border-color: #
 /* ==========================================================
    HOME — fiel ao layout original
    ========================================================== */
-/* Banner com o nome do site: a imagem aparece inteira (proporção 1600×458),
-   só limitada em telas muito largas. */
-.home-hero { position: relative; aspect-ratio: 1600 / 458; max-height: 34rem; width: 100%; background: var(--purple); overflow: hidden; }
-.home-hero img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
-.home-search { padding: 1.75rem var(--gutter) 0; }
+/* Banner com o nome do site. A arte (1600×458) aparece sempre inteira:
+   a altura acompanha a largura, mas fica limitada a ~1/3 da altura da tela
+   para o banner, a busca e o carrossel caberem juntos na primeira visão.
+   Quando a altura limita, as laterais são preenchidas com a própria arte
+   desfocada. */
+.home-hero {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  height: min(calc(100vw / 3.4934), 33vh, 34rem);
+  height: min(calc(100vw / 3.4934), 33svh, 34rem);
+  background: var(--purple);
+  overflow: hidden;
+  isolation: isolate;
+}
+.home-hero::before {
+  content: "";
+  position: absolute;
+  inset: -2rem;
+  z-index: -1;
+  background: url("../img/banner-repeteco-800.webp") center / cover no-repeat;
+  filter: blur(42px) saturate(1.15);
+}
+.home-hero::after { content: ""; position: absolute; inset: 0; z-index: -1; background: rgba(52, 12, 61, .35); }
+.home-hero img { display: block; height: 100%; width: auto; max-width: 100%; object-fit: contain; }
+/* Quando a tela é mais larga que alta, a arte não ocupa a largura toda:
+   as bordas dela se fundem com o fundo desfocado. */
+@media (min-aspect-ratio: 23/20) {
+  .home-hero img {
+    -webkit-mask-image: linear-gradient(to right, transparent, #000 4%, #000 96%, transparent);
+    mask-image: linear-gradient(to right, transparent, #000 4%, #000 96%, transparent);
+  }
+}
+.home-search { padding: clamp(.9rem, 2.5vh, 1.75rem) var(--gutter) 0; }
 
-.carousel-section { padding-top: 1.75rem; }
+.carousel-section { padding-top: clamp(.9rem, 2.5vh, 1.75rem); }
 .carousel-label { font-family: var(--font-ui); font-size: .95rem; font-weight: 700; margin-bottom: .6rem; }
-.carousel-wrap { position: relative; }
+.carousel-wrap {
+  position: relative;
+  /* Altura do carrossel acompanha a altura da tela (cabe na primeira visão)
+     e a largura do card central mantém a proporção do card. */
+  --h: clamp(10rem, min(24vw, 30vh), 16rem);
+  --h: clamp(10rem, min(24vw, 30svh), 16rem);
+  --w: min(58%, 46rem, calc(var(--h) * 2.875));
+}
 .carousel {
   display: flex;
   gap: .9rem;
@@ -270,13 +307,13 @@ html.a11y-contrast .act-like[aria-pressed="true"] { color: #000; border-color: #
 
 /* Destaques empilhados: card ativo no centro, vizinhos atrás e menores */
 .carousel-stack {
-  --w: min(58%, 46rem);   /* largura do card central */
+  /* --w (largura do card central) e --h (altura) vêm de .carousel-wrap */
   --step: 18%;            /* deslocamento lateral por posição (da largura do card) */
   --shrink: .12;          /* redução de escala por posição */
   position: relative;
   display: block;
   overflow: hidden;
-  height: clamp(11rem, 24vw, 16rem);
+  height: var(--h);
   padding: 0;
   touch-action: pan-y;
   isolation: isolate;
@@ -308,8 +345,8 @@ html.a11y-contrast .act-like[aria-pressed="true"] { color: #000; border-color: #
 .carousel-stack .carousel-card.is-hidden { opacity: 0; visibility: hidden; }
 .carousel-stack .carousel-card img { -webkit-user-drag: none; pointer-events: none; }
 .carousel-stack:focus-visible { outline: 3px solid var(--plum); outline-offset: 4px; border-radius: var(--r); }
-.carousel-section .carousel-wrap:has(.carousel-stack) .carousel-btn.prev { left: max(.3rem, calc((100% - min(58%, 46rem)) / 2 - 1.375rem)); }
-.carousel-section .carousel-wrap:has(.carousel-stack) .carousel-btn.next { right: max(.3rem, calc((100% - min(58%, 46rem)) / 2 - 1.375rem)); }
+.carousel-section .carousel-wrap:has(.carousel-stack) .carousel-btn.prev { left: max(.3rem, calc((100% - var(--w)) / 2 - 1.375rem)); }
+.carousel-section .carousel-wrap:has(.carousel-stack) .carousel-btn.next { right: max(.3rem, calc((100% - var(--w)) / 2 - 1.375rem)); }
 .carousel-section.single .carousel-btn,
 .carousel-section.single .carousel-dots { display: none; }
 
@@ -337,7 +374,8 @@ html.a11y-contrast .act-like[aria-pressed="true"] { color: #000; border-color: #
 .carousel-dots button[aria-current="true"]::before { opacity: 1; transform: scale(1.3); }
 
 @media (max-width: 40rem) {
-  .carousel-stack { --w: 78%; --step: 17%; --shrink: .14; height: clamp(11rem, 52vw, 14rem); }
+  .carousel-section .carousel-wrap { --w: 78%; --h: clamp(11rem, 52vw, 14rem); }
+  .carousel-stack { --step: 17%; --shrink: .14; }
   .carousel-stack .carousel-card.is-far { opacity: 0; visibility: hidden; }
   .carousel-section .carousel-wrap:has(.carousel-stack) .carousel-btn.prev { left: .3rem; }
   .carousel-section .carousel-wrap:has(.carousel-stack) .carousel-btn.next { right: .3rem; }
