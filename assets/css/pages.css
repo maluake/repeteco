@@ -212,37 +212,19 @@ html.a11y-contrast .act-like[aria-pressed="true"] { color: #000; border-color: #
 /* Banner com o nome do site. A arte (1600×458) aparece sempre inteira:
    a altura acompanha a largura, mas fica limitada a ~1/3 da altura da tela
    para o banner, a busca e o carrossel caberem juntos na primeira visão.
-   Quando a altura limita, as laterais são preenchidas com a própria arte
-   desfocada. */
+   Em telas mais largas que altas entra a versão "larga" da arte
+   (scripts/estender-banner.py), que continua o desenho nas laterais; o
+   recorte (cover) só come dessas laterais, nunca do nome. */
 .home-hero {
   position: relative;
-  display: flex;
-  justify-content: center;
   width: 100%;
   height: min(calc(100vw / 3.4934), 33vh, 34rem);
   height: min(calc(100vw / 3.4934), 33svh, 34rem);
   background: var(--purple);
   overflow: hidden;
-  isolation: isolate;
 }
-.home-hero::before {
-  content: "";
-  position: absolute;
-  inset: -2rem;
-  z-index: -1;
-  background: url("../img/banner-repeteco-800.webp") center / cover no-repeat;
-  filter: blur(42px) saturate(1.15);
-}
-.home-hero::after { content: ""; position: absolute; inset: 0; z-index: -1; background: rgba(52, 12, 61, .35); }
-.home-hero img { display: block; height: 100%; width: auto; max-width: 100%; object-fit: contain; }
-/* Quando a tela é mais larga que alta, a arte não ocupa a largura toda:
-   as bordas dela se fundem com o fundo desfocado. */
-@media (min-aspect-ratio: 23/20) {
-  .home-hero img {
-    -webkit-mask-image: linear-gradient(to right, transparent, #000 4%, #000 96%, transparent);
-    mask-image: linear-gradient(to right, transparent, #000 4%, #000 96%, transparent);
-  }
-}
+.home-hero picture { display: contents; }
+.home-hero img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
 .home-search { padding: clamp(.9rem, 2.5vh, 1.75rem) var(--gutter) 0; }
 
 .carousel-section { padding-top: clamp(.9rem, 2.5vh, 1.75rem); }
